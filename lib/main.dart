@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/onitama_home.dart';
+import 'screens/menu_screen.dart';
 
 void main() => runApp(const OnitamaApp());
 
@@ -12,7 +12,7 @@ class OnitamaApp extends StatelessWidget {
       title: 'Onitama - Flutter',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.indigo),
-      home: const OnitamaHome(),
+      home: const MenuScreen(),
     );
   }
 }

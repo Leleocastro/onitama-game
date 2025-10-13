@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/card_model.dart';
 import '../models/point.dart';
 
@@ -32,7 +33,7 @@ class CardWidget extends StatelessWidget {
           color: card.color.withOpacity(0.12),
           border: Border.all(
             color: isSelected ? Colors.green : Colors.black12,
-            width: isSelected ? 3 : 1,
+            width: 1,
           ),
           borderRadius: BorderRadius.circular(8),
         ),

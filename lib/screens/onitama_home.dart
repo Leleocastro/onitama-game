@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+
 import '../logic/game_state.dart';
+import '../models/ai_difficulty.dart';
 import '../models/card_model.dart';
+import '../models/game_mode.dart';
 import '../models/player.dart';
 import '../widgets/board_widget.dart';
 import '../widgets/card_widget.dart';
 
 class OnitamaHome extends StatefulWidget {
-  const OnitamaHome({super.key});
+  final GameMode gameMode;
+  final AIDifficulty? aiDifficulty;
+
+  const OnitamaHome({super.key, required this.gameMode, this.aiDifficulty});
 
   @override
   OnitamaHomeState createState() => OnitamaHomeState();
@@ -18,7 +24,10 @@ class OnitamaHomeState extends State<OnitamaHome> {
   @override
   void initState() {
     super.initState();
-    _gameState = GameState();
+    _gameState = GameState(
+      gameMode: widget.gameMode,
+      aiDifficulty: widget.aiDifficulty,
+    );
   }
 
   void _onCellTap(int r, int c) {
@@ -62,12 +71,9 @@ class OnitamaHomeState extends State<OnitamaHome> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: hand
-              .map((c) => CardWidget(
-                    card: c,
-                    isSelected: _gameState.selectedCardForMove?.name == c.name,
-                    onTap: _onCardTap,
-                    invert: player == PlayerColor.blue,
-                  ))
+              .map(
+                (c) => CardWidget(card: c, isSelected: _gameState.selectedCardForMove?.name == c.name, onTap: _onCardTap, invert: player == PlayerColor.blue),
+              )
               .toList(),
         ),
       ],
@@ -92,20 +98,15 @@ class OnitamaHomeState extends State<OnitamaHome> {
       ),
       body: Column(
         children: [
-          Container(
-              color: Colors.grey.shade100,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: _buildHands(PlayerColor.red)),
-          Expanded(child: Center(child: BoardWidget(gameState: _gameState, onCellTap: _onCellTap))),
-          Container(
-              color: Colors.grey.shade100,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: _buildHands(PlayerColor.blue)),
-          const Text('Reserve'),
-          CardWidget(
-            card: _gameState.reserveCard,
-            selectable: false,
+          Container(color: Colors.grey.shade100, padding: const EdgeInsets.symmetric(vertical: 8), child: _buildHands(PlayerColor.red)),
+          Expanded(
+            child: Center(
+              child: BoardWidget(gameState: _gameState, onCellTap: _onCellTap),
+            ),
           ),
+          Container(color: Colors.grey.shade100, padding: const EdgeInsets.symmetric(vertical: 8), child: _buildHands(PlayerColor.blue)),
+          const Text('Reserve'),
+          CardWidget(card: _gameState.reserveCard, selectable: false, invert: true),
         ],
       ),
     );
