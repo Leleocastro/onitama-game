@@ -12,6 +12,7 @@ class OnitamaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Onitama - Flutter',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.indigo),
       home: OnitamaHome(),
     );
@@ -96,14 +97,22 @@ class _OnitamaHomeState extends State<OnitamaHome> {
 
   void _setupCards() {
     allCards = [
-      CardModel('Tiger', [Point(-2, 0), Point(-1, 0), Point(1, 0), Point(2, 0)], Colors.orange),
-      CardModel('Dragon', [Point(-1, -2), Point(-1, 2), Point(1, -1), Point(1, 1), Point(1, 0)], Colors.teal),
-      CardModel('Crab', [Point(0, -2), Point(0, 2), Point(-1, 0), Point(1, 0)], Colors.blueGrey),
-      CardModel('Monkey', [Point(-1, -1), Point(-1, 1), Point(1, -1), Point(1, 1), Point(1, 0)], Colors.brown),
-      CardModel('Boar', [Point(0, -1), Point(0, 1), Point(-1, 0), Point(1, 0)], Colors.redAccent),
+      CardModel('Tiger', [Point(-1, 0), Point(2, 0)], Colors.orange),
+      CardModel('Dragon', [Point(1, 2), Point(1, -2), Point(-1, 1), Point(-1, -1)], Colors.teal),
+      CardModel('Frog', [Point(0, 2), Point(1, 1), Point(-1, -1)], Colors.cyan),
+      CardModel('Rabbit', [Point(-1, 1), Point(1, -1), Point(0, -2)], Colors.pinkAccent),
+      CardModel('Crab', [Point(0, -2), Point(0, 2), Point(1, 0)], Colors.blueGrey),
+      CardModel('Elephant', [Point(0, -1), Point(0, 1), Point(1, -1), Point(1, 1)], Colors.purple),
+      CardModel('Goose', [Point(0, -1), Point(0, 1), Point(-1, -1), Point(1, 1)], Colors.yellow),
+      CardModel('Rooster', [Point(0, -1), Point(0, 1), Point(-1, 1), Point(1, -1)], Colors.deepOrangeAccent),
+      CardModel('Monkey', [Point(-1, -1), Point(-1, 1), Point(1, -1), Point(1, 1)], Colors.brown),
       CardModel('Mantis', [Point(-1, -1), Point(-1, 1), Point(1, 0)], Colors.green),
-      CardModel('Elephant', [Point(0, -1), Point(0, 1), Point(-1, -1), Point(-1, 1), Point(1, 0)], Colors.purple),
-      CardModel('Frog', [Point(0, -2), Point(1, -1), Point(-1, 1), Point(1, 0)], Colors.cyan),
+      CardModel('Horse', [Point(-1, 0), Point(1, 0), Point(0, 1)], Colors.deepPurpleAccent),
+      CardModel('Ox', [Point(-1, 0), Point(1, 0), Point(0, -1)], Colors.lightBlueAccent),
+      CardModel('Crane', [Point(1, 0), Point(-1, 1), Point(-1, -1)], Colors.lightGreen),
+      CardModel('Boar', [Point(0, -1), Point(0, 1), Point(1, 0)], Colors.redAccent),
+      CardModel('Eel', [Point(1, 1), Point(-1, 1), Point(0, -1)], Colors.indigo),
+      CardModel('Cobra', [Point(-1, -1), Point(1, -1), Point(0, 1)], Colors.amber),
     ];
 
     allCards.shuffle();
@@ -132,18 +141,11 @@ class _OnitamaHomeState extends State<OnitamaHome> {
 
   void _onCellTap(int r, int c) {
     setState(() {
-      if (selectedCardForMove == null) {
-        message = 'Selecione uma carta antes.';
-        return;
-      }
-
       final piece = board[r][c];
-      if (selectedCell == null) {
-        if (piece != null && piece.owner == currentPlayer) {
-          selectedCell = Point(r, c);
-          message = 'Peça selecionada em ($r,$c)';
-        }
-      } else {
+      if ((selectedCell == null || piece != null) && (piece != null && piece.owner == currentPlayer)) {
+        selectedCell = Point(r, c);
+        message = 'Peça selecionada em ($r,$c)';
+      } else if (selectedCardForMove != null) {
         final from = selectedCell!;
         final moves = _availableMovesForCell(from.r, from.c, selectedCardForMove!, currentPlayer);
         bool allowed = moves.any((p) => p.r == r && p.c == c);
@@ -303,6 +305,10 @@ class _OnitamaHomeState extends State<OnitamaHome> {
 
   Widget _buildCardWidget(CardModel c, {bool selectable = true}) {
     bool isSelectedCard = selectedCardForMove?.name == c.name;
+
+    bool shouldntInvert = redHand.contains(c);
+    final moves = shouldntInvert ? c.moves : _invertMoves(c.moves);
+
     return GestureDetector(
       onTap: selectable ? () => _onCardTap(c) : null,
       child: Container(
@@ -319,7 +325,7 @@ class _OnitamaHomeState extends State<OnitamaHome> {
           children: [
             Text(c.name, style: TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(height: 6),
-            _buildMovesMiniGrid(c.moves),
+            _buildMovesMiniGrid(moves),
           ],
         ),
       ),
@@ -353,17 +359,14 @@ class _OnitamaHomeState extends State<OnitamaHome> {
     return Wrap(spacing: 0, runSpacing: 0, children: cells);
   }
 
-  Widget _buildHands() {
+  List<Point> _invertMoves(List<Point> moves) {
+    return moves.map((m) => Point((m.r * -1), (m.c * -1))).toList();
+  }
+
+  Widget _buildHands(PlayerColor player) {
     return Column(
       children: [
-        Text('Jogador atual: ${_playerName(currentPlayer)}'),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: (currentPlayer == PlayerColor.Red ? redHand : blueHand).map((c) => _buildCardWidget(c)).toList(),
-        ),
-        SizedBox(height: 8),
-        Text('Reserva'),
-        _buildCardWidget(reserveCard, selectable: false),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: (player == PlayerColor.Red ? redHand : blueHand).map((c) => _buildCardWidget(c)).toList()),
       ],
     );
   }
@@ -372,7 +375,7 @@ class _OnitamaHomeState extends State<OnitamaHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Onitama - Flutter (pass & play)'),
+        title: Text(message),
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -387,20 +390,11 @@ class _OnitamaHomeState extends State<OnitamaHome> {
       ),
       body: Column(
         children: [
+          Container(color: Colors.grey.shade100, padding: EdgeInsets.symmetric(vertical: 8), child: _buildHands(PlayerColor.Red)),
           Expanded(child: Center(child: _buildBoard())),
-          Container(
-            color: Colors.grey.shade100,
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: Column(
-              children: [
-                _buildHands(),
-                SizedBox(height: 8),
-                Text(message),
-                SizedBox(height: 8),
-                Text('Ordem: selecione uma carta → selecione uma peça → mova'),
-              ],
-            ),
-          ),
+          Container(color: Colors.grey.shade100, padding: EdgeInsets.symmetric(vertical: 8), child: _buildHands(PlayerColor.Blue)),
+          Text('Reserva'),
+          _buildCardWidget(reserveCard, selectable: false),
         ],
       ),
     );
