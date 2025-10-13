@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [{
+            "name": "Flutter - meubilhete",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor",
+                "meubilhete",
+                "--dart-define=FLAVOR=meubilhete"
+            ]
+        },
+        {
+            "name": "Flutter - ingressosa",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor",
+                "ingressosa",
+                "--dart-define=FLAVOR=ingressosa"
+            ]
+        }
+    ]
+}
