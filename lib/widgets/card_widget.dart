@@ -30,7 +30,7 @@ class CardWidget extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: card.color.withOpacity(0.12),
+          color: card.color.withAlpha((255 * 0.12).round()),
           border: Border.all(
             color: isSelected ? Colors.green : Colors.black12,
             width: 1,

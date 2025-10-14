@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:onitama/models/firestore_game.dart';
+import 'package:onitama/services/firestore_service.dart';
 
 import '../logic/game_state.dart';
 import '../models/ai_difficulty.dart';
@@ -11,34 +15,89 @@ import '../widgets/card_widget.dart';
 class OnitamaHome extends StatefulWidget {
   final GameMode gameMode;
   final AIDifficulty? aiDifficulty;
+  final String? gameId;
+  final String? playerUid;
+  final bool? isHost;
 
-  const OnitamaHome({super.key, required this.gameMode, this.aiDifficulty});
+  const OnitamaHome({super.key, required this.gameMode, this.aiDifficulty, this.gameId, this.playerUid, this.isHost});
 
   @override
   OnitamaHomeState createState() => OnitamaHomeState();
 }
 
 class OnitamaHomeState extends State<OnitamaHome> {
-  late GameState _gameState;
+  GameState? _gameState;
+  final FirestoreService _firestoreService = FirestoreService();
+  Stream<FirestoreGame>? _gameStream;
+  StreamSubscription? _gameSubscription;
+  FirestoreGame? _firestoreGame;
 
   @override
   void initState() {
     super.initState();
-    _gameState = GameState(
-      gameMode: widget.gameMode,
-      aiDifficulty: widget.aiDifficulty,
-    );
+    if (widget.gameId != null) {
+      _gameStream = _firestoreService.streamGame(widget.gameId!);
+    }
+
+    if (widget.gameMode == GameMode.online) {
+      _gameSubscription = _gameStream?.listen((firestoreGame) {
+        _firestoreGame = firestoreGame;
+        final oldSelectedCell = _gameState?.selectedCell;
+        final oldSelectedCard = _gameState?.selectedCardForMove;
+
+        setState(() {
+          _gameState = GameState.fromFirestore(firestoreGame, widget.gameMode, widget.aiDifficulty);
+          _gameState?.selectedCell = oldSelectedCell;
+          _gameState?.selectedCardForMove = oldSelectedCard;
+        });
+      });
+    } else {
+      _gameState = GameState(gameMode: widget.gameMode, aiDifficulty: widget.aiDifficulty);
+    }
+  }
+
+  @override
+  void dispose() {
+    _gameSubscription?.cancel();
+    super.dispose();
   }
 
   void _onCellTap(int r, int c) {
+    if (widget.gameMode == GameMode.online) {
+      if ((_gameState!.currentPlayer == PlayerColor.red && widget.isHost!) || (_gameState!.currentPlayer == PlayerColor.blue && !widget.isHost!)) {
+        return;
+      }
+    }
+
+    bool moveMade = false;
     setState(() {
-      _gameState.onCellTap(r, c, _showEndDialog);
+      moveMade = _gameState!.onCellTap(r, c, _showEndDialog);
     });
+
+    if (moveMade && widget.gameMode == GameMode.online) {
+      if (_firestoreGame != null) {
+        final updatedGame = _firestoreGame!.copyWith(
+          board: _gameState!.board,
+          redHand: _gameState!.redHand,
+          blueHand: _gameState!.blueHand,
+          reserveCard: _gameState!.reserveCard,
+          currentPlayer: _gameState!.currentPlayer,
+          lastMove: _gameState!.lastMoveAsMap,
+        );
+        _firestoreService.updateGame(widget.gameId!, updatedGame);
+      }
+    }
   }
 
   void _onCardTap(CardModel card) {
+    if (widget.gameMode == GameMode.online) {
+      if ((_gameState!.currentPlayer == PlayerColor.red && widget.isHost!) || (_gameState!.currentPlayer == PlayerColor.blue && !widget.isHost!)) {
+        return;
+      }
+    }
+
     setState(() {
-      _gameState.onCardTap(card);
+      _gameState!.onCardTap(card);
     });
   }
 
@@ -55,7 +114,20 @@ class OnitamaHomeState extends State<OnitamaHome> {
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
-                _gameState.restart();
+                _gameState!.restart();
+                if (widget.gameMode == GameMode.online) {
+                  if (_firestoreGame != null) {
+                    final updatedGame = _firestoreGame!.copyWith(
+                      board: _gameState!.board,
+                      redHand: _gameState!.redHand,
+                      blueHand: _gameState!.blueHand,
+                      reserveCard: _gameState!.reserveCard,
+                      currentPlayer: _gameState!.currentPlayer,
+                      lastMove: _gameState!.lastMoveAsMap,
+                    );
+                    _firestoreService.updateGame(widget.gameId!, updatedGame);
+                  }
+                }
               });
             },
           ),
@@ -65,50 +137,85 @@ class OnitamaHomeState extends State<OnitamaHome> {
   }
 
   Widget _buildHands(PlayerColor player) {
-    final hand = player == PlayerColor.red ? _gameState.redHand : _gameState.blueHand;
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: hand
-              .map(
-                (c) => CardWidget(card: c, isSelected: _gameState.selectedCardForMove?.name == c.name, onTap: _onCardTap, invert: player == PlayerColor.blue),
-              )
-              .toList(),
-        ),
-      ],
+    final hand = player == PlayerColor.red ? _gameState!.redHand : _gameState!.blueHand;
+    final isPlayerTurn = _gameState!.currentPlayer == player;
+
+    return AbsorbPointer(
+      absorbing: !isPlayerTurn,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: hand
+                .map(
+                  (c) => CardWidget(
+                    card: c,
+                    isSelected: _gameState!.selectedCardForMove?.name == c.name,
+                    onTap: _onCardTap,
+                    invert: player == (widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_gameState.message),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              setState(() {
-                _gameState.restart();
-              });
-            },
+    if (_gameState == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    return StreamBuilder(
+      stream: widget.gameMode == GameMode.online ? _gameStream : null,
+      builder: (context, asyncSnapshot) {
+        if (widget.gameMode == GameMode.online && asyncSnapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(_gameState!.message),
+            actions: [
+              if (widget.gameMode != GameMode.online)
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    setState(() {
+                      _gameState!.restart();
+                      if (widget.gameMode == GameMode.online) {
+                        if (_firestoreGame != null) {
+                          final updatedGame = _firestoreGame!.copyWith(
+                            board: _gameState!.board,
+                            redHand: _gameState!.redHand,
+                            blueHand: _gameState!.blueHand,
+                            reserveCard: _gameState!.reserveCard,
+                            currentPlayer: _gameState!.currentPlayer,
+                            lastMove: _gameState!.lastMoveAsMap,
+                          );
+                          _firestoreService.updateGame(widget.gameId!, updatedGame);
+                        }
+                      }
+                    });
+                  },
+                ),
+            ],
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Container(color: Colors.grey.shade100, padding: const EdgeInsets.symmetric(vertical: 8), child: _buildHands(PlayerColor.red)),
-          Expanded(
-            child: Center(
-              child: BoardWidget(gameState: _gameState, onCellTap: _onCellTap),
-            ),
+          body: Column(
+            children: [
+              _buildHands(widget.isHost! ? PlayerColor.red : PlayerColor.blue),
+              Expanded(
+                child: Center(
+                  child: BoardWidget(gameState: _gameState!, onCellTap: _onCellTap, playerColor: widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+                ),
+              ),
+              _buildHands(widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+              const Text('Reserve'),
+              CardWidget(card: _gameState!.reserveCard, selectable: false, invert: true),
+            ],
           ),
-          Container(color: Colors.grey.shade100, padding: const EdgeInsets.symmetric(vertical: 8), child: _buildHands(PlayerColor.blue)),
-          const Text('Reserve'),
-          CardWidget(card: _gameState.reserveCard, selectable: false, invert: true),
-        ],
-      ),
+        );
+      },
     );
   }
 }

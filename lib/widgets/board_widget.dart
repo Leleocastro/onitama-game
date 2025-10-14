@@ -4,17 +4,20 @@ import 'package:flutter/material.dart';
 
 import '../logic/game_state.dart';
 import '../models/move.dart';
+import '../models/player.dart';
 import '../models/point.dart';
 import './piece_widget.dart';
 
 class BoardWidget extends StatelessWidget {
   final GameState gameState;
   final Function(int, int) onCellTap;
+  final PlayerColor playerColor;
 
-  const BoardWidget({super.key, required this.gameState, required this.onCellTap});
+  const BoardWidget({super.key, required this.gameState, required this.onCellTap, this.playerColor = PlayerColor.blue});
 
   @override
   Widget build(BuildContext context) {
+    final isRed = playerColor == PlayerColor.red;
     return AspectRatio(
       aspectRatio: 1,
       child: Container(
@@ -32,24 +35,27 @@ class BoardWidget extends StatelessWidget {
                   itemBuilder: (context, index) {
                     int r = index ~/ GameState.size;
                     int c = index % GameState.size;
-                    final piece = gameState.board[r][c];
-                    final isSelected = gameState.selectedCell != null && gameState.selectedCell!.r == r && gameState.selectedCell!.c == c;
+                    int displayR = isRed ? GameState.size - 1 - r : r;
+                    int displayC = isRed ? GameState.size - 1 - c : c;
+
+                    final piece = gameState.board[displayR][displayC];
+                    final isSelected = gameState.selectedCell != null && gameState.selectedCell!.r == displayR && gameState.selectedCell!.c == displayC;
 
                     List<Point> highlights = [];
                     if (gameState.selectedCell != null && gameState.selectedCardForMove != null) {
                       highlights = gameState.availableMovesForCell(
                           gameState.selectedCell!.r, gameState.selectedCell!.c, gameState.selectedCardForMove!, gameState.currentPlayer);
                     }
-                    bool isHighlighted = highlights.any((p) => p.r == r && p.c == c);
+                    bool isHighlighted = highlights.any((p) => p.r == displayR && p.c == displayC);
 
                     return GestureDetector(
-                      onTap: () => onCellTap(r, c),
+                      onTap: () => onCellTap(displayR, displayC),
                       child: Container(
                         margin: const EdgeInsets.all(1),
                         color: (r + c) % 2 == 0 ? Colors.grey.shade200 : Colors.grey.shade300,
                         child: Stack(
                           children: [
-                            if (isHighlighted) Positioned.fill(child: Container(color: Colors.yellow.withOpacity(0.35))),
+                            if (isHighlighted) Positioned.fill(child: Container(color: Colors.yellow.withAlpha((255 * 0.35).round()))),
                             if (isSelected)
                               Positioned.fill(
                                 child: Container(
@@ -57,7 +63,7 @@ class BoardWidget extends StatelessWidget {
                                 ),
                               ),
                             Center(child: piece == null ? const SizedBox() : PieceWidget(piece: piece)),
-                            if ((r == 0 && c == 2) || (r == 4 && c == 2))
+                            if ((displayR == 0 && displayC == 2) || (displayR == 4 && displayC == 2))
                               const Positioned(top: 4, left: 4, child: Icon(Icons.location_on, size: 14, color: Colors.black26)),
                           ],
                         ),
@@ -68,7 +74,7 @@ class BoardWidget extends StatelessWidget {
                 if (gameState.lastMove != null)
                   IgnorePointer(
                     child: CustomPaint(
-                      painter: ArrowPainter(gameState.lastMove!, cellSize),
+                      painter: ArrowPainter(gameState.lastMove!, cellSize, isRed),
                       child: Container(),
                     ),
                   ),
@@ -84,16 +90,29 @@ class BoardWidget extends StatelessWidget {
 class ArrowPainter extends CustomPainter {
   final Move lastMove;
   final double cellSize;
+  final bool isRed;
 
-  ArrowPainter(this.lastMove, this.cellSize);
+  ArrowPainter(this.lastMove, this.cellSize, this.isRed);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final p1 = Offset(lastMove.from.c * cellSize + cellSize / 2, lastMove.from.r * cellSize + cellSize / 2);
-    final p2 = Offset(lastMove.to.c * cellSize + cellSize / 2, lastMove.to.r * cellSize + cellSize / 2);
+    double fromR = lastMove.from.r.toDouble();
+    double fromC = lastMove.from.c.toDouble();
+    double toR = lastMove.to.r.toDouble();
+    double toC = lastMove.to.c.toDouble();
+
+    if (isRed) {
+      fromR = GameState.size - 1 - fromR;
+      fromC = GameState.size - 1 - fromC;
+      toR = GameState.size - 1 - toR;
+      toC = GameState.size - 1 - toC;
+    }
+
+    final p1 = Offset(fromC * cellSize + cellSize / 2, fromR * cellSize + cellSize / 2);
+    final p2 = Offset(toC * cellSize + cellSize / 2, toR * cellSize + cellSize / 2);
 
     final paint = Paint()
-      ..color = Colors.black.withOpacity(0.7)
+      ..color = Colors.black.withAlpha((255 * 0.7).round())
       ..strokeWidth = 4;
 
     canvas.drawLine(p1, p2, paint);

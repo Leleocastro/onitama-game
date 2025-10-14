@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/ai_difficulty.dart';
 import '../models/card_model.dart';
+import '../models/firestore_game.dart';
 import '../models/game_mode.dart';
 import '../models/move.dart';
 import '../models/piece.dart';
@@ -55,6 +56,46 @@ class GameState {
     this.lastMove,
   });
 
+  factory GameState.fromFirestore(FirestoreGame firestoreGame, GameMode gameMode, AIDifficulty? aiDifficulty) {
+    final gameState = GameState._internal(
+      gameMode: gameMode,
+      aiDifficulty: aiDifficulty,
+      board: firestoreGame.board,
+      allCards: [], // Temporarily empty, will be filled by _setupCards
+      redHand: firestoreGame.redHand,
+      blueHand: firestoreGame.blueHand,
+      reserveCard: firestoreGame.reserveCard,
+      currentPlayer: firestoreGame.currentPlayer,
+      message: '${firestoreGame.currentPlayer.name} to move',
+      lastMove: firestoreGame.lastMove != null
+          ? Move(
+              Point(firestoreGame.lastMove!['from'][0], firestoreGame.lastMove!['from'][1]),
+              Point(firestoreGame.lastMove!['to'][0], firestoreGame.lastMove!['to'][1]),
+              CardModel(
+                firestoreGame.lastMove!['card']['name'],
+                (firestoreGame.lastMove!['card']['moves'] as List).map((move) => Point(move['r'], move['c'])).toList(),
+                Color(firestoreGame.lastMove!['card']['color']),
+              ),
+            )
+          : null,
+    );
+    gameState._setupCards(firestoreGame.redHand, firestoreGame.blueHand, firestoreGame.reserveCard);
+    return gameState;
+  }
+
+  Map<String, dynamic>? get lastMoveAsMap {
+    if (lastMove == null) return null;
+    return {
+      'from': [lastMove!.from.r, lastMove!.from.c],
+      'to': [lastMove!.to.r, lastMove!.to.c],
+      'card': {
+        'name': lastMove!.card.name,
+        'moves': lastMove!.card.moves.map((move) => {'r': move.r, 'c': move.c}).toList(),
+        'color': lastMove!.card.color.toARGB32(),
+      },
+    };
+  }
+
   GameState copy() {
     final newBoard = List.generate(size, (r) => List.generate(size, (c) => board[r][c]));
     return GameState._internal(
@@ -100,7 +141,7 @@ class GameState {
     lastMove = null;
   }
 
-  void _setupCards() {
+  void _setupCards([List<CardModel>? rHand, List<CardModel>? bHand, CardModel? resCard]) {
     allCards = [
       CardModel('Tiger', [Point(-1, 0), Point(2, 0)], Colors.orange),
       CardModel('Dragon', [Point(1, 2), Point(1, -2), Point(-1, 1), Point(-1, -1)], Colors.teal),
@@ -121,9 +162,9 @@ class GameState {
     ];
 
     allCards.shuffle();
-    redHand = [allCards[0], allCards[1]];
-    blueHand = [allCards[2], allCards[3]];
-    reserveCard = allCards[4];
+    redHand = rHand ?? [allCards[0], allCards[1]];
+    blueHand = bHand ?? [allCards[2], allCards[3]];
+    reserveCard = resCard ?? allCards[4];
   }
 
   bool _isInside(int r, int c) => r >= 0 && r < size && c >= 0 && c < size;
@@ -146,15 +187,16 @@ class GameState {
     return targets;
   }
 
-  void onCellTap(int r, int c, Function onWin) {
-    if (gameMode == GameMode.pvai && currentPlayer == PlayerColor.blue) {
-      return;
+  bool onCellTap(int r, int c, Function onWin) {
+    if (gameMode == GameMode.pvai && currentPlayer == PlayerColor.red) {
+      return false;
     }
 
     final piece = board[r][c];
     if ((selectedCell == null || piece != null) && (piece != null && piece.owner == currentPlayer)) {
       selectedCell = Point(r, c);
       message = 'Piece selected at ($r,$c)';
+      return false;
     } else if (selectedCardForMove != null) {
       final from = selectedCell!;
       final moves = availableMovesForCell(from.r, from.c, selectedCardForMove!, currentPlayer);
@@ -162,7 +204,7 @@ class GameState {
 
       if (!allowed) {
         message = 'Invalid move';
-        return;
+        return false;
       }
 
       final moving = board[from.r][from.c];
@@ -176,21 +218,23 @@ class GameState {
 
       if (isWinByCapture()) {
         onWin('${_playerName(currentPlayer)} won by capture!');
-        return;
+        return true;
       }
 
       if (isWinByTemple(r, c, currentPlayer)) {
         onWin('${_playerName(currentPlayer)} won by temple!');
-        return;
+        return true;
       }
 
       currentPlayer = opponent(currentPlayer);
       message = "${_playerName(currentPlayer)}'s turn";
 
-      if (gameMode == GameMode.pvai && currentPlayer == PlayerColor.blue) {
+      if (gameMode == GameMode.pvai && currentPlayer == PlayerColor.red) {
         makeAIMove(onWin);
       }
+      return true;
     }
+    return false;
   }
 
   void makeAIMove(Function onWin) {
@@ -255,7 +299,7 @@ class GameState {
   String _playerName(PlayerColor p) => p == PlayerColor.red ? 'Red' : 'Blue';
 
   void onCardTap(CardModel card) {
-    if (gameMode == GameMode.pvai && currentPlayer == PlayerColor.blue) {
+    if (gameMode == GameMode.pvai && currentPlayer == PlayerColor.red) {
       return;
     }
     final hand = currentPlayer == PlayerColor.red ? redHand : blueHand;

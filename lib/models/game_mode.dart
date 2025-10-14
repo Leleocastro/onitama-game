@@ -1,1 +1,1 @@
-enum GameMode { pvp, pvai }
+enum GameMode { pvp, pvai, online }
