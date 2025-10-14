@@ -67,7 +67,7 @@ class GameState {
       reserveCard: firestoreGame.reserveCard,
       currentPlayer: firestoreGame.currentPlayer,
       message: '${firestoreGame.currentPlayer.name} to move',
-      lastMove: firestoreGame.lastMove != null
+      lastMove: firestoreGame.lastMove != null && firestoreGame.lastMove!.isNotEmpty
           ? Move(
               Point(firestoreGame.lastMove!['from'][0], firestoreGame.lastMove!['from'][1]),
               Point(firestoreGame.lastMove!['to'][0], firestoreGame.lastMove!['to'][1]),
@@ -152,7 +152,7 @@ class GameState {
       CardModel('Goose', [Point(0, -1), Point(0, 1), Point(-1, -1), Point(1, 1)], Colors.yellow),
       CardModel('Rooster', [Point(0, -1), Point(0, 1), Point(-1, 1), Point(1, -1)], Colors.deepOrangeAccent),
       CardModel('Monkey', [Point(-1, -1), Point(-1, 1), Point(1, -1), Point(1, 1)], Colors.brown),
-      CardModel('Mantis', [Point(-1, -1), Point(-1, 1), Point(1, 0)], Colors.green),
+      CardModel('Mantis', [Point(1, 1), Point(1, -1), Point(-1, 0)], Colors.green),
       CardModel('Horse', [Point(-1, 0), Point(1, 0), Point(0, 1)], Colors.deepPurpleAccent),
       CardModel('Ox', [Point(-1, 0), Point(1, 0), Point(0, -1)], Colors.lightBlueAccent),
       CardModel('Crane', [Point(1, 0), Point(-1, 1), Point(-1, -1)], Colors.lightGreen),
@@ -185,6 +185,25 @@ class GameState {
       }
     }
     return targets;
+  }
+
+  void verifyWin(Function onWin) {
+    if (isWinByCapture()) {
+      onWin('${_playerName(currentPlayer)} won by capture!');
+      return;
+    }
+
+    for (var c = 0; c < size; c++) {
+      if (isWinByTemple(0, c, PlayerColor.red)) {
+        onWin('Red won by temple!');
+        return;
+      }
+      if (isWinByTemple(4, c, PlayerColor.blue)) {
+        onWin('Blue won by temple!');
+        return;
+      }
+    }
+    return;
   }
 
   bool onCellTap(int r, int c, Function onWin) {

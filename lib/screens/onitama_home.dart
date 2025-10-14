@@ -50,6 +50,11 @@ class OnitamaHomeState extends State<OnitamaHome> {
           _gameState = GameState.fromFirestore(firestoreGame, widget.gameMode, widget.aiDifficulty);
           _gameState?.selectedCell = oldSelectedCell;
           _gameState?.selectedCardForMove = oldSelectedCard;
+          if (_gameState?.lastMove == null && (ModalRoute.of(context)?.isCurrent != true)) {
+            Navigator.of(context).pop();
+          }
+
+          _gameState?.verifyWin(_showEndDialog);
         });
       });
     } else {
@@ -114,6 +119,9 @@ class OnitamaHomeState extends State<OnitamaHome> {
   }
 
   void _showEndDialog(String text) {
+    if (ModalRoute.of(context)?.isCurrent != true) {
+      return;
+    }
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -135,7 +143,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
                       blueHand: _gameState!.blueHand,
                       reserveCard: _gameState!.reserveCard,
                       currentPlayer: _gameState!.currentPlayer,
-                      lastMove: _gameState!.lastMoveAsMap,
+                      lastMove: {},
                     );
                     _firestoreService.updateGame(widget.gameId!, updatedGame);
                   }
@@ -203,7 +211,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
                             blueHand: _gameState!.blueHand,
                             reserveCard: _gameState!.reserveCard,
                             currentPlayer: _gameState!.currentPlayer,
-                            lastMove: _gameState!.lastMoveAsMap,
+                            lastMove: {},
                           );
                           _firestoreService.updateGame(widget.gameId!, updatedGame);
                         }
