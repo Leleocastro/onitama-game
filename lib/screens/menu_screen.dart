@@ -44,7 +44,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.easy),
+                    builder: (context) => const OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.easy, isHost: true),
                   ),
                 );
               },
@@ -56,7 +56,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.medium),
+                    builder: (context) => const OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.medium, isHost: true),
                   ),
                 );
               },
@@ -68,7 +68,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.hard),
+                    builder: (context) => const OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.hard, isHost: true),
                   ),
                 );
               },
@@ -117,7 +117,7 @@ class _MenuScreenState extends State<MenuScreen> {
           children: <Widget>[
             ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const OnitamaHome(gameMode: GameMode.pvp)));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const OnitamaHome(gameMode: GameMode.pvp, isHost: true)));
               },
               child: const Text('Local Multiplayer'),
             ),
