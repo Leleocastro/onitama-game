@@ -162,22 +162,31 @@ class OnitamaHomeState extends State<OnitamaHome> {
 
     return AbsorbPointer(
       absorbing: !isPlayerTurn,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: hand
-                .map(
-                  (c) => CardWidget(
-                    card: c,
-                    isSelected: _gameState!.selectedCardForMove?.name == c.name,
-                    onTap: _onCardTap,
-                    invert: player == (widget.isHost! ? PlayerColor.blue : PlayerColor.red),
-                  ),
-                )
-                .toList(),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              widget.isHost! && player == PlayerColor.red ? 'Opponent' : 'You',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: player == PlayerColor.red ? Colors.red : Colors.blue),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: hand
+                  .map(
+                    (c) => CardWidget(
+                      card: c,
+                      color: player == PlayerColor.red ? Colors.red : Colors.blue,
+                      isSelected: _gameState!.selectedCardForMove?.name == c.name,
+                      onTap: _onCardTap,
+                      invert: player == (widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -194,46 +203,73 @@ class OnitamaHomeState extends State<OnitamaHome> {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
         return Scaffold(
-          appBar: AppBar(
-            title: Text(_gameState!.message),
-            actions: [
-              if (widget.gameMode != GameMode.online)
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: () {
-                    setState(() {
-                      _gameState!.restart();
-                      if (widget.gameMode == GameMode.online) {
-                        if (_firestoreGame != null) {
-                          final updatedGame = _firestoreGame!.copyWith(
-                            board: _gameState!.board,
-                            redHand: _gameState!.redHand,
-                            blueHand: _gameState!.blueHand,
-                            reserveCard: _gameState!.reserveCard,
-                            currentPlayer: _gameState!.currentPlayer,
-                            lastMove: {},
-                          );
-                          _firestoreService.updateGame(widget.gameId!, updatedGame);
-                        }
-                      }
-                    });
-                  },
-                ),
-            ],
+          // appBar: AppBar(
+          //   title: Text(_gameState!.message),
+          //   actions: [
+          //     if (widget.gameMode != GameMode.online)
+          //       IconButton(
+          //         icon: const Icon(Icons.refresh),
+          //         onPressed: () {
+          //           setState(() {
+          //             _gameState!.restart();
+          //             if (widget.gameMode == GameMode.online) {
+          //               if (_firestoreGame != null) {
+          //                 final updatedGame = _firestoreGame!.copyWith(
+          //                   board: _gameState!.board,
+          //                   redHand: _gameState!.redHand,
+          //                   blueHand: _gameState!.blueHand,
+          //                   reserveCard: _gameState!.reserveCard,
+          //                   currentPlayer: _gameState!.currentPlayer,
+          //                   lastMove: {},
+          //                 );
+          //                 _firestoreService.updateGame(widget.gameId!, updatedGame);
+          //               }
+          //             }
+          //           });
+          //         },
+          //       ),
+          //   ],
+          // ),
+          floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.flag_outlined),
+            onPressed: () {
+              setState(() {
+                _gameState!.restart();
+                if (widget.gameMode == GameMode.online) {
+                  if (_firestoreGame != null) {
+                    final updatedGame = _firestoreGame!.copyWith(
+                      board: _gameState!.board,
+                      redHand: _gameState!.redHand,
+                      blueHand: _gameState!.blueHand,
+                      reserveCard: _gameState!.reserveCard,
+                      currentPlayer: _gameState!.currentPlayer,
+                      lastMove: {},
+                    );
+                    _firestoreService.updateGame(widget.gameId!, updatedGame);
+                  }
+                }
+              });
+            },
           ),
           body: SafeArea(
-            child: Column(
-              children: [
-                _buildHands(widget.isHost! ? PlayerColor.red : PlayerColor.blue),
-                Expanded(
-                  child: Center(
-                    child: BoardWidget(gameState: _gameState!, onCellTap: _onCellTap, playerColor: widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  _buildHands(widget.isHost! ? PlayerColor.red : PlayerColor.blue),
+                  Expanded(
+                    child: Center(
+                      child: BoardWidget(gameState: _gameState!, onCellTap: _onCellTap, playerColor: widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+                    ),
                   ),
-                ),
-                _buildHands(widget.isHost! ? PlayerColor.blue : PlayerColor.red),
-                const Text('Reserve'),
-                CardWidget(card: _gameState!.reserveCard, selectable: false, invert: true),
-              ],
+                  _buildHands(widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: CardWidget(card: _gameState!.reserveCard, selectable: false, invert: true, color: Colors.green, isReserve: true),
+                  ),
+                ],
+              ),
             ),
           ),
         );

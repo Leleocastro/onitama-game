@@ -83,4 +83,5 @@ linter:
     avoid_single_cascade_in_expression_statements: true # https://dart-lang.github.io/linter/lints/avoid_single_cascade_in_expression_statements.html
     avoid_bool_literals_in_conditional_expressions: true # https://dart-lang.github.io/linter/lints/avoid_bool_literals_in_conditional_expressions.html
     require_trailing_commas: true # https://dart-lang.github.io/linter/lints/require_trailing_commas.html
-
+    formatter:
+      trailing_commas: preserve

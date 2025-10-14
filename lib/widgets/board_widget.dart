@@ -13,7 +13,12 @@ class BoardWidget extends StatelessWidget {
   final Function(int, int) onCellTap;
   final PlayerColor playerColor;
 
-  const BoardWidget({required this.gameState, required this.onCellTap, super.key, this.playerColor = PlayerColor.blue});
+  const BoardWidget({
+    required this.gameState,
+    required this.onCellTap,
+    super.key,
+    this.playerColor = PlayerColor.blue,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +27,19 @@ class BoardWidget extends StatelessWidget {
       aspectRatio: 1,
       child: Container(
         margin: const EdgeInsets.all(8),
-        decoration: BoxDecoration(border: Border.all(width: 2)),
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          // border: Border.all(width: 2),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha((255 * 0.1).round()),
+              blurRadius: 12,
+              offset: const Offset(0, 8),
+            ),
+          ],
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final cellSize = constraints.maxWidth / GameState.size;
@@ -55,20 +72,34 @@ class BoardWidget extends StatelessWidget {
                     return GestureDetector(
                       onTap: () => onCellTap(displayR, displayC),
                       child: Container(
-                        margin: const EdgeInsets.all(1),
-                        color: (r + c) % 2 == 0 ? Colors.grey.shade200 : Colors.grey.shade300,
+                        margin: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: (r + c) % 2 == 0 ? Colors.grey.shade200 : Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                         child: Stack(
                           children: [
-                            if (isHighlighted) Positioned.fill(child: Container(color: Colors.yellow.withAlpha((255 * 0.35).round()))),
+                            if (isHighlighted)
+                              Positioned.fill(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(2),
+                                    color: Colors.yellow.withAlpha((255 * 0.35).round()),
+                                  ),
+                                ),
+                              ),
                             if (isSelected)
                               Positioned.fill(
                                 child: Container(
-                                  decoration: BoxDecoration(border: Border.all(width: 3, color: Colors.greenAccent)),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(width: 2, color: Colors.greenAccent),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
                                 ),
                               ),
                             Center(child: piece == null ? const SizedBox() : PieceWidget(piece: piece)),
                             if ((displayR == 0 && displayC == 2) || (displayR == 4 && displayC == 2))
-                              const Positioned(top: 4, left: 4, child: Icon(Icons.location_on, size: 14, color: Colors.black26)),
+                              const Positioned(top: 4, left: 4, child: Icon(Icons.temple_buddhist, size: 14, color: Colors.black26)),
                           ],
                         ),
                       ),

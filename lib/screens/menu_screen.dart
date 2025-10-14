@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/ai_difficulty.dart';
 import '../models/game_mode.dart';
 import '../services/firestore_service.dart';
+import '../widgets/styled_button.dart';
 import './game_lobby_screen.dart';
 import './onitama_home.dart';
 
@@ -38,7 +39,7 @@ class _MenuScreenState extends State<MenuScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ElevatedButton(
+            StyledButton(
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -48,9 +49,10 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                 );
               },
-              child: const Text('Easy'),
+              text: 'Easy',
             ),
-            ElevatedButton(
+            const SizedBox(height: 10),
+            StyledButton(
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -60,9 +62,10 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                 );
               },
-              child: const Text('Medium'),
+              text: 'Medium',
             ),
-            ElevatedButton(
+            const SizedBox(height: 10),
+            StyledButton(
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -72,7 +75,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                 );
               },
-              child: const Text('Hard'),
+              text: 'Hard',
             ),
           ],
         ),
@@ -110,31 +113,37 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Onitama')),
-      body: Center(
+      body: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(48),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ElevatedButton(
+            Text(
+              'Onitama',
+              style: TextStyle(fontSize: 64, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+            ),
+            const SizedBox(height: 20),
+            Text('The Game of the Masters', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 60),
+            StyledButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const OnitamaHome(gameMode: GameMode.pvp, isHost: true)));
               },
-              child: const Text('Local Multiplayer'),
+              text: 'Local Multiplayer',
+              icon: Icons.people,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: () => _showDifficultyDialog(context), child: const Text('Player vs AI')),
+            StyledButton(onPressed: () => _showDifficultyDialog(context), text: 'Player vs AI', icon: Icons.computer),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: _createGame, child: const Text('Create Online Game')),
+            StyledButton(onPressed: _createGame, text: 'Create Online Game', icon: Icons.add),
             const SizedBox(height: 20),
-            SizedBox(
-              width: 200,
-              child: TextField(
-                controller: _gameIdController,
-                decoration: const InputDecoration(labelText: 'Game ID', border: OutlineInputBorder()),
-              ),
+            TextField(
+              controller: _gameIdController,
+              decoration: const InputDecoration(labelText: 'Game ID', border: OutlineInputBorder()),
             ),
             const SizedBox(height: 10),
-            ElevatedButton(onPressed: _joinGame, child: const Text('Join Online Game')),
+            StyledButton(onPressed: _joinGame, text: 'Join Online Game', icon: Icons.login),
           ],
         ),
       ),

@@ -1,8 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'firebase_options.dart';
 
+import 'firebase_options.dart';
 import 'screens/menu_screen.dart';
+import 'style/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +19,7 @@ class OnitamaApp extends StatelessWidget {
     return MaterialApp(
       title: 'Onitama - Flutter',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.indigo),
+      theme: AppTheme.themeData,
       home: const MenuScreen(),
     );
   }
