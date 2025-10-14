@@ -213,18 +213,20 @@ class OnitamaHomeState extends State<OnitamaHome> {
                 ),
             ],
           ),
-          body: Column(
-            children: [
-              _buildHands(widget.isHost! ? PlayerColor.red : PlayerColor.blue),
-              Expanded(
-                child: Center(
-                  child: BoardWidget(gameState: _gameState!, onCellTap: _onCellTap, playerColor: widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+          body: SafeArea(
+            child: Column(
+              children: [
+                _buildHands(widget.isHost! ? PlayerColor.red : PlayerColor.blue),
+                Expanded(
+                  child: Center(
+                    child: BoardWidget(gameState: _gameState!, onCellTap: _onCellTap, playerColor: widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+                  ),
                 ),
-              ),
-              _buildHands(widget.isHost! ? PlayerColor.blue : PlayerColor.red),
-              const Text('Reserve'),
-              CardWidget(card: _gameState!.reserveCard, selectable: false, invert: true),
-            ],
+                _buildHands(widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+                const Text('Reserve'),
+                CardWidget(card: _gameState!.reserveCard, selectable: false, invert: true),
+              ],
+            ),
           ),
         );
       },
