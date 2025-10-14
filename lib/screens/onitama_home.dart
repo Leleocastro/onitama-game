@@ -37,6 +37,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
     super.initState();
     if (widget.gameId != null) {
       _gameStream = _firestoreService.streamGame(widget.gameId!);
+      _loadGameState();
     }
 
     if (widget.gameMode == GameMode.online) {
@@ -53,6 +54,17 @@ class OnitamaHomeState extends State<OnitamaHome> {
       });
     } else {
       _gameState = GameState(gameMode: widget.gameMode, aiDifficulty: widget.aiDifficulty);
+    }
+  }
+
+  Future<void> _loadGameState() async {
+    if (widget.gameId != null) {
+      final firestoreGame = await _firestoreService.getGame(widget.gameId!);
+      if (firestoreGame != null) {
+        setState(() {
+          _gameState = GameState.fromFirestore(firestoreGame, widget.gameMode, widget.aiDifficulty);
+        });
+      }
     }
   }
 
@@ -170,7 +182,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
     return StreamBuilder(
       stream: widget.gameMode == GameMode.online ? _gameStream : null,
       builder: (context, asyncSnapshot) {
-        if (widget.gameMode == GameMode.online && asyncSnapshot.connectionState == ConnectionState.waiting) {
+        if (widget.gameMode == GameMode.online && asyncSnapshot.connectionState == ConnectionState.waiting && _gameState == null) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
         return Scaffold(

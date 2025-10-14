@@ -43,6 +43,14 @@ class FirestoreService {
     return _db.collection('games').doc(gameId).snapshots().map((snapshot) => FirestoreGame.fromFirestore(snapshot));
   }
 
+  Future<FirestoreGame?> getGame(String gameId) async {
+    DocumentSnapshot doc = await _db.collection('games').doc(gameId).get();
+    if (doc.exists) {
+      return FirestoreGame.fromFirestore(doc);
+    }
+    return null;
+  }
+
   // Stream game updates
   Stream<FirestoreGame> streamGame(String gameId) {
     return _db.collection('games').doc(gameId).snapshots().map((snapshot) => FirestoreGame.fromFirestore(snapshot));
