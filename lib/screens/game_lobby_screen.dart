@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:onitama/models/firestore_game.dart';
-import 'package:onitama/models/game_mode.dart';
-import 'package:onitama/screens/onitama_home.dart';
-import 'package:onitama/services/firestore_service.dart';
+
+import '../models/firestore_game.dart';
+import '../models/game_mode.dart';
+import '../services/firestore_service.dart';
+import 'onitama_home.dart';
 
 class GameLobbyScreen extends StatefulWidget {
   final String gameId;
   final String playerUid;
 
-  const GameLobbyScreen({super.key, required this.gameId, required this.playerUid});
+  const GameLobbyScreen({required this.gameId, required this.playerUid, super.key});
 
   @override
   State<GameLobbyScreen> createState() => _GameLobbyScreenState();

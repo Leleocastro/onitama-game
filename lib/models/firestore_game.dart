@@ -26,10 +26,8 @@ class FirestoreGame {
     required this.blueHand,
     required this.reserveCard,
     required this.currentPlayer,
-    this.winner,
+    required this.players, required this.createdAt, this.winner,
     this.lastMove,
-    required this.players,
-    required this.createdAt,
   });
 
   factory FirestoreGame.fromFirestore(DocumentSnapshot doc) {

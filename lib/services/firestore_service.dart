@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:onitama/logic/game_state.dart';
-import 'package:onitama/models/firestore_game.dart';
-import 'package:onitama/models/game_mode.dart';
-import 'package:onitama/models/player.dart';
+import '../logic/game_state.dart';
+import '../models/firestore_game.dart';
+import '../models/game_mode.dart';
+import '../models/player.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -11,7 +11,7 @@ class FirestoreService {
 
   // Authenticate user anonymously
   Future<String> signInAnonymously() async {
-    UserCredential userCredential = await _auth.signInAnonymously();
+    final userCredential = await _auth.signInAnonymously();
     return userCredential.user!.uid;
   }
 
@@ -32,7 +32,7 @@ class FirestoreService {
 
     final mapData = gameData.toFirestore();
 
-    DocumentReference docRef = await _db.collection('games').add(mapData);
+    final DocumentReference docRef = await _db.collection('games').add(mapData);
     await docRef.update({'id': docRef.id}); // Update the document with its own ID
     return docRef.id;
   }
@@ -44,7 +44,7 @@ class FirestoreService {
   }
 
   Future<FirestoreGame?> getGame(String gameId) async {
-    DocumentSnapshot doc = await _db.collection('games').doc(gameId).get();
+    final DocumentSnapshot doc = await _db.collection('games').doc(gameId).get();
     if (doc.exists) {
       return FirestoreGame.fromFirestore(doc);
     }

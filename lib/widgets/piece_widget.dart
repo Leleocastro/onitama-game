@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+
 import '../models/piece.dart';
-import '../models/player.dart';
 import '../models/piece_type.dart';
+import '../models/player.dart';
 
 class PieceWidget extends StatelessWidget {
   final Piece piece;
 
-  const PieceWidget({super.key, required this.piece});
+  const PieceWidget({required this.piece, super.key});
 
   @override
   Widget build(BuildContext context) {

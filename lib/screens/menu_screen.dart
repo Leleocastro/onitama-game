@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:onitama/services/firestore_service.dart';
 
 import '../models/ai_difficulty.dart';
 import '../models/game_mode.dart';
+import '../services/firestore_service.dart';
 import './game_lobby_screen.dart';
 import './onitama_home.dart';
 
@@ -82,9 +82,9 @@ class _MenuScreenState extends State<MenuScreen> {
 
   Future<void> _createGame() async {
     if (_playerUid == null) return;
-    String gameId = await _firestoreService.createGame(_playerUid!);
+    final gameId = await _firestoreService.createGame(_playerUid!);
     if (!mounted) return;
-    Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => GameLobbyScreen(gameId: gameId, playerUid: _playerUid!),
@@ -94,11 +94,11 @@ class _MenuScreenState extends State<MenuScreen> {
 
   Future<void> _joinGame() async {
     if (_playerUid == null) return;
-    String gameId = _gameIdController.text.trim();
+    final gameId = _gameIdController.text.trim();
     if (gameId.isNotEmpty) {
       if (!mounted) return;
       _firestoreService.joinGame(gameId, _playerUid!);
-      Navigator.push(
+      await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => GameLobbyScreen(gameId: gameId, playerUid: _playerUid!),

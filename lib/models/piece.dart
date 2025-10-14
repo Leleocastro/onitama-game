@@ -1,5 +1,5 @@
-import './player.dart';
 import './piece_type.dart';
+import './player.dart';
 
 class Piece {
   final PlayerColor owner;

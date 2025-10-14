@@ -39,7 +39,7 @@ class AIPlayer {
     }
 
     Move? bestMove;
-    int bestScore = -1;
+    var bestScore = -1;
 
     for (final move in possibleMoves) {
       final score = _getMoveScore(gameState, move);
@@ -53,7 +53,7 @@ class AIPlayer {
   }
 
   int _getMoveScore(GameState gameState, Move move) {
-    int score = 0;
+    var score = 0;
     final piece = gameState.board[move.from.r][move.from.c];
     final destinationPiece = gameState.board[move.to.r][move.to.c];
 
@@ -80,7 +80,7 @@ class AIPlayer {
 
   Move? _getAlphaBetaMove(GameState gameState) {
     Move? bestMove;
-    int bestValue = -99999;
+    var bestValue = -99999;
 
     final moves = _getAllPossibleMoves(gameState);
     for (final move in moves) {
@@ -101,7 +101,7 @@ class AIPlayer {
     }
 
     if (isMaximizingPlayer) {
-      int maxEval = -99999;
+      var maxEval = -99999;
       final moves = _getAllPossibleMoves(gameState);
       for (final move in moves) {
         final newState = gameState.copy();
@@ -115,7 +115,7 @@ class AIPlayer {
       }
       return maxEval;
     } else {
-      int minEval = 99999;
+      var minEval = 99999;
       final moves = _getAllPossibleMoves(gameState);
       for (final move in moves) {
         final newState = gameState.copy();
@@ -132,9 +132,9 @@ class AIPlayer {
   }
 
   int _evaluateBoard(GameState gameState) {
-    int score = 0;
-    for (int r = 0; r < GameState.size; r++) {
-      for (int c = 0; c < GameState.size; c++) {
+    var score = 0;
+    for (var r = 0; r < GameState.size; r++) {
+      for (var c = 0; c < GameState.size; c++) {
         final piece = gameState.board[r][c];
         if (piece != null) {
           if (piece.owner == PlayerColor.blue) {
@@ -149,7 +149,7 @@ class AIPlayer {
   }
 
   int _getPieceValue(Piece piece, int r, int c) {
-    int value = 0;
+    var value = 0;
     if (piece.type == PieceType.master) {
       value = 1000;
     } else {
@@ -175,12 +175,12 @@ class AIPlayer {
   }
 
   List<Move> _getAllPossibleMoves(GameState gameState) {
-    final List<Move> moves = [];
+    final moves = <Move>[];
     final player = gameState.currentPlayer;
     final hand = player == PlayerColor.red ? gameState.redHand : gameState.blueHand;
 
-    for (int r = 0; r < GameState.size; r++) {
-      for (int c = 0; c < GameState.size; c++) {
+    for (var r = 0; r < GameState.size; r++) {
+      for (var c = 0; c < GameState.size; c++) {
         final piece = gameState.board[r][c];
         if (piece != null && piece.owner == player) {
           for (final card in hand) {

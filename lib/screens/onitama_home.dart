@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:onitama/models/firestore_game.dart';
-import 'package:onitama/services/firestore_service.dart';
 
 import '../logic/game_state.dart';
 import '../models/ai_difficulty.dart';
 import '../models/card_model.dart';
+import '../models/firestore_game.dart';
 import '../models/game_mode.dart';
 import '../models/player.dart';
+import '../services/firestore_service.dart';
 import '../widgets/board_widget.dart';
 import '../widgets/card_widget.dart';
 
@@ -19,7 +19,7 @@ class OnitamaHome extends StatefulWidget {
   final String? playerUid;
   final bool? isHost;
 
-  const OnitamaHome({super.key, required this.gameMode, this.aiDifficulty, this.gameId, this.playerUid, this.isHost});
+  const OnitamaHome({required this.gameMode, super.key, this.aiDifficulty, this.gameId, this.playerUid, this.isHost});
 
   @override
   OnitamaHomeState createState() => OnitamaHomeState();
@@ -86,7 +86,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
       }
     }
 
-    bool moveMade = false;
+    var moveMade = false;
     setState(() {
       moveMade = _gameState!.onCellTap(r, c, _showEndDialog);
     });

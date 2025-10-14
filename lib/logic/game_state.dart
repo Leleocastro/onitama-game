@@ -42,16 +42,9 @@ class GameState {
 
   GameState._internal({
     required this.gameMode,
-    this.aiDifficulty,
-    required this.board,
-    required this.allCards,
-    required this.redHand,
-    required this.blueHand,
-    required this.reserveCard,
-    required this.currentPlayer,
+    required this.board, required this.allCards, required this.redHand, required this.blueHand, required this.reserveCard, required this.currentPlayer, required this.message, this.aiDifficulty,
     this.selectedCardForMove,
     this.selectedCell,
-    required this.message,
     this.aiPlayer,
     this.lastMove,
   });
@@ -173,13 +166,13 @@ class GameState {
     final piece = board[r][c];
     if (piece == null || piece.owner != who) return [];
 
-    bool isRed = who == PlayerColor.red;
-    List<Point> targets = [];
-    for (var mv in card.moves) {
-      int dr = isRed ? mv.r : -mv.r;
-      int dc = isRed ? mv.c : -mv.c;
-      int nr = r + dr;
-      int nc = c + dc;
+    final isRed = who == PlayerColor.red;
+    final targets = <Point>[];
+    for (final mv in card.moves) {
+      final dr = isRed ? mv.r : -mv.r;
+      final dc = isRed ? mv.c : -mv.c;
+      final nr = r + dr;
+      final nc = c + dc;
       if (_isInside(nr, nc) && board[nr][nc]?.owner != who) {
         targets.add(Point(nr, nc));
       }
@@ -219,7 +212,7 @@ class GameState {
     } else if (selectedCardForMove != null) {
       final from = selectedCell!;
       final moves = availableMovesForCell(from.r, from.c, selectedCardForMove!, currentPlayer);
-      bool allowed = moves.any((p) => p.r == r && p.c == c);
+      final allowed = moves.any((p) => p.r == r && p.c == c);
 
       if (!allowed) {
         message = 'Invalid move';
@@ -285,18 +278,18 @@ class GameState {
   }
 
   void swapCardWithReserve(CardModel used) {
-    List<CardModel> hand = currentPlayer == PlayerColor.red ? redHand : blueHand;
-    int idx = hand.indexWhere((c) => c.name == used.name);
+    final hand = currentPlayer == PlayerColor.red ? redHand : blueHand;
+    final idx = hand.indexWhere((c) => c.name == used.name);
     if (idx == -1) return;
     hand[idx] = reserveCard;
     reserveCard = used;
   }
 
   bool isWinByCapture() {
-    bool redMasterAlive = false;
-    bool blueMasterAlive = false;
-    for (var row in board) {
-      for (var piece in row) {
+    var redMasterAlive = false;
+    var blueMasterAlive = false;
+    for (final row in board) {
+      for (final piece in row) {
         if (piece?.type == PieceType.master) {
           if (piece!.owner == PlayerColor.red) redMasterAlive = true;
           if (piece.owner == PlayerColor.blue) blueMasterAlive = true;

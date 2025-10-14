@@ -13,7 +13,7 @@ class BoardWidget extends StatelessWidget {
   final Function(int, int) onCellTap;
   final PlayerColor playerColor;
 
-  const BoardWidget({super.key, required this.gameState, required this.onCellTap, this.playerColor = PlayerColor.blue});
+  const BoardWidget({required this.gameState, required this.onCellTap, super.key, this.playerColor = PlayerColor.blue});
 
   @override
   Widget build(BuildContext context) {
@@ -33,20 +33,24 @@ class BoardWidget extends StatelessWidget {
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: GameState.size),
                   itemCount: GameState.size * GameState.size,
                   itemBuilder: (context, index) {
-                    int r = index ~/ GameState.size;
-                    int c = index % GameState.size;
-                    int displayR = isRed ? GameState.size - 1 - r : r;
-                    int displayC = isRed ? GameState.size - 1 - c : c;
+                    final r = index ~/ GameState.size;
+                    final c = index % GameState.size;
+                    final displayR = isRed ? GameState.size - 1 - r : r;
+                    final displayC = isRed ? GameState.size - 1 - c : c;
 
                     final piece = gameState.board[displayR][displayC];
                     final isSelected = gameState.selectedCell != null && gameState.selectedCell!.r == displayR && gameState.selectedCell!.c == displayC;
 
-                    List<Point> highlights = [];
+                    var highlights = <Point>[];
                     if (gameState.selectedCell != null && gameState.selectedCardForMove != null) {
                       highlights = gameState.availableMovesForCell(
-                          gameState.selectedCell!.r, gameState.selectedCell!.c, gameState.selectedCardForMove!, gameState.currentPlayer);
+                        gameState.selectedCell!.r,
+                        gameState.selectedCell!.c,
+                        gameState.selectedCardForMove!,
+                        gameState.currentPlayer,
+                      );
                     }
-                    bool isHighlighted = highlights.any((p) => p.r == displayR && p.c == displayC);
+                    final isHighlighted = highlights.any((p) => p.r == displayR && p.c == displayC);
 
                     return GestureDetector(
                       onTap: () => onCellTap(displayR, displayC),
@@ -73,10 +77,7 @@ class BoardWidget extends StatelessWidget {
                 ),
                 if (gameState.lastMove != null)
                   IgnorePointer(
-                    child: CustomPaint(
-                      painter: ArrowPainter(gameState.lastMove!, cellSize, isRed),
-                      child: Container(),
-                    ),
+                    child: CustomPaint(painter: ArrowPainter(gameState.lastMove!, cellSize, isRed), child: Container()),
                   ),
               ],
             );
@@ -96,10 +97,10 @@ class ArrowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    double fromR = lastMove.from.r.toDouble();
-    double fromC = lastMove.from.c.toDouble();
-    double toR = lastMove.to.r.toDouble();
-    double toC = lastMove.to.c.toDouble();
+    var fromR = lastMove.from.r.toDouble();
+    var fromC = lastMove.from.c.toDouble();
+    var toR = lastMove.to.r.toDouble();
+    var toC = lastMove.to.c.toDouble();
 
     if (isRed) {
       fromR = GameState.size - 1 - fromR;

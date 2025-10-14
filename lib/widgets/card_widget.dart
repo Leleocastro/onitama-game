@@ -10,14 +10,7 @@ class CardWidget extends StatelessWidget {
   final Function(CardModel)? onTap;
   final bool invert;
 
-  const CardWidget({
-    super.key,
-    required this.card,
-    this.isSelected = false,
-    this.selectable = true,
-    this.onTap,
-    this.invert = false,
-  });
+  const CardWidget({required this.card, super.key, this.isSelected = false, this.selectable = true, this.onTap, this.invert = false});
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +24,7 @@ class CardWidget extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: card.color.withAlpha((255 * 0.12).round()),
-          border: Border.all(
-            color: isSelected ? Colors.green : Colors.black12,
-            width: 1,
-          ),
+          border: Border.all(color: isSelected ? Colors.green : Colors.black12),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
@@ -50,11 +40,11 @@ class CardWidget extends StatelessWidget {
   }
 
   Widget _buildMovesMiniGrid(List<Point> moves) {
-    List<Widget> cells = [];
-    for (int rr = -2; rr <= 2; rr++) {
-      for (int cc = -2; cc <= 2; cc++) {
-        bool hasMove = moves.any((m) => m.r == rr && m.c == cc);
-        bool isCenter = rr == 0 && cc == 0;
+    final cells = <Widget>[];
+    for (var rr = -2; rr <= 2; rr++) {
+      for (var cc = -2; cc <= 2; cc++) {
+        final hasMove = moves.any((m) => m.r == rr && m.c == cc);
+        final isCenter = rr == 0 && cc == 0;
         cells.add(
           Container(
             width: 14,
@@ -65,15 +55,15 @@ class CardWidget extends StatelessWidget {
               color: hasMove
                   ? Colors.black26
                   : isCenter
-                      ? Colors.red
-                      : Colors.transparent,
+                  ? Colors.red
+                  : Colors.transparent,
               shape: BoxShape.circle,
             ),
           ),
         );
       }
     }
-    return Wrap(spacing: 0, runSpacing: 0, children: cells);
+    return Wrap(children: cells);
   }
 
   List<Point> _invertMoves(List<Point> moves) {
