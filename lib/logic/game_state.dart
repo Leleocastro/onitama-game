@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/ai_difficulty.dart';
 import '../models/card_model.dart';
 import '../models/game_mode.dart';
@@ -23,7 +24,7 @@ class GameState {
   List<CardModel> blueHand = [];
   late CardModel reserveCard;
 
-  PlayerColor currentPlayer = PlayerColor.red;
+  PlayerColor currentPlayer = PlayerColor.blue;
 
   CardModel? selectedCardForMove;
   Point? selectedCell;
@@ -94,8 +95,8 @@ class GameState {
 
     selectedCardForMove = null;
     selectedCell = null;
-    currentPlayer = PlayerColor.red;
-    message = 'Red starts!';
+    currentPlayer = PlayerColor.blue;
+    message = 'Blue starts!';
     lastMove = null;
   }
 
