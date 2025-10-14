@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "444683843595",
+    "project_id": "onitama-game",
+    "storage_bucket": "onitama-game.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:444683843595:android:ec92a4f766b3253568af0e",
+        "android_client_info": {
+          "package_name": "com.ltag.onitama"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA98UVo0zdTyPbv-FYO78zJpLoRyzpBx7Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

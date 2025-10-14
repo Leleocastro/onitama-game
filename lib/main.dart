@@ -1,7 +1,14 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:onitama/firebase_options.dart';
+
 import 'screens/menu_screen.dart';
 
-void main() => runApp(const OnitamaApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(const OnitamaApp());
+}
 
 class OnitamaApp extends StatelessWidget {
   const OnitamaApp({super.key});
