@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:onitama/models/firestore_game.dart';
 import 'package:onitama/models/game_mode.dart';
 import 'package:onitama/screens/onitama_home.dart';
@@ -57,7 +58,13 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
               children: <Widget>[
                 const Text('Waiting for opponent...'),
                 const SizedBox(height: 20),
-                Text('Game ID: ${widget.gameId}'),
+                TextButton(
+                  child: Text('Game ID: ${widget.gameId}'),
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: widget.gameId));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Game ID copied to clipboard')));
+                  },
+                ),
                 const SizedBox(height: 20),
                 Text('Players: ${game.players.length}/2'),
               ],
