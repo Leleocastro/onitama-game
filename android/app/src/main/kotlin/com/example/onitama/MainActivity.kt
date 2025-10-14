@@ -1,4 +1,4 @@
-package com.example.onitama
+package com.ltag.onitama
 
 import io.flutter.embedding.android.FlutterActivity
 
