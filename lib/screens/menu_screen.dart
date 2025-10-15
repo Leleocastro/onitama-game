@@ -7,6 +7,7 @@ import '../models/game_mode.dart';
 import '../services/firestore_service.dart';
 import '../widgets/styled_button.dart';
 import './game_lobby_screen.dart';
+import './how_to_play_screen.dart';
 import './onitama_home.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -240,6 +241,14 @@ class _MenuScreenState extends State<MenuScreen> {
                 StyledButton(onPressed: _joinGame, text: 'Join Online Game', icon: Icons.login),
                 const SizedBox(height: 10),
               ],
+            ),
+            const SizedBox(height: 20),
+            TextButton.icon(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HowToPlayScreen()));
+              },
+              label: Text('How to Play'),
+              icon: Icon(Icons.rule),
             ),
           ],
         ),

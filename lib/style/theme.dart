@@ -13,8 +13,9 @@ class AppTheme {
     primaryColor: primary,
     primaryColorDark: primaryDark,
     primaryColorLight: primaryLight,
-    primarySwatch: _getMaterialColor(primary),
-    colorScheme: ColorScheme.fromSwatch().copyWith(secondary: accent, surface: background),
+    colorScheme: ColorScheme.fromSwatch(
+      primarySwatch: _getMaterialColor(primary),
+    ).copyWith(secondary: accent, surface: background),
     scaffoldBackgroundColor: background,
     textTheme: const TextTheme(
       headlineLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textPrimary),
