@@ -80,14 +80,14 @@ class AIPlayer {
 
   Move? _getAlphaBetaMove(GameState gameState) {
     Move? bestMove;
-    var bestValue = -99999;
+    var bestValue = 99999;
 
     final moves = _getAllPossibleMoves(gameState);
     for (final move in moves) {
       final newState = gameState.copy();
       _applyMove(newState, move);
-      final value = _minimax(newState, 3, -99999, 99999, false);
-      if (value > bestValue) {
+      final value = _minimax(newState, 3, -99999, 99999, true);
+      if (value < bestValue) {
         bestValue = value;
         bestMove = move;
       }
@@ -96,7 +96,7 @@ class AIPlayer {
   }
 
   int _minimax(GameState gameState, int depth, int alpha, int beta, bool isMaximizingPlayer) {
-    if (depth == 0 || gameState.isWinByCapture() || gameState.isWinByTemple(0, 0, PlayerColor.red) || gameState.isWinByTemple(0, 0, PlayerColor.blue)) {
+    if (depth == 0 || gameState.isWinByCapture() || _isWinByTempleState(gameState)) {
       return _evaluateBoard(gameState);
     }
 
@@ -129,6 +129,20 @@ class AIPlayer {
       }
       return minEval;
     }
+  }
+
+  bool _isWinByTempleState(GameState gameState) {
+    final redTemplePiece = gameState.board[0][2];
+    if (redTemplePiece != null && redTemplePiece.type == PieceType.master && redTemplePiece.owner == PlayerColor.blue) {
+      return true;
+    }
+
+    final blueTemplePiece = gameState.board[4][2];
+    if (blueTemplePiece != null && blueTemplePiece.type == PieceType.master && blueTemplePiece.owner == PlayerColor.red) {
+      return true;
+    }
+
+    return false;
   }
 
   int _evaluateBoard(GameState gameState) {
