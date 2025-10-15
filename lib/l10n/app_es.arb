@@ -51,5 +51,21 @@
   "surrenderGame": "Rendirse",
   "areYouSureSurrender": "¿Estás seguro de que quieres rendirte?",
   "exitGame": "Salir del Juego",
-  "areYouSureExit": "¿Estás seguro de que quieres salir al menú?"
+  "areYouSureExit": "¿Estás seguro de que quieres salir al menú?",
+  "cardTiger": "Tiger",
+  "cardDragon": "Dragon",
+  "cardFrog": "Frog",
+  "cardRabbit": "Rabbit",
+  "cardCrab": "Crab",
+  "cardElephant": "Elephant",
+  "cardGoose": "Goose",
+  "cardRooster": "Rooster",
+  "cardMonkey": "Monkey",
+  "cardMantis": "Mantis",
+  "cardHorse": "Horse",
+  "cardOx": "Ox",
+  "cardCrane": "Crane",
+  "cardBoar": "Boar",
+  "cardEel": "Eel",
+  "cardCobra": "Cobra"
 }

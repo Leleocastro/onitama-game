@@ -5,6 +5,7 @@ import '../models/point.dart';
 
 class CardWidget extends StatelessWidget {
   final CardModel card;
+  final String localizedName;
   final bool isSelected;
   final bool selectable;
   final Function(CardModel)? onTap;
@@ -14,6 +15,7 @@ class CardWidget extends StatelessWidget {
 
   const CardWidget({
     required this.card,
+    required this.localizedName,
     required this.color,
     super.key,
     this.isSelected = false,
@@ -45,7 +47,7 @@ class CardWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              card.name,
+              localizedName,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: isReserve ? 12 : 14),
               textAlign: TextAlign.center,
             ),

@@ -417,6 +417,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to exit to the menu?'**
   String get areYouSureExit;
+
+  /// No description provided for @cardTiger.
+  ///
+  /// In en, this message translates to:
+  /// **'Tiger'**
+  String get cardTiger;
+
+  /// No description provided for @cardDragon.
+  ///
+  /// In en, this message translates to:
+  /// **'Dragon'**
+  String get cardDragon;
+
+  /// No description provided for @cardFrog.
+  ///
+  /// In en, this message translates to:
+  /// **'Frog'**
+  String get cardFrog;
+
+  /// No description provided for @cardRabbit.
+  ///
+  /// In en, this message translates to:
+  /// **'Rabbit'**
+  String get cardRabbit;
+
+  /// No description provided for @cardCrab.
+  ///
+  /// In en, this message translates to:
+  /// **'Crab'**
+  String get cardCrab;
+
+  /// No description provided for @cardElephant.
+  ///
+  /// In en, this message translates to:
+  /// **'Elephant'**
+  String get cardElephant;
+
+  /// No description provided for @cardGoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Goose'**
+  String get cardGoose;
+
+  /// No description provided for @cardRooster.
+  ///
+  /// In en, this message translates to:
+  /// **'Rooster'**
+  String get cardRooster;
+
+  /// No description provided for @cardMonkey.
+  ///
+  /// In en, this message translates to:
+  /// **'Monkey'**
+  String get cardMonkey;
+
+  /// No description provided for @cardMantis.
+  ///
+  /// In en, this message translates to:
+  /// **'Mantis'**
+  String get cardMantis;
+
+  /// No description provided for @cardHorse.
+  ///
+  /// In en, this message translates to:
+  /// **'Horse'**
+  String get cardHorse;
+
+  /// No description provided for @cardOx.
+  ///
+  /// In en, this message translates to:
+  /// **'Ox'**
+  String get cardOx;
+
+  /// No description provided for @cardCrane.
+  ///
+  /// In en, this message translates to:
+  /// **'Crane'**
+  String get cardCrane;
+
+  /// No description provided for @cardBoar.
+  ///
+  /// In en, this message translates to:
+  /// **'Boar'**
+  String get cardBoar;
+
+  /// No description provided for @cardEel.
+  ///
+  /// In en, this message translates to:
+  /// **'Eel'**
+  String get cardEel;
+
+  /// No description provided for @cardCobra.
+  ///
+  /// In en, this message translates to:
+  /// **'Cobra'**
+  String get cardCobra;
 }
 
 class _AppLocalizationsDelegate

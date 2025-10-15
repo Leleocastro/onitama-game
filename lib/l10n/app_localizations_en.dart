@@ -181,4 +181,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get areYouSureExit => 'Are you sure you want to exit to the menu?';
+
+  @override
+  String get cardTiger => 'Tiger';
+
+  @override
+  String get cardDragon => 'Dragon';
+
+  @override
+  String get cardFrog => 'Frog';
+
+  @override
+  String get cardRabbit => 'Rabbit';
+
+  @override
+  String get cardCrab => 'Crab';
+
+  @override
+  String get cardElephant => 'Elephant';
+
+  @override
+  String get cardGoose => 'Goose';
+
+  @override
+  String get cardRooster => 'Rooster';
+
+  @override
+  String get cardMonkey => 'Monkey';
+
+  @override
+  String get cardMantis => 'Mantis';
+
+  @override
+  String get cardHorse => 'Horse';
+
+  @override
+  String get cardOx => 'Ox';
+
+  @override
+  String get cardCrane => 'Crane';
+
+  @override
+  String get cardBoar => 'Boar';
+
+  @override
+  String get cardEel => 'Eel';
+
+  @override
+  String get cardCobra => 'Cobra';
 }

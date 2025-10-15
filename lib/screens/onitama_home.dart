@@ -194,6 +194,46 @@ class OnitamaHomeState extends State<OnitamaHome> {
     }
   }
 
+  String _getLocalizedCardName(BuildContext context, String cardName) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (cardName) {
+      case 'Tiger':
+        return l10n.cardTiger;
+      case 'Dragon':
+        return l10n.cardDragon;
+      case 'Frog':
+        return l10n.cardFrog;
+      case 'Rabbit':
+        return l10n.cardRabbit;
+      case 'Crab':
+        return l10n.cardCrab;
+      case 'Elephant':
+        return l10n.cardElephant;
+      case 'Goose':
+        return l10n.cardGoose;
+      case 'Rooster':
+        return l10n.cardRooster;
+      case 'Monkey':
+        return l10n.cardMonkey;
+      case 'Mantis':
+        return l10n.cardMantis;
+      case 'Horse':
+        return l10n.cardHorse;
+      case 'Ox':
+        return l10n.cardOx;
+      case 'Crane':
+        return l10n.cardCrane;
+      case 'Boar':
+        return l10n.cardBoar;
+      case 'Eel':
+        return l10n.cardEel;
+      case 'Cobra':
+        return l10n.cardCobra;
+      default:
+        return cardName; // Fallback to original name if not found
+    }
+  }
+
   Widget _buildHands(PlayerColor player) {
     final hand = player == PlayerColor.red ? _gameState!.redHand : _gameState!.blueHand;
     final isPlayerTurn = _gameState!.currentPlayer == player;
@@ -221,6 +261,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
                   .map(
                     (c) => CardWidget(
                       card: c,
+                      localizedName: _getLocalizedCardName(context, c.name),
                       color: player == PlayerColor.red ? Colors.red : Colors.blue,
                       isSelected: _gameState!.selectedCardForMove?.name == c.name,
                       onTap: _onCardTap,
@@ -387,7 +428,14 @@ class OnitamaHomeState extends State<OnitamaHome> {
                   const SizedBox(height: 10),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: CardWidget(card: _gameState!.reserveCard, selectable: false, invert: true, color: Colors.green, isReserve: true),
+                    child: CardWidget(
+                      card: _gameState!.reserveCard,
+                      localizedName: _getLocalizedCardName(context, _gameState!.reserveCard.name),
+                      selectable: false,
+                      invert: true,
+                      color: Colors.green,
+                      isReserve: true,
+                    ),
                   ),
                 ],
               ),
