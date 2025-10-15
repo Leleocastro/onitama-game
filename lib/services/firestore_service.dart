@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../logic/game_state.dart';
+import '../models/ai_difficulty.dart';
 import '../models/firestore_game.dart';
 import '../models/game_mode.dart';
 import '../models/player.dart';
@@ -9,15 +10,13 @@ class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Authenticate user anonymously
   Future<String> signInAnonymously() async {
     final userCredential = await _auth.signInAnonymously();
     return userCredential.user!.uid;
   }
 
-  // Create a new game room
-  Future<String> createGame(String hostUid) async {
-    final tempGameState = GameState(gameMode: GameMode.online);
+  Future<String> createGame(String hostUid, {GameMode gameMode = GameMode.online, String status = 'inprogress'}) async {
+    final tempGameState = GameState(gameMode: gameMode);
 
     final gameData = FirestoreGame(
       id: '',
@@ -28,19 +27,48 @@ class FirestoreService {
       currentPlayer: PlayerColor.blue,
       players: {'blue': hostUid},
       createdAt: Timestamp.now(),
+      status: status,
+      gameMode: gameMode,
     );
 
     final mapData = gameData.toFirestore();
 
     final DocumentReference docRef = await _db.collection('games').add(mapData);
-    await docRef.update({'id': docRef.id}); // Update the document with its own ID
+    await docRef.update({'id': docRef.id});
     return docRef.id;
   }
 
-  // Join an existing game room
   Stream<FirestoreGame> joinGame(String gameId, String playerUid) {
-    _db.collection('games').doc(gameId).update({'players.red': playerUid});
+    _db.collection('games').doc(gameId).update({
+      'players.red': playerUid,
+      'status': 'inprogress',
+    });
     return _db.collection('games').doc(gameId).snapshots().map((snapshot) => FirestoreGame.fromFirestore(snapshot));
+  }
+
+  Future<Map<String, dynamic>> findOrCreateGame(String playerUid) async {
+    final waitingGames = await _db.collection('games').where('status', isEqualTo: 'waiting').limit(1).get();
+
+    if (waitingGames.docs.isNotEmpty) {
+      final gameDoc = waitingGames.docs.first;
+      await gameDoc.reference.update({
+        'players.red': playerUid,
+        'status': 'inprogress',
+      });
+      return {'gameId': gameDoc.id, 'isHost': false};
+    } else {
+      final gameId = await createGame(playerUid, status: 'waiting');
+      return {'gameId': gameId, 'isHost': true};
+    }
+  }
+
+  Future<void> convertToPvAI(String gameId) async {
+    await _db.collection('games').doc(gameId).update({
+      'gameMode': GameMode.pvai.name,
+      'aiDifficulty': AIDifficulty.medium.name,
+      'status': 'inprogress',
+      'players.red': 'ai',
+    });
   }
 
   Future<FirestoreGame?> getGame(String gameId) async {
@@ -51,17 +79,14 @@ class FirestoreService {
     return null;
   }
 
-  // Stream game updates
   Stream<FirestoreGame> streamGame(String gameId) {
     return _db.collection('games').doc(gameId).snapshots().map((snapshot) => FirestoreGame.fromFirestore(snapshot));
   }
 
-  // Update game state
   Future<void> updateGame(String gameId, FirestoreGame game) async {
     await _db.collection('games').doc(gameId).set(game.toFirestore(), SetOptions(merge: true));
   }
 
-  // Add game history log
   Future<void> addGameLog(String gameId, Map<String, dynamic> logEntry) async {
     await _db.collection('games').doc(gameId).collection('logs').add(logEntry);
   }

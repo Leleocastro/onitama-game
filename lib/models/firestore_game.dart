@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import './ai_difficulty.dart';
 import './card_model.dart';
+import './game_mode.dart';
 import './piece.dart';
 import './piece_type.dart';
 import './player.dart';
@@ -18,6 +20,9 @@ class FirestoreGame {
   final Map<String, dynamic>? lastMove;
   final Map<String, String> players;
   final Timestamp createdAt;
+  final String status;
+  final GameMode gameMode;
+  final AIDifficulty? aiDifficulty;
 
   FirestoreGame({
     required this.id,
@@ -26,14 +31,18 @@ class FirestoreGame {
     required this.blueHand,
     required this.reserveCard,
     required this.currentPlayer,
-    required this.players, required this.createdAt, this.winner,
+    required this.players,
+    required this.createdAt,
+    required this.status,
+    required this.gameMode,
+    this.winner,
     this.lastMove,
+    this.aiDifficulty,
   });
 
   factory FirestoreGame.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
 
-    // Reconstrói o tabuleiro a partir da lista achatada
     final boardData = data['board'] as List;
     final board = List.generate(5, (r) {
       return List.generate(5, (c) {
@@ -70,11 +79,13 @@ class FirestoreGame {
       lastMove: data['lastMove'] != null ? Map<String, dynamic>.from(data['lastMove']) : null,
       players: Map<String, String>.from(data['players']),
       createdAt: data['createdAt'] is Timestamp ? data['createdAt'] : Timestamp.fromMillisecondsSinceEpoch(data['createdAt']),
+      status: data['status'] ?? 'inprogress',
+      gameMode: GameMode.values.firstWhere((e) => e.name == data['gameMode'], orElse: () => GameMode.online),
+      aiDifficulty: data['aiDifficulty'] == null ? null : AIDifficulty.values.firstWhere((e) => e.name == data['aiDifficulty']),
     );
   }
 
   Map<String, dynamic> toFirestore() {
-    // Achata o tabuleiro em uma lista simples
     final flatBoard = <Map<String, dynamic>>[];
     for (var r = 0; r < board.length; r++) {
       for (var c = 0; c < board[r].length; c++) {
@@ -83,7 +94,6 @@ class FirestoreGame {
       }
     }
 
-    // Função auxiliar para converter moves em mapas
     List<Map<String, int>> movesToMap(List<Point> moves) {
       return moves.map((m) => {'r': m.r, 'c': m.c}).toList();
     }
@@ -98,6 +108,9 @@ class FirestoreGame {
       if (lastMove != null) 'lastMove': lastMove,
       if (players.isNotEmpty) 'players': players,
       'createdAt': createdAt.millisecondsSinceEpoch,
+      'status': status,
+      'gameMode': gameMode.name,
+      if (aiDifficulty != null) 'aiDifficulty': aiDifficulty!.name,
     };
   }
 
@@ -109,6 +122,9 @@ class FirestoreGame {
     PlayerColor? currentPlayer,
     PlayerColor? winner,
     Map<String, dynamic>? lastMove,
+    String? status,
+    GameMode? gameMode,
+    AIDifficulty? aiDifficulty,
   }) {
     return FirestoreGame(
       id: id,
@@ -121,6 +137,9 @@ class FirestoreGame {
       lastMove: lastMove ?? this.lastMove,
       players: players,
       createdAt: createdAt,
+      status: status ?? this.status,
+      gameMode: gameMode ?? this.gameMode,
+      aiDifficulty: aiDifficulty ?? this.aiDifficulty,
     );
   }
 }

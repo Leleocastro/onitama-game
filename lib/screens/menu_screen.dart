@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../models/ai_difficulty.dart';
@@ -19,11 +21,20 @@ class _MenuScreenState extends State<MenuScreen> {
   final TextEditingController _gameIdController = TextEditingController();
 
   String? _playerUid;
+  StreamSubscription? _gameSubscription;
+  Timer? _gameCreationTimer;
 
   @override
   void initState() {
     super.initState();
     _initializeUser();
+  }
+
+  @override
+  void dispose() {
+    _gameSubscription?.cancel();
+    _gameCreationTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _initializeUser() async {
@@ -110,6 +121,83 @@ class _MenuScreenState extends State<MenuScreen> {
     }
   }
 
+  Future<void> _findOrCreateGame() async {
+    if (_playerUid == null) return;
+    _showWaitingDialog();
+
+    final result = await _firestoreService.findOrCreateGame(_playerUid!);
+    final gameId = result['gameId'];
+    final isHost = result['isHost'];
+
+    if (isHost) {
+      _gameCreationTimer = Timer(const Duration(seconds: 20), () {
+        _gameSubscription?.cancel();
+        _firestoreService.convertToPvAI(gameId);
+        if (!mounted) return;
+        Navigator.pop(context); // Close waiting dialog
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OnitamaHome(
+              gameMode: GameMode.online,
+              gameId: gameId,
+              playerUid: _playerUid!,
+              isHost: true,
+              hasDelay: true,
+            ),
+          ),
+        );
+      });
+
+      _gameSubscription = _firestoreService.streamGame(gameId).listen((game) {
+        if (game.players.length > 1) {
+          _gameCreationTimer?.cancel();
+          if (!mounted) return;
+          Navigator.pop(context); // Close waiting dialog
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OnitamaHome(
+                gameMode: GameMode.online,
+                gameId: gameId,
+                playerUid: _playerUid!,
+                isHost: true,
+              ),
+            ),
+          );
+          _gameSubscription?.cancel();
+        }
+      });
+    } else {
+      if (!mounted) return;
+      Navigator.pop(context); // Close waiting dialog
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OnitamaHome(gameMode: GameMode.online, gameId: gameId, playerUid: _playerUid!, isHost: false),
+        ),
+      );
+    }
+  }
+
+  void _showWaitingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        title: Text('Matchmaking'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 20),
+            Text('Waiting for an opponent...'),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,14 +224,23 @@ class _MenuScreenState extends State<MenuScreen> {
             const SizedBox(height: 20),
             StyledButton(onPressed: () => _showDifficultyDialog(context), text: 'Player vs AI', icon: Icons.computer),
             const SizedBox(height: 20),
-            StyledButton(onPressed: _createGame, text: 'Create Online Game', icon: Icons.add),
+            StyledButton(onPressed: _findOrCreateGame, text: 'Online Multiplayer', icon: Icons.public),
             const SizedBox(height: 20),
-            TextField(
-              controller: _gameIdController,
-              decoration: const InputDecoration(labelText: 'Game ID', border: OutlineInputBorder()),
+            ExpansionTile(
+              title: const Text('Private Game'),
+              children: [
+                const SizedBox(height: 10),
+                StyledButton(onPressed: _createGame, text: 'Create Online Game', icon: Icons.add),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _gameIdController,
+                  decoration: const InputDecoration(labelText: 'Game ID', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 10),
+                StyledButton(onPressed: _joinGame, text: 'Join Online Game', icon: Icons.login),
+                const SizedBox(height: 10),
+              ],
             ),
-            const SizedBox(height: 10),
-            StyledButton(onPressed: _joinGame, text: 'Join Online Game', icon: Icons.login),
           ],
         ),
       ),

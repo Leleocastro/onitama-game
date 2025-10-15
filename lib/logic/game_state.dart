@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../models/ai_difficulty.dart';
@@ -42,7 +45,14 @@ class GameState {
 
   GameState._internal({
     required this.gameMode,
-    required this.board, required this.allCards, required this.redHand, required this.blueHand, required this.reserveCard, required this.currentPlayer, required this.message, this.aiDifficulty,
+    required this.board,
+    required this.allCards,
+    required this.redHand,
+    required this.blueHand,
+    required this.reserveCard,
+    required this.currentPlayer,
+    required this.message,
+    this.aiDifficulty,
     this.selectedCardForMove,
     this.selectedCell,
     this.aiPlayer,
@@ -51,8 +61,8 @@ class GameState {
 
   factory GameState.fromFirestore(FirestoreGame firestoreGame, GameMode gameMode, AIDifficulty? aiDifficulty) {
     final gameState = GameState._internal(
-      gameMode: gameMode,
-      aiDifficulty: aiDifficulty,
+      gameMode: firestoreGame.gameMode,
+      aiDifficulty: firestoreGame.aiDifficulty ?? aiDifficulty,
       board: firestoreGame.board,
       allCards: [], // Temporarily empty, will be filled by _setupCards
       redHand: firestoreGame.redHand,
@@ -73,6 +83,9 @@ class GameState {
           : null,
     );
     gameState._setupCards(firestoreGame.redHand, firestoreGame.blueHand, firestoreGame.reserveCard);
+    if (firestoreGame.gameMode == GameMode.pvai) {
+      gameState.aiPlayer = AIPlayer(firestoreGame.aiDifficulty ?? aiDifficulty!);
+    }
     return gameState;
   }
 
@@ -241,15 +254,19 @@ class GameState {
       currentPlayer = opponent(currentPlayer);
       message = "${_playerName(currentPlayer)}'s turn";
 
-      if (gameMode == GameMode.pvai && currentPlayer == PlayerColor.red) {
-        makeAIMove(onWin);
+      if (gameMode != GameMode.pvai) {
+        return true;
       }
-      return true;
+
+      return gameMode == GameMode.pvai && currentPlayer == PlayerColor.red;
     }
     return false;
   }
 
-  void makeAIMove(Function onWin) {
+  Future<void> makeAIMove(Function onWin, [bool hasDelay = false]) async {
+    final delay = hasDelay ? Duration(seconds: Random().nextInt(10) + 3) : Duration.zero;
+    await Future.delayed(delay);
+
     final move = aiPlayer!.getMove(this);
     if (move == null) {
       onWin('${_playerName(currentPlayer)} has no moves! You win!');
