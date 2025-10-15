@@ -292,7 +292,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
           key: scaffoldKey,
           floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.settings),
-            onPressed: scaffoldKey.currentState?.openEndDrawer,
+            onPressed: () => scaffoldKey.currentState?.openEndDrawer(),
           ),
           endDrawer: Drawer(
             child: SafeArea(

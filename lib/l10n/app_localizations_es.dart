@@ -183,49 +183,49 @@ class AppLocalizationsEs extends AppLocalizations {
   String get areYouSureExit => '¿Estás seguro de que quieres salir al menú?';
 
   @override
-  String get cardTiger => 'Tiger';
+  String get cardTiger => 'Tigre';
 
   @override
-  String get cardDragon => 'Dragon';
+  String get cardDragon => 'Dragón';
 
   @override
-  String get cardFrog => 'Frog';
+  String get cardFrog => 'Rana';
 
   @override
-  String get cardRabbit => 'Rabbit';
+  String get cardRabbit => 'Conejo';
 
   @override
-  String get cardCrab => 'Crab';
+  String get cardCrab => 'Cangrejo';
 
   @override
-  String get cardElephant => 'Elephant';
+  String get cardElephant => 'Elefante';
 
   @override
-  String get cardGoose => 'Goose';
+  String get cardGoose => 'Ganso';
 
   @override
-  String get cardRooster => 'Rooster';
+  String get cardRooster => 'Gallo';
 
   @override
-  String get cardMonkey => 'Monkey';
+  String get cardMonkey => 'Mono';
 
   @override
   String get cardMantis => 'Mantis';
 
   @override
-  String get cardHorse => 'Horse';
+  String get cardHorse => 'Caballo';
 
   @override
-  String get cardOx => 'Ox';
+  String get cardOx => 'Buey';
 
   @override
-  String get cardCrane => 'Crane';
+  String get cardCrane => 'Grulla';
 
   @override
-  String get cardBoar => 'Boar';
+  String get cardBoar => 'Jabalí';
 
   @override
-  String get cardEel => 'Eel';
+  String get cardEel => 'Anguila';
 
   @override
   String get cardCobra => 'Cobra';

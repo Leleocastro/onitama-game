@@ -183,49 +183,49 @@ class AppLocalizationsPt extends AppLocalizations {
   String get areYouSureExit => 'Tem certeza de que deseja sair para o menu?';
 
   @override
-  String get cardTiger => 'Tiger';
+  String get cardTiger => 'Tigre';
 
   @override
-  String get cardDragon => 'Dragon';
+  String get cardDragon => 'Dragão';
 
   @override
-  String get cardFrog => 'Frog';
+  String get cardFrog => 'Sapo';
 
   @override
-  String get cardRabbit => 'Rabbit';
+  String get cardRabbit => 'Coelho';
 
   @override
-  String get cardCrab => 'Crab';
+  String get cardCrab => 'Caranguejo';
 
   @override
-  String get cardElephant => 'Elephant';
+  String get cardElephant => 'Elefante';
 
   @override
-  String get cardGoose => 'Goose';
+  String get cardGoose => 'Ganso';
 
   @override
-  String get cardRooster => 'Rooster';
+  String get cardRooster => 'Galo';
 
   @override
-  String get cardMonkey => 'Monkey';
+  String get cardMonkey => 'Macaco';
 
   @override
-  String get cardMantis => 'Mantis';
+  String get cardMantis => 'Louva-a-deus';
 
   @override
-  String get cardHorse => 'Horse';
+  String get cardHorse => 'Cavalo';
 
   @override
-  String get cardOx => 'Ox';
+  String get cardOx => 'Boi';
 
   @override
-  String get cardCrane => 'Crane';
+  String get cardCrane => 'Grou';
 
   @override
-  String get cardBoar => 'Boar';
+  String get cardBoar => 'Javali';
 
   @override
-  String get cardEel => 'Eel';
+  String get cardEel => 'Enguia';
 
   @override
   String get cardCobra => 'Cobra';
