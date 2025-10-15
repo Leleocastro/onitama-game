@@ -14,10 +14,12 @@ class PieceWidget extends StatelessWidget {
     return CircleAvatar(
       radius: 20,
       backgroundColor: piece.owner == PlayerColor.red ? Colors.red : Colors.blue,
-      child: Text(
-        piece.type == PieceType.master ? 'M' : 'S',
-        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-      ),
+      child: Icon(piece.type == PieceType.master ? Icons.castle : Icons.shield, color: Colors.white, size: 24),
+
+      //  Text(
+      //   piece.type == PieceType.master ? 'M' : 'S',
+      //   style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      // ),
     );
   }
 }

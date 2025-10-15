@@ -35,6 +35,7 @@ class OnitamaHome extends StatefulWidget {
 }
 
 class OnitamaHomeState extends State<OnitamaHome> {
+  final scaffoldKey = GlobalKey<ScaffoldState>();
   GameState? _gameState;
   final FirestoreService _firestoreService = FirestoreService();
   Stream<FirestoreGame>? _gameStream;
@@ -98,7 +99,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
     final isAiTurn = _gameState!.onCellTap(r, c, _showEndDialog);
     setState(() {});
 
-    if (isAiTurn) {
+    if (isAiTurn && !_gameState!.isWinByCapture() && !_gameState!.isWinByTemple(_gameState!.lastMove!.to.r, _gameState!.lastMove!.to.c, PlayerColor.blue)) {
       _handleAIMove();
     }
   }
@@ -146,6 +147,13 @@ class OnitamaHomeState extends State<OnitamaHome> {
         title: const Text('Game Over'),
         content: Text(text),
         actions: [
+          TextButton(
+            child: const Text('Exit'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop(); // Navigate back to menu
+            },
+          ),
           TextButton(
             child: const Text('Restart'),
             onPressed: () {
@@ -230,29 +238,129 @@ class OnitamaHomeState extends State<OnitamaHome> {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
         return Scaffold(
-          floatingActionButton: widget.gameMode != GameMode.online
-              ? FloatingActionButton(
-                  child: const Icon(Icons.refresh),
-                  onPressed: () {
-                    setState(() {
-                      _gameState!.restart();
-                      if (widget.gameMode == GameMode.online) {
-                        if (_firestoreGame != null) {
-                          final updatedGame = _firestoreGame!.copyWith(
-                            board: _gameState!.board,
-                            redHand: _gameState!.redHand,
-                            blueHand: _gameState!.blueHand,
-                            reserveCard: _gameState!.reserveCard,
-                            currentPlayer: _gameState!.currentPlayer,
-                            lastMove: {},
-                          );
-                          _firestoreService.updateGame(widget.gameId!, updatedGame);
+          key: scaffoldKey,
+          floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.settings),
+            onPressed: scaffoldKey.currentState?.openEndDrawer,
+          ),
+          endDrawer: Drawer(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  widget.gameMode != GameMode.online
+                      ? ListTile(
+                          leading: const Icon(Icons.refresh),
+                          title: const Text('Restart Game'),
+                          onTap: () async {
+                            final shouldRestart = await showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Restart Game'),
+                                content: const Text('Are you sure you want to restart the game?'),
+                                actions: [
+                                  TextButton(
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(false);
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text('Restart'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (shouldRestart == true) {
+                              Navigator.of(context).pop(); // Close the drawer
+                              setState(() {
+                                _gameState!.restart();
+                                if (widget.gameMode == GameMode.online) {
+                                  if (_firestoreGame != null) {
+                                    final updatedGame = _firestoreGame!.copyWith(
+                                      board: _gameState!.board,
+                                      redHand: _gameState!.redHand,
+                                      blueHand: _gameState!.blueHand,
+                                      reserveCard: _gameState!.reserveCard,
+                                      currentPlayer: _gameState!.currentPlayer,
+                                      lastMove: {},
+                                    );
+                                    _firestoreService.updateGame(widget.gameId!, updatedGame);
+                                  }
+                                }
+                              });
+                            }
+                          },
+                        )
+                      : ListTile(
+                          leading: const Icon(Icons.flag_outlined),
+                          title: const Text('Surrender'),
+                          onTap: () async {
+                            final shouldSurrender = await showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Surrender Game'),
+                                content: const Text('Are you sure you want to surrender the game?'),
+                                actions: [
+                                  TextButton(
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(false);
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text('Surrender'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (shouldSurrender == true) {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pop(); // Navigate back to menu
+                            }
+                          },
+                        ),
+                  Spacer(),
+                  if (widget.gameMode != GameMode.online)
+                    ListTile(
+                      leading: const Icon(Icons.exit_to_app),
+                      onTap: () async {
+                        final shouldExit = await showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Exit Game'),
+                            content: const Text('Are you sure you want to exit to the menu?'),
+                            actions: [
+                              TextButton(
+                                child: const Text('Cancel'),
+                                onPressed: () {
+                                  Navigator.of(context).pop(false);
+                                },
+                              ),
+                              TextButton(
+                                child: const Text('Exit'),
+                                onPressed: () {
+                                  Navigator.of(context).pop(true);
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                        if (shouldExit == true) {
+                          Navigator.of(context).pop(); // Close the drawer
+                          Navigator.of(context).pop(); // Navigate back to menu
                         }
-                      }
-                    });
-                  },
-                )
-              : null,
+                      },
+                    ),
+                ],
+              ),
+            ),
+          ),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),

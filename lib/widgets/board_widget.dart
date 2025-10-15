@@ -144,12 +144,21 @@ class ArrowPainter extends CustomPainter {
     final p2 = Offset(toC * cellSize + cellSize / 2, toR * cellSize + cellSize / 2);
 
     final paint = Paint()
-      ..color = Colors.black.withAlpha((255 * 0.7).round())
-      ..strokeWidth = 4;
+      ..color = Colors.black.withAlpha((255 * 0.4).round())
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
 
-    canvas.drawLine(p1, p2, paint);
-
+    // Calculate the angle and shorten the line to end before the arrow
     final angle = (p2 - p1).direction;
+    final arrowLength = 15.0;
+    final shortenedP2 = Offset(
+      p2.dx - arrowLength * cos(angle),
+      p2.dy - arrowLength * sin(angle),
+    );
+
+    canvas.drawLine(p1, shortenedP2, paint);
+
+    // Draw arrow head
     final path = Path();
     path.moveTo(p2.dx - 15 * cos(angle - 0.5), p2.dy - 15 * sin(angle - 0.5));
     path.lineTo(p2.dx, p2.dy);
