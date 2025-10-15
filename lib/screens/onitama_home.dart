@@ -204,7 +204,13 @@ class OnitamaHomeState extends State<OnitamaHome> {
           children: [
             Text(
               _getPlayerLabel(player),
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: player == PlayerColor.red ? Colors.red : Colors.blue),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: player == PlayerColor.red ? Colors.red : Colors.blue,
+                decoration: isPlayerTurn ? TextDecoration.underline : TextDecoration.none,
+                decorationColor: player == PlayerColor.red ? Colors.red : Colors.blue,
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
