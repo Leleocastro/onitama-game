@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'firebase_options.dart';
+import 'l10n/app_localizations.dart';
 import 'screens/menu_screen.dart';
 import 'style/theme.dart';
 
@@ -20,6 +22,17 @@ class OnitamaApp extends StatelessWidget {
       title: 'Onitama - Flutter',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'), // English
+        Locale('es'), // Spanish
+        Locale('pt'), // Portuguese
+      ],
       home: const MenuScreen(),
     );
   }

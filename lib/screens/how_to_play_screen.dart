@@ -1,118 +1,120 @@
-
 import 'package:flutter/material.dart';
+
+import '../l10n/app_localizations.dart';
 
 class HowToPlayScreen extends StatelessWidget {
   const HowToPlayScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('How to Play'),
+        title: Text(l10n.howToPlayTitle),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: const [
+        padding: const EdgeInsets.all(16),
+        children: [
           Text(
-            'Onitama',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            l10n.onitama,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
-            'Onitama is a two-player abstract strategy game with a unique movement mechanic.',
-            style: TextStyle(fontSize: 16),
+            l10n.onitamaDescription,
+            style: const TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
-            'Objective',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            l10n.objectiveTitle,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
-            'There are two ways to win:',
-            style: TextStyle(fontSize: 16),
+            l10n.objectiveDescription,
+            style: const TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Text(
-            '1. Way of the Stone: Capture your opponent\'s Master pawn.',
-            style: TextStyle(fontSize: 16),
-          ),
-          Text(
-            '2. Way of the Stream: Move your Master pawn to your opponent\'s starting Temple Arch space.',
-            style: TextStyle(fontSize: 16),
-          ),
-          SizedBox(height: 20),
-          Text(
-            'Setup',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Text(
-            '1. Each player starts with five pawns: one Master and four Students.',
-            style: TextStyle(fontSize: 16),
+            l10n.wayOfTheStone,
+            style: const TextStyle(fontSize: 16),
           ),
           Text(
-            '2. Pawns are placed on the 5x5 board in their starting positions.',
-            style: TextStyle(fontSize: 16),
+            l10n.wayOfTheStream,
+            style: const TextStyle(fontSize: 16),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            l10n.setupTitle,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            l10n.setupDescription1,
+            style: const TextStyle(fontSize: 16),
           ),
           Text(
-            '3. Each player receives two random Move cards.',
-            style: TextStyle(fontSize: 16),
+            l10n.setupDescription2,
+            style: const TextStyle(fontSize: 16),
           ),
           Text(
-            '4. One extra card is placed on the side of the board.',
-            style: TextStyle(fontSize: 16),
-          ),
-          SizedBox(height: 20),
-          Text(
-            'Gameplay',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'On your turn, you must perform the following steps:',
-            style: TextStyle(fontSize: 16),
-          ),
-          SizedBox(height: 5),
-          Text(
-            '1. Choose one of your two Move cards.',
-            style: TextStyle(fontSize: 16),
+            l10n.setupDescription3,
+            style: const TextStyle(fontSize: 16),
           ),
           Text(
-            '2. Move one of your pawns according to the selected card.',
-            style: TextStyle(fontSize: 16),
+            l10n.setupDescription4,
+            style: const TextStyle(fontSize: 16),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            l10n.gameplayTitle,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            l10n.gameplayDescription,
+            style: const TextStyle(fontSize: 16),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            l10n.gameplayStep1,
+            style: const TextStyle(fontSize: 16),
           ),
           Text(
-            '3. The card you used is then exchanged with the card on the side of the board.',
-            style: TextStyle(fontSize: 16),
-          ),
-          SizedBox(height: 20),
-          Text(
-            'Movement',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Text(
-            '- The black square on a Move card represents the pawn\'s current position.',
-            style: TextStyle(fontSize: 16),
+            l10n.gameplayStep2,
+            style: const TextStyle(fontSize: 16),
           ),
           Text(
-            '- The colored squares show the possible moves from that position.',
-            style: TextStyle(fontSize: 16),
+            l10n.gameplayStep3,
+            style: const TextStyle(fontSize: 16),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            l10n.movementTitle,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            l10n.movementDescription1,
+            style: const TextStyle(fontSize: 16),
           ),
           Text(
-            '- You cannot move a pawn off the board or onto a space occupied by your own pawn.',
-            style: TextStyle(fontSize: 16),
+            l10n.movementDescription2,
+            style: const TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 20),
           Text(
-            'Capturing',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            l10n.movementDescription3,
+            style: const TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 20),
           Text(
-            'If you move a pawn to a square occupied by an opponent\'s pawn, the opponent\'s pawn is captured and removed from the game.',
-            style: TextStyle(fontSize: 16),
+            l10n.capturingTitle,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            l10n.capturingDescription,
+            style: const TextStyle(fontSize: 16),
           ),
         ],
       ),

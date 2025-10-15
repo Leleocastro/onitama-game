@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/ai_difficulty.dart';
 import '../models/game_mode.dart';
 import '../services/firestore_service.dart';
@@ -44,10 +45,11 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   void _showDifficultyDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Select Difficulty'),
+        title: Text(l10n.selectDifficulty),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -61,7 +63,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                 );
               },
-              text: 'Easy',
+              text: l10n.easy,
             ),
             const SizedBox(height: 10),
             StyledButton(
@@ -74,7 +76,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                 );
               },
-              text: 'Medium',
+              text: l10n.medium,
             ),
             const SizedBox(height: 10),
             StyledButton(
@@ -87,7 +89,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                 );
               },
-              text: 'Hard',
+              text: l10n.hard,
             ),
           ],
         ),
@@ -182,17 +184,18 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   void _showWaitingDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const AlertDialog(
-        title: Text('Matchmaking'),
+      builder: (context) => AlertDialog(
+        title: Text(l10n.matchmaking),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 20),
-            Text('Waiting for an opponent...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 20),
+            Text(l10n.waitingForAnOpponent),
           ],
         ),
       ),
@@ -201,6 +204,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Container(
         alignment: Alignment.center,
@@ -209,36 +213,36 @@ class _MenuScreenState extends State<MenuScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Onitama',
+              l10n.onitama,
               style: TextStyle(fontSize: 64, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
             ),
             const SizedBox(height: 20),
-            Text('The Game of the Masters', style: Theme.of(context).textTheme.titleMedium),
+            Text(l10n.gameOfTheMasters, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 60),
             StyledButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const OnitamaHome(gameMode: GameMode.pvp, isHost: true)));
               },
-              text: 'Local Multiplayer',
+              text: l10n.localMultiplayer,
               icon: Icons.people,
             ),
             const SizedBox(height: 20),
-            StyledButton(onPressed: () => _showDifficultyDialog(context), text: 'Player vs AI', icon: Icons.computer),
+            StyledButton(onPressed: () => _showDifficultyDialog(context), text: l10n.playerVsAi, icon: Icons.computer),
             const SizedBox(height: 20),
-            StyledButton(onPressed: _findOrCreateGame, text: 'Online Multiplayer', icon: Icons.public),
+            StyledButton(onPressed: _findOrCreateGame, text: l10n.onlineMultiplayer, icon: Icons.public),
             const SizedBox(height: 20),
             ExpansionTile(
-              title: const Text('Private Game'),
+              title: Text(l10n.privateGame),
               children: [
                 const SizedBox(height: 10),
-                StyledButton(onPressed: _createGame, text: 'Create Online Game', icon: Icons.add),
+                StyledButton(onPressed: _createGame, text: l10n.createOnlineGame, icon: Icons.add),
                 const SizedBox(height: 20),
                 TextField(
                   controller: _gameIdController,
-                  decoration: const InputDecoration(labelText: 'Game ID', border: OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: l10n.gameId, border: const OutlineInputBorder()),
                 ),
                 const SizedBox(height: 10),
-                StyledButton(onPressed: _joinGame, text: 'Join Online Game', icon: Icons.login),
+                StyledButton(onPressed: _joinGame, text: l10n.joinOnlineGame, icon: Icons.login),
                 const SizedBox(height: 10),
               ],
             ),
@@ -247,8 +251,8 @@ class _MenuScreenState extends State<MenuScreen> {
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const HowToPlayScreen()));
               },
-              label: Text('How to Play'),
-              icon: Icon(Icons.rule),
+              label: Text(l10n.howToPlay),
+              icon: const Icon(Icons.rule),
             ),
           ],
         ),

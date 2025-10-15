@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../logic/game_state.dart';
 import '../models/ai_difficulty.dart';
 import '../models/card_model.dart';
@@ -109,7 +110,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
       await _gameState!.makeAIMove(_showEndDialog, widget.hasDelay);
       setState(() {});
     }
-    if (_gameState!.gameMode == GameMode.online) {
+    if (_firestoreGame != null) {
       if (_firestoreGame != null) {
         final updatedGame = _firestoreGame!.copyWith(
           board: _gameState!.board,
@@ -137,6 +138,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
   }
 
   void _showEndDialog(String text) {
+    final l10n = AppLocalizations.of(context)!;
     if (ModalRoute.of(context)?.isCurrent != true) {
       return;
     }
@@ -144,18 +146,18 @@ class OnitamaHomeState extends State<OnitamaHome> {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        title: const Text('Game Over'),
+        title: Text(l10n.gameOver),
         content: Text(text),
         actions: [
           TextButton(
-            child: const Text('Exit'),
+            child: Text(l10n.exit),
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop(); // Navigate back to menu
             },
           ),
           TextButton(
-            child: const Text('Restart'),
+            child: Text(l10n.restart),
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
@@ -182,12 +184,13 @@ class OnitamaHomeState extends State<OnitamaHome> {
   }
 
   String _getPlayerLabel(PlayerColor player) {
+    final l10n = AppLocalizations.of(context)!;
     if (widget.isHost!) {
       // Host is always blue
-      return player == PlayerColor.blue ? 'You' : 'Opponent';
+      return player == PlayerColor.blue ? l10n.you : l10n.opponent;
     } else {
       // Guest is always red
-      return player == PlayerColor.red ? 'You' : 'Opponent';
+      return player == PlayerColor.red ? l10n.you : l10n.opponent;
     }
   }
 
@@ -234,14 +237,15 @@ class OnitamaHomeState extends State<OnitamaHome> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_gameState == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(body: Center(child: Text(l10n.loading)));
     }
     return StreamBuilder(
       stream: widget.gameMode == GameMode.online ? _gameStream : null,
       builder: (context, asyncSnapshot) {
         if (widget.gameMode == GameMode.online && asyncSnapshot.connectionState == ConnectionState.waiting && _gameState == null) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return Scaffold(body: Center(child: Text(l10n.loading)));
         }
         return Scaffold(
           key: scaffoldKey,
@@ -256,22 +260,22 @@ class OnitamaHomeState extends State<OnitamaHome> {
                   widget.gameMode != GameMode.online
                       ? ListTile(
                           leading: const Icon(Icons.refresh),
-                          title: const Text('Restart Game'),
+                          title: Text(l10n.restartGame),
                           onTap: () async {
                             final shouldRestart = await showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: const Text('Restart Game'),
-                                content: const Text('Are you sure you want to restart the game?'),
+                                title: Text(l10n.restartGame),
+                                content: Text(l10n.areYouSureRestart),
                                 actions: [
                                   TextButton(
-                                    child: const Text('Cancel'),
+                                    child: Text(l10n.cancel),
                                     onPressed: () {
                                       Navigator.of(context).pop(false);
                                     },
                                   ),
                                   TextButton(
-                                    child: const Text('Restart'),
+                                    child: Text(l10n.restart),
                                     onPressed: () {
                                       Navigator.of(context).pop(true);
                                     },
@@ -302,22 +306,22 @@ class OnitamaHomeState extends State<OnitamaHome> {
                         )
                       : ListTile(
                           leading: const Icon(Icons.flag_outlined),
-                          title: const Text('Surrender'),
+                          title: Text(l10n.surrender),
                           onTap: () async {
                             final shouldSurrender = await showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: const Text('Surrender Game'),
-                                content: const Text('Are you sure you want to surrender the game?'),
+                                title: Text(l10n.surrenderGame),
+                                content: Text(l10n.areYouSureSurrender),
                                 actions: [
                                   TextButton(
-                                    child: const Text('Cancel'),
+                                    child: Text(l10n.cancel),
                                     onPressed: () {
                                       Navigator.of(context).pop(false);
                                     },
                                   ),
                                   TextButton(
-                                    child: const Text('Surrender'),
+                                    child: Text(l10n.surrender),
                                     onPressed: () {
                                       Navigator.of(context).pop(true);
                                     },
@@ -331,25 +335,26 @@ class OnitamaHomeState extends State<OnitamaHome> {
                             }
                           },
                         ),
-                  Spacer(),
+                  const Spacer(),
                   if (widget.gameMode != GameMode.online)
                     ListTile(
                       leading: const Icon(Icons.exit_to_app),
+                      title: Text(l10n.exitGame),
                       onTap: () async {
                         final shouldExit = await showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Exit Game'),
-                            content: const Text('Are you sure you want to exit to the menu?'),
+                            title: Text(l10n.exitGame),
+                            content: Text(l10n.areYouSureExit),
                             actions: [
                               TextButton(
-                                child: const Text('Cancel'),
+                                child: Text(l10n.cancel),
                                 onPressed: () {
                                   Navigator.of(context).pop(false);
                                 },
                               ),
                               TextButton(
-                                child: const Text('Exit'),
+                                child: Text(l10n.exit),
                                 onPressed: () {
                                   Navigator.of(context).pop(true);
                                 },
