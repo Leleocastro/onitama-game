@@ -25,6 +25,7 @@ dev_dependencies:
     sdk: flutter
   flutter_gen_runner: ^5.3.0
   build_runner: ^2.4.9
+  flutter_launcher_icons: ^0.14.3
 
   flutter_lints: ^6.0.0
 
@@ -34,3 +35,8 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/icons/
+
+flutter_launcher_icons:
+  ios: true
+  image_path: "assets/icons/icon.png"
