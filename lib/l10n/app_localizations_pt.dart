@@ -12,7 +12,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get hello => 'Olá';
 
   @override
-  String get onitama => 'Onitama';
+  String get onitama => 'Mestres de Onitama';
 
   @override
   String get gameOfTheMasters => 'O Jogo dos Mestres';

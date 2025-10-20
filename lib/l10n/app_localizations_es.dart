@@ -12,7 +12,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get hello => 'Hola';
 
   @override
-  String get onitama => 'Onitama';
+  String get onitama => 'Maestros de Onitama';
 
   @override
   String get gameOfTheMasters => 'El Juego de los Maestros';

@@ -109,7 +109,7 @@ abstract class AppLocalizations {
   /// No description provided for @onitama.
   ///
   /// In en, this message translates to:
-  /// **'Onitama'**
+  /// **'Masters of Onitama'**
   String get onitama;
 
   /// No description provided for @gameOfTheMasters.

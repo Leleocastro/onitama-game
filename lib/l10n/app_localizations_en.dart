@@ -12,7 +12,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hello => 'Hello';
 
   @override
-  String get onitama => 'Onitama';
+  String get onitama => 'Masters of Onitama';
 
   @override
   String get gameOfTheMasters => 'The Game of the Masters';

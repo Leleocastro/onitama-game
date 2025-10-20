@@ -212,11 +212,10 @@ class _MenuScreenState extends State<MenuScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              l10n.onitama,
-              style: TextStyle(fontSize: 64, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+            Image.asset(
+              'assets/images/logo.png',
+              width: 250,
             ),
-            const SizedBox(height: 20),
             Text(l10n.gameOfTheMasters, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 60),
             StyledButton(
