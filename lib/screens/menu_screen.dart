@@ -60,7 +60,8 @@ class _MenuScreenState extends State<MenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.easy, isHost: true)),
+                    builder: (context) =>
+                        const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.easy, isHost: true)),
                   ),
                 );
               },
@@ -73,7 +74,8 @@ class _MenuScreenState extends State<MenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.medium, isHost: true)),
+                    builder: (context) =>
+                        const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.medium, isHost: true)),
                   ),
                 );
               },
@@ -86,7 +88,8 @@ class _MenuScreenState extends State<MenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.hard, isHost: true)),
+                    builder: (context) =>
+                        const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.hard, isHost: true)),
                   ),
                 );
               },
@@ -213,59 +216,66 @@ class _MenuScreenState extends State<MenuScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      body: Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(48),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image.asset(
-              'assets/images/logo.png',
-              width: 250,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(48),
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
             ),
-            Text(l10n.gameOfTheMasters, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 60),
-            StyledButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvp, isHost: true)),
-                  ),
-                );
-              },
-              text: l10n.localMultiplayer,
-              icon: Icons.people,
-            ),
-            const SizedBox(height: 20),
-            StyledButton(onPressed: () => _showDifficultyDialog(context), text: l10n.playerVsAi, icon: Icons.computer),
-            const SizedBox(height: 20),
-            StyledButton(onPressed: _findOrCreateGame, text: l10n.onlineMultiplayer, icon: Icons.public),
-            const SizedBox(height: 20),
-            ExpansionTile(
-              title: Text(l10n.privateGame),
-              children: [
-                const SizedBox(height: 10),
-                StyledButton(onPressed: _createGame, text: l10n.createOnlineGame, icon: Icons.add),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _gameIdController,
-                  decoration: InputDecoration(labelText: l10n.gameId, border: const OutlineInputBorder()),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Image.asset(
+                  'assets/images/logo.png',
+                  width: 250,
                 ),
-                const SizedBox(height: 10),
-                StyledButton(onPressed: _joinGame, text: l10n.joinOnlineGame, icon: Icons.login),
-                const SizedBox(height: 10),
+                Text(l10n.gameOfTheMasters, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 60),
+                StyledButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvp, isHost: true)),
+                      ),
+                    );
+                  },
+                  text: l10n.localMultiplayer,
+                  icon: Icons.people,
+                ),
+                const SizedBox(height: 20),
+                StyledButton(onPressed: () => _showDifficultyDialog(context), text: l10n.playerVsAi, icon: Icons.computer),
+                const SizedBox(height: 20),
+                StyledButton(onPressed: _findOrCreateGame, text: l10n.onlineMultiplayer, icon: Icons.public),
+                const SizedBox(height: 20),
+                ExpansionTile(
+                  title: Text(l10n.privateGame),
+                  children: [
+                    const SizedBox(height: 10),
+                    StyledButton(onPressed: _createGame, text: l10n.createOnlineGame, icon: Icons.add),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _gameIdController,
+                      decoration: InputDecoration(labelText: l10n.gameId, border: const OutlineInputBorder()),
+                    ),
+                    const SizedBox(height: 10),
+                    StyledButton(onPressed: _joinGame, text: l10n.joinOnlineGame, icon: Icons.login),
+                    const SizedBox(height: 10),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HowToPlayScreen()));
+                  },
+                  label: Text(l10n.howToPlay),
+                  icon: const Icon(Icons.rule),
+                ),
               ],
             ),
-            const SizedBox(height: 20),
-            TextButton.icon(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HowToPlayScreen()));
-              },
-              label: Text(l10n.howToPlay),
-              icon: const Icon(Icons.rule),
-            ),
-          ],
+          ),
         ),
       ),
     );
