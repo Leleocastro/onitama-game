@@ -9,6 +9,7 @@ import '../services/firestore_service.dart';
 import '../widgets/styled_button.dart';
 import './game_lobby_screen.dart';
 import './how_to_play_screen.dart';
+import './interstitial_ad_screen.dart';
 import './onitama_home.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -59,7 +60,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.easy, isHost: true),
+                    builder: (context) => const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.easy, isHost: true)),
                   ),
                 );
               },
@@ -72,7 +73,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.medium, isHost: true),
+                    builder: (context) => const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.medium, isHost: true)),
                   ),
                 );
               },
@@ -85,7 +86,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.hard, isHost: true),
+                    builder: (context) => const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.hard, isHost: true)),
                   ),
                 );
               },
@@ -141,12 +142,14 @@ class _MenuScreenState extends State<MenuScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OnitamaHome(
-              gameMode: GameMode.online,
-              gameId: gameId,
-              playerUid: _playerUid!,
-              isHost: true,
-              hasDelay: true,
+            builder: (context) => InterstitialAdScreen(
+              navigateTo: OnitamaHome(
+                gameMode: GameMode.online,
+                gameId: gameId,
+                playerUid: _playerUid!,
+                isHost: true,
+                hasDelay: true,
+              ),
             ),
           ),
         );
@@ -160,11 +163,13 @@ class _MenuScreenState extends State<MenuScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => OnitamaHome(
-                gameMode: GameMode.online,
-                gameId: gameId,
-                playerUid: _playerUid!,
-                isHost: true,
+              builder: (context) => InterstitialAdScreen(
+                navigateTo: OnitamaHome(
+                  gameMode: GameMode.online,
+                  gameId: gameId,
+                  playerUid: _playerUid!,
+                  isHost: true,
+                ),
               ),
             ),
           );
@@ -177,7 +182,9 @@ class _MenuScreenState extends State<MenuScreen> {
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => OnitamaHome(gameMode: GameMode.online, gameId: gameId, playerUid: _playerUid!, isHost: false),
+          builder: (context) => InterstitialAdScreen(
+            navigateTo: OnitamaHome(gameMode: GameMode.online, gameId: gameId, playerUid: _playerUid!, isHost: false),
+          ),
         ),
       );
     }
@@ -220,7 +227,12 @@ class _MenuScreenState extends State<MenuScreen> {
             const SizedBox(height: 60),
             StyledButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const OnitamaHome(gameMode: GameMode.pvp, isHost: true)));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvp, isHost: true)),
+                  ),
+                );
               },
               text: l10n.localMultiplayer,
               icon: Icons.people,

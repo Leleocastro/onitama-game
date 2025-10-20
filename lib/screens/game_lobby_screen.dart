@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../models/firestore_game.dart';
 import '../models/game_mode.dart';
 import '../services/firestore_service.dart';
+import './interstitial_ad_screen.dart';
 import 'onitama_home.dart';
 
 class GameLobbyScreen extends StatefulWidget {
@@ -42,11 +43,13 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => OnitamaHome(
-                    gameMode: GameMode.online,
-                    gameId: widget.gameId,
-                    playerUid: widget.playerUid,
-                    isHost: game.players['blue'] == widget.playerUid,
+                  builder: (context) => InterstitialAdScreen(
+                    navigateTo: OnitamaHome(
+                      gameMode: GameMode.online,
+                      gameId: widget.gameId,
+                      playerUid: widget.playerUid,
+                      isHost: game.players['blue'] == widget.playerUid,
+                    ),
                   ),
                 ),
               );

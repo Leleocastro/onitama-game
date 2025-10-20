@@ -12,6 +12,7 @@ import '../models/player.dart';
 import '../services/firestore_service.dart';
 import '../widgets/board_widget.dart';
 import '../widgets/card_widget.dart';
+import 'interstitial_ad_screen.dart';
 
 class OnitamaHome extends StatefulWidget {
   final GameMode gameMode;
@@ -160,22 +161,20 @@ class OnitamaHomeState extends State<OnitamaHome> {
             child: Text(l10n.restart),
             onPressed: () {
               Navigator.of(context).pop();
-              setState(() {
-                _gameState!.restart();
-                if (widget.gameMode == GameMode.online) {
-                  if (_firestoreGame != null) {
-                    final updatedGame = _firestoreGame!.copyWith(
-                      board: _gameState!.board,
-                      redHand: _gameState!.redHand,
-                      blueHand: _gameState!.blueHand,
-                      reserveCard: _gameState!.reserveCard,
-                      currentPlayer: _gameState!.currentPlayer,
-                      lastMove: {},
-                    );
-                    _firestoreService.updateGame(widget.gameId!, updatedGame);
-                  }
-                }
-              });
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => InterstitialAdScreen(
+                    navigateTo: OnitamaHome(
+                      gameMode: widget.gameMode,
+                      aiDifficulty: widget.aiDifficulty,
+                      gameId: widget.gameId,
+                      playerUid: widget.playerUid,
+                      isHost: widget.isHost,
+                      hasDelay: widget.hasDelay,
+                    ),
+                  ),
+                ),
+              );
             },
           ),
         ],
@@ -326,22 +325,20 @@ class OnitamaHomeState extends State<OnitamaHome> {
                             );
                             if (shouldRestart == true) {
                               Navigator.of(context).pop(); // Close the drawer
-                              setState(() {
-                                _gameState!.restart();
-                                if (widget.gameMode == GameMode.online) {
-                                  if (_firestoreGame != null) {
-                                    final updatedGame = _firestoreGame!.copyWith(
-                                      board: _gameState!.board,
-                                      redHand: _gameState!.redHand,
-                                      blueHand: _gameState!.blueHand,
-                                      reserveCard: _gameState!.reserveCard,
-                                      currentPlayer: _gameState!.currentPlayer,
-                                      lastMove: {},
-                                    );
-                                    _firestoreService.updateGame(widget.gameId!, updatedGame);
-                                  }
-                                }
-                              });
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) => InterstitialAdScreen(
+                                    navigateTo: OnitamaHome(
+                                      gameMode: widget.gameMode,
+                                      aiDifficulty: widget.aiDifficulty,
+                                      gameId: widget.gameId,
+                                      playerUid: widget.playerUid,
+                                      isHost: widget.isHost,
+                                      hasDelay: widget.hasDelay,
+                                    ),
+                                  ),
+                                ),
+                              );
                             }
                           },
                         )
