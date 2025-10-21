@@ -10,7 +10,7 @@ import 'style/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  MobileAds.instance.initialize();
+  await MobileAds.instance.initialize();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const OnitamaApp());
 }

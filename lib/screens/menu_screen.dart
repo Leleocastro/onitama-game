@@ -145,14 +145,12 @@ class _MenuScreenState extends State<MenuScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => InterstitialAdScreen(
-              navigateTo: OnitamaHome(
-                gameMode: GameMode.online,
-                gameId: gameId,
-                playerUid: _playerUid!,
-                isHost: true,
-                hasDelay: true,
-              ),
+            builder: (context) => OnitamaHome(
+              gameMode: GameMode.online,
+              gameId: gameId,
+              playerUid: _playerUid!,
+              isHost: true,
+              hasDelay: true,
             ),
           ),
         );
@@ -166,13 +164,11 @@ class _MenuScreenState extends State<MenuScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => InterstitialAdScreen(
-                navigateTo: OnitamaHome(
-                  gameMode: GameMode.online,
-                  gameId: gameId,
-                  playerUid: _playerUid!,
-                  isHost: true,
-                ),
+              builder: (context) => OnitamaHome(
+                gameMode: GameMode.online,
+                gameId: gameId,
+                playerUid: _playerUid!,
+                isHost: true,
               ),
             ),
           );
@@ -185,9 +181,7 @@ class _MenuScreenState extends State<MenuScreen> {
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => InterstitialAdScreen(
-            navigateTo: OnitamaHome(gameMode: GameMode.online, gameId: gameId, playerUid: _playerUid!, isHost: false),
-          ),
+          builder: (context) => OnitamaHome(gameMode: GameMode.online, gameId: gameId, playerUid: _playerUid!, isHost: false),
         ),
       );
     }
