@@ -101,7 +101,9 @@ class OnitamaHomeState extends State<OnitamaHome> {
     final isAiTurn = _gameState!.onCellTap(r, c, _showEndDialog);
     setState(() {});
 
-    if (isAiTurn && !_gameState!.isWinByCapture() && !_gameState!.isWinByTemple(_gameState!.lastMove!.to.r, _gameState!.lastMove!.to.c, PlayerColor.blue)) {
+    if (isAiTurn &&
+        (!_gameState!.isWinByCapture() && !_gameState!.isWinByTemple(_gameState!.lastMove!.to.r, _gameState!.lastMove!.to.c, PlayerColor.blue) ||
+            _gameState!.gameMode == GameMode.online)) {
       _handleAIMove();
     }
   }
@@ -112,17 +114,15 @@ class OnitamaHomeState extends State<OnitamaHome> {
       setState(() {});
     }
     if (_firestoreGame != null) {
-      if (_firestoreGame != null) {
-        final updatedGame = _firestoreGame!.copyWith(
-          board: _gameState!.board,
-          redHand: _gameState!.redHand,
-          blueHand: _gameState!.blueHand,
-          reserveCard: _gameState!.reserveCard,
-          currentPlayer: _gameState!.currentPlayer,
-          lastMove: _gameState!.lastMoveAsMap,
-        );
-        _firestoreService.updateGame(widget.gameId!, updatedGame);
-      }
+      final updatedGame = _firestoreGame!.copyWith(
+        board: _gameState!.board,
+        redHand: _gameState!.redHand,
+        blueHand: _gameState!.blueHand,
+        reserveCard: _gameState!.reserveCard,
+        currentPlayer: _gameState!.currentPlayer,
+        lastMove: _gameState!.lastMoveAsMap,
+      );
+      _firestoreService.updateGame(widget.gameId!, updatedGame);
     }
   }
 
@@ -163,16 +163,25 @@ class OnitamaHomeState extends State<OnitamaHome> {
               Navigator.of(context).pop();
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => InterstitialAdScreen(
-                    navigateTo: OnitamaHome(
-                      gameMode: widget.gameMode,
-                      aiDifficulty: widget.aiDifficulty,
-                      gameId: widget.gameId,
-                      playerUid: widget.playerUid,
-                      isHost: widget.isHost,
-                      hasDelay: widget.hasDelay,
-                    ),
-                  ),
+                  builder: (context) => _gameState!.gameMode == GameMode.online
+                      ? OnitamaHome(
+                          gameMode: widget.gameMode,
+                          aiDifficulty: widget.aiDifficulty,
+                          gameId: widget.gameId,
+                          playerUid: widget.playerUid,
+                          isHost: widget.isHost,
+                          hasDelay: widget.hasDelay,
+                        )
+                      : InterstitialAdScreen(
+                          navigateTo: OnitamaHome(
+                            gameMode: widget.gameMode,
+                            aiDifficulty: widget.aiDifficulty,
+                            gameId: widget.gameId,
+                            playerUid: widget.playerUid,
+                            isHost: widget.isHost,
+                            hasDelay: widget.hasDelay,
+                          ),
+                        ),
                 ),
               );
             },
