@@ -513,6 +513,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cobra'**
   String get cardCobra;
+
+  /// No description provided for @wonByCapture.
+  ///
+  /// In en, this message translates to:
+  /// **'won by capture!'**
+  String get wonByCapture;
+
+  /// No description provided for @wonByTemple.
+  ///
+  /// In en, this message translates to:
+  /// **'won by temple!'**
+  String get wonByTemple;
+
+  /// No description provided for @blue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get blue;
+
+  /// No description provided for @red.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get red;
 }
 
 class _AppLocalizationsDelegate

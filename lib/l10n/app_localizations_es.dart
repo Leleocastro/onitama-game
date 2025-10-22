@@ -229,4 +229,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cardCobra => 'Cobra';
+
+  @override
+  String get wonByCapture => '¡ganó por captura!';
+
+  @override
+  String get wonByTemple => '¡ganó por templo!';
+
+  @override
+  String get blue => 'Azul';
+
+  @override
+  String get red => 'Rojo';
 }

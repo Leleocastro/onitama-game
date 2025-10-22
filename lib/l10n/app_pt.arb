@@ -67,5 +67,9 @@
   "cardCrane": "Grou",
   "cardBoar": "Javali",
   "cardEel": "Enguia",
-  "cardCobra": "Cobra"
+  "cardCobra": "Cobra",
+  "wonByCapture": "venceu por captura!",
+  "wonByTemple": "venceu pelo templo!",
+  "blue": "Azul",
+  "red": "Vermelho"
 }

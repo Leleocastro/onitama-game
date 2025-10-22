@@ -1,0 +1,5 @@
+
+enum WinCondition {
+  capture,
+  temple,
+}

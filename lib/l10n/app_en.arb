@@ -67,5 +67,9 @@
   "cardCrane": "Crane",
   "cardBoar": "Boar",
   "cardEel": "Eel",
-  "cardCobra": "Cobra"
+  "cardCobra": "Cobra",
+  "wonByCapture": "won by capture!",
+  "wonByTemple": "won by temple!",
+  "blue": "Blue",
+  "red": "Red"
 }

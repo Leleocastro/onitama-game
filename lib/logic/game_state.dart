@@ -13,6 +13,7 @@ import '../models/piece_type.dart';
 import '../models/player.dart';
 import '../models/point.dart';
 import 'ai_player.dart';
+import '../models/win_condition.dart';
 
 class GameState {
   static const int size = 5;
@@ -197,28 +198,28 @@ class GameState {
     return targets;
   }
 
-  void verifyWin(Function onWin) {
+  void verifyWin(Function(PlayerColor, WinCondition) onWin) {
     if (isWinByCapture()) {
       winner = currentPlayer;
-      onWin('${_playerName(winner!)} won by capture!');
+      onWin(winner!, WinCondition.capture);
       return;
     }
     for (var c = 0; c < size; c++) {
       if (isWinByTemple(0, c, PlayerColor.red)) {
         winner = PlayerColor.red;
-        onWin('Red won by temple!');
+        onWin(PlayerColor.red, WinCondition.temple);
         return;
       }
       if (isWinByTemple(4, c, PlayerColor.blue)) {
         winner = PlayerColor.blue;
-        onWin('Blue won by temple!');
+        onWin(PlayerColor.blue, WinCondition.temple);
         return;
       }
     }
     return;
   }
 
-  bool onCellTap(int r, int c, Function onWin) {
+  bool onCellTap(int r, int c, Function(PlayerColor, WinCondition) onWin) {
     if (gameMode == GameMode.pvai && currentPlayer == PlayerColor.red) {
       return false;
     }
@@ -249,12 +250,12 @@ class GameState {
 
       if (isWinByCapture()) {
         winner = currentPlayer;
-        onWin('${_playerName(winner!)} won by capture!');
+        onWin(winner!, WinCondition.capture);
         return true;
       }
       if (isWinByTemple(r, c, currentPlayer)) {
         winner = currentPlayer;
-        onWin('${_playerName(winner!)} won by temple!');
+        onWin(winner!, WinCondition.temple);
         return true;
       }
 
@@ -270,13 +271,14 @@ class GameState {
     return false;
   }
 
-  Future<void> makeAIMove(Function onWin, [bool hasDelay = false]) async {
+  Future<void> makeAIMove(Function(PlayerColor, WinCondition) onWin, [bool hasDelay = false]) async {
     final delay = hasDelay ? Duration(seconds: Random().nextInt(10) + 3) : Duration.zero;
     await Future.delayed(delay);
 
     final move = aiPlayer!.getMove(this);
     if (move == null) {
-      onWin('${_playerName(currentPlayer)} has no moves! You win!');
+      winner = opponent(currentPlayer);
+      onWin(winner!, WinCondition.capture);
       return;
     }
 
@@ -289,12 +291,12 @@ class GameState {
 
     if (isWinByCapture()) {
       winner = currentPlayer;
-      onWin('${_playerName(winner!)} won by capture!');
+      onWin(winner!, WinCondition.capture);
       return;
     }
     if (isWinByTemple(move.to.r, move.to.c, currentPlayer)) {
       winner = currentPlayer;
-      onWin('${_playerName(winner!)} won by temple!');
+      onWin(winner!, WinCondition.temple);
       return;
     }
 

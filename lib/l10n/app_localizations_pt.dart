@@ -229,4 +229,16 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get cardCobra => 'Cobra';
+
+  @override
+  String get wonByCapture => 'venceu por captura!';
+
+  @override
+  String get wonByTemple => 'venceu pelo templo!';
+
+  @override
+  String get blue => 'Azul';
+
+  @override
+  String get red => 'Vermelho';
 }

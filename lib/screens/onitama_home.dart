@@ -13,6 +13,7 @@ import '../services/firestore_service.dart';
 import '../widgets/board_widget.dart';
 import '../widgets/card_widget.dart';
 import 'interstitial_ad_screen.dart';
+import '../models/win_condition.dart';
 
 class OnitamaHome extends StatefulWidget {
   final GameMode gameMode;
@@ -140,11 +141,16 @@ class OnitamaHomeState extends State<OnitamaHome> {
     });
   }
 
-  void _showEndDialog(String text) {
+  void _showEndDialog(PlayerColor winner, WinCondition condition) {
     final l10n = AppLocalizations.of(context)!;
     if (ModalRoute.of(context)?.isCurrent != true) {
       return;
     }
+
+    final winnerName = _getWinnerName(winner);
+    final conditionText = condition == WinCondition.capture ? l10n.wonByCapture : l10n.wonByTemple;
+    final text = '$winnerName $conditionText';
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -191,6 +197,19 @@ class OnitamaHomeState extends State<OnitamaHome> {
         ],
       ),
     );
+  }
+
+  String _getWinnerName(PlayerColor winner) {
+    final l10n = AppLocalizations.of(context)!;
+    if (widget.gameMode == GameMode.online) {
+      if ((winner == PlayerColor.blue && widget.isHost!) || (winner == PlayerColor.red && !widget.isHost!)) {
+        return l10n.you;
+      } else {
+        return l10n.opponent;
+      }
+    } else {
+      return winner == PlayerColor.blue ? l10n.blue : l10n.red;
+    }
   }
 
   String _getPlayerLabel(PlayerColor player) {

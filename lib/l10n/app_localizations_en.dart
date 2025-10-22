@@ -229,4 +229,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardCobra => 'Cobra';
+
+  @override
+  String get wonByCapture => 'won by capture!';
+
+  @override
+  String get wonByTemple => 'won by temple!';
+
+  @override
+  String get blue => 'Blue';
+
+  @override
+  String get red => 'Red';
 }
