@@ -537,6 +537,67 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Red'**
   String get red;
+
+  /// No description provided for @historyWon.
+  ///
+  /// In en, this message translates to:
+  /// **'Won'**
+  String get historyWon;
+
+  /// No description provided for @historyLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Lost'**
+  String get historyLost;
+
+  /// No description provided for @historyNA.
+  ///
+  /// In en, this message translates to:
+  /// **'N/A'**
+  String get historyNA;
+
+  /// No description provided for @historyGameOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Game on'**
+  String get historyGameOn;
+
+  /// No description provided for @historyErrorLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading games.'**
+  String get historyErrorLoading;
+
+  /// No description provided for @historyNoFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'No finished games found.'**
+  String get historyNoFinished;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Game History'**
+  String get historyTitle;
+
+  /// No description provided for @moveHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Game History'**
+  String get moveHistoryTitle;
+
+  /// No description provided for @moveHistoryMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {number}'**
+  String moveHistoryMove(Object number);
+
+  /// No description provided for @moveHistoryFromTo.
+  ///
+  /// In en, this message translates to:
+  /// **'From: ({fromR}, {fromC}) To: ({toR}, {toC}) with {cardName}'**
+  String moveHistoryFromTo(
+      Object cardName, Object fromC, Object fromR, Object toC, Object toR);
 }
 
 class _AppLocalizationsDelegate

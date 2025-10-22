@@ -71,5 +71,15 @@
   "wonByCapture": "¡ganó por captura!",
   "wonByTemple": "¡ganó por templo!",
   "blue": "Azul",
-  "red": "Rojo"
+  "red": "Rojo",
+  "historyWon": "Ganó",
+  "historyLost": "Perdió",
+  "historyNA": "N/A",
+  "historyGameOn": "Partida em",
+  "historyErrorLoading": "Error al cargar partidas.",
+  "historyNoFinished": "No se encontraron partidas finalizadas.",
+  "historyTitle": "Historial de Partidas",
+  "moveHistoryTitle": "Historial de la Partida",
+  "moveHistoryMove": "Movimiento {number}",
+  "moveHistoryFromTo": "De: ({fromR}, {fromC}) A: ({toR}, {toC}) con {cardName}"
 }

@@ -16,8 +16,6 @@ class FirestoreService {
     return userCredential.user!.uid;
   }
 
-
-
   Future<String> createGame(String hostUid, {GameMode gameMode = GameMode.online, String status = 'inprogress'}) async {
     final tempGameState = GameState(gameMode: gameMode);
 
@@ -117,7 +115,25 @@ class FirestoreService {
   }
 
   Future<List<FirestoreGame>> getFinishedGames() async {
-    final snapshot = await _db.collection('games').where('status', isEqualTo: 'finished').get();
-    return snapshot.docs.map((doc) => FirestoreGame.fromFirestore(doc)).toList();
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return [];
+
+    // Firestore não suporta OR entre campos diferentes, então precisamos buscar separadamente e juntar os resultados
+    final finishedRed = await _db.collection('games').where('status', isEqualTo: 'finished').where('players.red', isEqualTo: userId).get();
+
+    final finishedBlue = await _db.collection('games').where('status', isEqualTo: 'finished').where('players.blue', isEqualTo: userId).get();
+
+    // Juntar e remover duplicados pelo id
+    final allDocs = <String, QueryDocumentSnapshot>{};
+    for (final doc in finishedRed.docs) {
+      allDocs[doc.id] = doc;
+    }
+    for (final doc in finishedBlue.docs) {
+      allDocs[doc.id] = doc;
+    }
+
+    final games = allDocs.values.map((doc) => FirestoreGame.fromFirestore(doc)).toList();
+    games.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return games;
   }
 }

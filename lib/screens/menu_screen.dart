@@ -14,6 +14,7 @@ import './interstitial_ad_screen.dart';
 import './login_screen.dart';
 import './onitama_home.dart';
 import './profile_modal.dart';
+import 'history_game_screen.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -34,15 +35,11 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeUser();
     _authStateChangesSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user == null) {
-        _signInAnonymously();
-      } else {
-        _playerUid = user.uid;
-        if (mounted) {
-          setState(() {});
-        }
-      }
+      setState(() {
+        // Rebuild the widget when auth state changes
+      });
     });
   }
 
@@ -54,11 +51,9 @@ class _MenuScreenState extends State<MenuScreen> {
     super.dispose();
   }
 
-  Future<void> _signInAnonymously() async {
+  Future<void> _initializeUser() async {
     _playerUid = await _firestoreService.signInAnonymously();
-    if (mounted) {
-      setState(() {});
-    }
+    setState(() {});
   }
 
   void _showDifficultyDialog(BuildContext context) {
@@ -322,7 +317,22 @@ class _MenuScreenState extends State<MenuScreen> {
                 const SizedBox(height: 20),
                 StyledButton(onPressed: () => _showDifficultyDialog(context), text: l10n.playerVsAi, icon: Icons.computer),
                 const SizedBox(height: 20),
-                StyledButton(onPressed: _findOrCreateGame, text: l10n.onlineMultiplayer, icon: Icons.public),
+                Row(
+                  children: [
+                    Expanded(child: StyledButton(onPressed: _findOrCreateGame, text: l10n.onlineMultiplayer, icon: Icons.public)),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => HistoryGameScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.history),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 20),
                 ExpansionTile(
                   title: Text(l10n.privateGame),

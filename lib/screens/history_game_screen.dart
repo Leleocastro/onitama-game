@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/firestore_game.dart';
 import '../services/firestore_service.dart';
 import 'historic_game_detail_screen.dart';
@@ -23,9 +25,10 @@ class _HistoryGameScreenState extends State<HistoryGameScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Game History'),
+        title: Text(l10n.historyTitle),
       ),
       body: FutureBuilder<List<FirestoreGame>>(
         future: _gamesFuture,
@@ -34,19 +37,32 @@ class _HistoryGameScreenState extends State<HistoryGameScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return const Center(child: Text('Error loading games.'));
+            return Center(child: Text(l10n.historyErrorLoading));
           }
           final games = snapshot.data!;
           if (games.isEmpty) {
-            return const Center(child: Text('No finished games found.'));
+            return Center(child: Text(l10n.historyNoFinished));
           }
           return ListView.builder(
             itemCount: games.length,
             itemBuilder: (context, index) {
               final game = games[index];
+              final userId = FirebaseAuth.instance.currentUser?.uid;
+              String resultText;
+              if (userId != null && (game.winner == null)) {
+                resultText = l10n.historyNA;
+              } else if (userId != null && (game.players[game.winner] == userId)) {
+                resultText = l10n.historyWon;
+              } else if (userId != null && (game.players.values.contains(userId))) {
+                resultText = l10n.historyLost;
+              } else {
+                resultText = l10n.historyNA;
+              }
+              final date = game.createdAt.toDate();
+              final formattedDate = MaterialLocalizations.of(context).formatShortDate(date);
               return ListTile(
-                title: Text('Game on ${game.createdAt.toDate()}'),
-                subtitle: Text('Winner: ${game.winner?.name ?? 'N/A'}'),
+                title: Text('${l10n.historyGameOn} $formattedDate'),
+                subtitle: Text(resultText),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(

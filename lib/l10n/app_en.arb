@@ -71,5 +71,15 @@
   "wonByCapture": "won by capture!",
   "wonByTemple": "won by temple!",
   "blue": "Blue",
-  "red": "Red"
+  "red": "Red",
+  "historyWon": "Won",
+  "historyLost": "Lost",
+  "historyNA": "N/A",
+  "historyGameOn": "Game on",
+  "historyErrorLoading": "Error loading games.",
+  "historyNoFinished": "No finished games found.",
+  "historyTitle": "Game History",
+  "moveHistoryTitle": "Current Game History",
+  "moveHistoryMove": "Move {number}",
+  "moveHistoryFromTo": "From: ({fromR}, {fromC}) To: ({toR}, {toC}) with {cardName}"
 }

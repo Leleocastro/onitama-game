@@ -241,4 +241,39 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get red => 'Rojo';
+
+  @override
+  String get historyWon => 'Ganó';
+
+  @override
+  String get historyLost => 'Perdió';
+
+  @override
+  String get historyNA => 'N/A';
+
+  @override
+  String get historyGameOn => 'Partida em';
+
+  @override
+  String get historyErrorLoading => 'Error al cargar partidas.';
+
+  @override
+  String get historyNoFinished => 'No se encontraron partidas finalizadas.';
+
+  @override
+  String get historyTitle => 'Historial de Partidas';
+
+  @override
+  String get moveHistoryTitle => 'Historial de la Partida';
+
+  @override
+  String moveHistoryMove(Object number) {
+    return 'Movimiento $number';
+  }
+
+  @override
+  String moveHistoryFromTo(
+      Object cardName, Object fromC, Object fromR, Object toC, Object toR) {
+    return 'De: ($fromR, $fromC) A: ($toR, $toC) con $cardName';
+  }
 }
