@@ -9,11 +9,11 @@ import '../models/card_model.dart';
 import '../models/firestore_game.dart';
 import '../models/game_mode.dart';
 import '../models/player.dart';
+import '../models/win_condition.dart';
 import '../services/firestore_service.dart';
 import '../widgets/board_widget.dart';
 import '../widgets/card_widget.dart';
 import 'interstitial_ad_screen.dart';
-import '../models/win_condition.dart';
 
 class OnitamaHome extends StatefulWidget {
   final GameMode gameMode;
@@ -165,35 +165,27 @@ class OnitamaHomeState extends State<OnitamaHome> {
               Navigator.of(context).pop(); // Navigate back to menu
             },
           ),
-          TextButton(
-            child: Text(l10n.restart),
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => _gameState!.gameMode == GameMode.online
-                      ? OnitamaHome(
-                          gameMode: widget.gameMode,
-                          aiDifficulty: widget.aiDifficulty,
-                          gameId: widget.gameId,
-                          playerUid: widget.playerUid,
-                          isHost: widget.isHost,
-                          hasDelay: widget.hasDelay,
-                        )
-                      : InterstitialAdScreen(
-                          navigateTo: OnitamaHome(
-                            gameMode: widget.gameMode,
-                            aiDifficulty: widget.aiDifficulty,
-                            gameId: widget.gameId,
-                            playerUid: widget.playerUid,
-                            isHost: widget.isHost,
-                            hasDelay: widget.hasDelay,
-                          ),
-                        ),
-                ),
-              );
-            },
-          ),
+          if (_gameState!.gameMode == GameMode.online)
+            TextButton(
+              child: Text(l10n.restart),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => InterstitialAdScreen(
+                      navigateTo: OnitamaHome(
+                        gameMode: widget.gameMode,
+                        aiDifficulty: widget.aiDifficulty,
+                        gameId: widget.gameId,
+                        playerUid: widget.playerUid,
+                        isHost: widget.isHost,
+                        hasDelay: widget.hasDelay,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );
