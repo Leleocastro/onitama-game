@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
@@ -10,7 +11,9 @@ import '../widgets/styled_button.dart';
 import './game_lobby_screen.dart';
 import './how_to_play_screen.dart';
 import './interstitial_ad_screen.dart';
+import './login_screen.dart';
 import './onitama_home.dart';
+import './profile_modal.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -26,17 +29,24 @@ class _MenuScreenState extends State<MenuScreen> {
   String? _playerUid;
   StreamSubscription? _gameSubscription;
   Timer? _gameCreationTimer;
+  StreamSubscription<User?>? _authStateChangesSubscription;
 
   @override
   void initState() {
     super.initState();
     _initializeUser();
+    _authStateChangesSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        // Rebuild the widget when auth state changes
+      });
+    });
   }
 
   @override
   void dispose() {
     _gameSubscription?.cancel();
     _gameCreationTimer?.cancel();
+    _authStateChangesSubscription?.cancel();
     super.dispose();
   }
 
@@ -102,37 +112,43 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   Future<void> _createGame() async {
-    if (_playerUid == null) return;
-    final gameId = await _firestoreService.createGame(_playerUid!);
+    final user = FirebaseAuth.instance.currentUser;
+    final currentUid = user?.uid ?? _playerUid;
+    if (currentUid == null) return;
+    final gameId = await _firestoreService.createGame(currentUid);
     if (!mounted) return;
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => GameLobbyScreen(gameId: gameId, playerUid: _playerUid!),
+        builder: (context) => GameLobbyScreen(gameId: gameId, playerUid: currentUid),
       ),
     );
   }
 
   Future<void> _joinGame() async {
-    if (_playerUid == null) return;
+    final user = FirebaseAuth.instance.currentUser;
+    final currentUid = user?.uid ?? _playerUid;
+    if (currentUid == null) return;
     final gameId = _gameIdController.text.trim();
     if (gameId.isNotEmpty) {
       if (!mounted) return;
-      _firestoreService.joinGame(gameId, _playerUid!);
+      _firestoreService.joinGame(gameId, currentUid);
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => GameLobbyScreen(gameId: gameId, playerUid: _playerUid!),
+          builder: (context) => GameLobbyScreen(gameId: gameId, playerUid: currentUid),
         ),
       );
     }
   }
 
   Future<void> _findOrCreateGame() async {
-    if (_playerUid == null) return;
+    final user = FirebaseAuth.instance.currentUser;
+    final currentUid = user?.uid ?? _playerUid;
+    if (currentUid == null) return;
     _showWaitingDialog();
 
-    final result = await _firestoreService.findOrCreateGame(_playerUid!);
+    final result = await _firestoreService.findOrCreateGame(currentUid);
     final gameId = result['gameId'];
     final isHost = result['isHost'];
     final inProgress = result['inProgress'] ?? false;
@@ -143,7 +159,7 @@ class _MenuScreenState extends State<MenuScreen> {
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => OnitamaHome(gameMode: GameMode.online, gameId: gameId, playerUid: _playerUid!, isHost: isHost),
+          builder: (context) => OnitamaHome(gameMode: GameMode.online, gameId: gameId, playerUid: currentUid, isHost: isHost),
         ),
       );
       return;
@@ -161,7 +177,7 @@ class _MenuScreenState extends State<MenuScreen> {
             builder: (context) => OnitamaHome(
               gameMode: GameMode.online,
               gameId: gameId,
-              playerUid: _playerUid!,
+              playerUid: currentUid,
               isHost: true,
               hasDelay: true,
             ),
@@ -180,7 +196,7 @@ class _MenuScreenState extends State<MenuScreen> {
               builder: (context) => OnitamaHome(
                 gameMode: GameMode.online,
                 gameId: gameId,
-                playerUid: _playerUid!,
+                playerUid: currentUid,
                 isHost: true,
               ),
             ),
@@ -194,7 +210,7 @@ class _MenuScreenState extends State<MenuScreen> {
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => OnitamaHome(gameMode: GameMode.online, gameId: gameId, playerUid: _playerUid!, isHost: false),
+          builder: (context) => OnitamaHome(gameMode: GameMode.online, gameId: gameId, playerUid: currentUid, isHost: false),
         ),
       );
     }
@@ -223,6 +239,51 @@ class _MenuScreenState extends State<MenuScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              }
+              if (snapshot.hasData && snapshot.data != null && !snapshot.data!.isAnonymous) {
+                final user = snapshot.data!;
+                final initial = user.displayName?.isNotEmpty == true
+                    ? user.displayName![0].toUpperCase()
+                    : (user.email?.isNotEmpty == true ? user.email![0].toUpperCase() : '?');
+                return Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => ProfileModal(user: user),
+                      );
+                    },
+                    child: CircleAvatar(
+                      child: Text(initial),
+                    ),
+                  ),
+                );
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      );
+                    },
+                    child: const Text('Sign In'),
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(

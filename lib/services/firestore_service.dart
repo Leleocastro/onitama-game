@@ -16,6 +16,8 @@ class FirestoreService {
     return userCredential.user!.uid;
   }
 
+
+
   Future<String> createGame(String hostUid, {GameMode gameMode = GameMode.online, String status = 'inprogress'}) async {
     final tempGameState = GameState(gameMode: gameMode);
 

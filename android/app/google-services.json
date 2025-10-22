@@ -4,26 +4,45 @@
     "project_id": "onitama-game",
     "storage_bucket": "onitama-game.firebasestorage.app"
   },
-  "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:444683843595:android:ec92a4f766b3253568af0e",
-        "android_client_info": {
-          "package_name": "com.ltag.onitama"
+  "client": [{
+    "client_info": {
+      "mobilesdk_app_id": "1:444683843595:android:ec92a4f766b3253568af0e",
+      "android_client_info": {
+        "package_name": "com.ltag.onitama"
+      }
+    },
+    "oauth_client": [{
+        "client_id": "444683843595-360lh1k5ai9tn6paip1a49g8a8jvck4v.apps.googleusercontent.com",
+        "client_type": 1,
+        "android_info": {
+          "package_name": "com.ltag.onitama",
+          "certificate_hash": "595d63ebf266d605f69e5a50e8240df67bd55990"
         }
       },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyA98UVo0zdTyPbv-FYO78zJpLoRyzpBx7Y"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
+      {
+        "client_id": "444683843595-a0putk1l183k44kdd4dkcm1tmb8v5uia.apps.googleusercontent.com",
+        "client_type": 3
+      }
+    ],
+    "api_key": [{
+      "current_key": "AIzaSyA98UVo0zdTyPbv-FYO78zJpLoRyzpBx7Y"
+    }],
+    "services": {
+      "appinvite_service": {
+        "other_platform_oauth_client": [{
+            "client_id": "444683843595-a0putk1l183k44kdd4dkcm1tmb8v5uia.apps.googleusercontent.com",
+            "client_type": 3
+          },
+          {
+            "client_id": "444683843595-8htgibejk8ottsaiaoefc5svv9bi7frc.apps.googleusercontent.com",
+            "client_type": 2,
+            "ios_info": {
+              "bundle_id": "com.ltag.onitama"
+            }
+          }
+        ]
       }
     }
-  ],
+  }],
   "configuration_version": "1"
 }
