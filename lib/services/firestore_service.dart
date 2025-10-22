@@ -48,6 +48,13 @@ class FirestoreService {
   }
 
   Future<Map<String, dynamic>> findOrCreateGame(String playerUid) async {
+    final yourWaitingGames = await _db.collection('games').where('status', isEqualTo: 'waiting').where('players.blue', isEqualTo: playerUid).limit(1).get();
+
+    if (yourWaitingGames.docs.isNotEmpty) {
+      final gameDoc = yourWaitingGames.docs.first;
+      return {'gameId': gameDoc.id, 'isHost': true};
+    }
+
     final waitingGames = await _db.collection('games').where('status', isEqualTo: 'waiting').where('players.blue', isNotEqualTo: playerUid).limit(1).get();
 
     if (waitingGames.docs.isNotEmpty) {
