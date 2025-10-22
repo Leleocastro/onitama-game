@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import '../logic/game_state.dart';
 import '../models/ai_difficulty.dart';
 import '../models/firestore_game.dart';
@@ -47,7 +48,7 @@ class FirestoreService {
   }
 
   Future<Map<String, dynamic>> findOrCreateGame(String playerUid) async {
-    final waitingGames = await _db.collection('games').where('status', isEqualTo: 'waiting').limit(1).get();
+    final waitingGames = await _db.collection('games').where('status', isEqualTo: 'waiting').where('players.blue', isNotEqualTo: playerUid).limit(1).get();
 
     if (waitingGames.docs.isNotEmpty) {
       final gameDoc = waitingGames.docs.first;
