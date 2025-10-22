@@ -34,11 +34,15 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeUser();
     _authStateChangesSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
-      setState(() {
-        // Rebuild the widget when auth state changes
-      });
+      if (user == null) {
+        _signInAnonymously();
+      } else {
+        _playerUid = user.uid;
+        if (mounted) {
+          setState(() {});
+        }
+      }
     });
   }
 
@@ -50,9 +54,11 @@ class _MenuScreenState extends State<MenuScreen> {
     super.dispose();
   }
 
-  Future<void> _initializeUser() async {
+  Future<void> _signInAnonymously() async {
     _playerUid = await _firestoreService.signInAnonymously();
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _showDifficultyDialog(BuildContext context) {
