@@ -101,15 +101,15 @@ class OnitamaHomeState extends State<OnitamaHome> {
     final isAiTurn = _gameState!.onCellTap(r, c, _showEndDialog);
     setState(() {});
 
-    if (isAiTurn &&
-        (!_gameState!.isWinByCapture() && !_gameState!.isWinByTemple(_gameState!.lastMove!.to.r, _gameState!.lastMove!.to.c, PlayerColor.blue) ||
-            _gameState!.gameMode == GameMode.online)) {
+    if (isAiTurn) {
       _handleAIMove();
     }
   }
 
   Future<void> _handleAIMove() async {
-    if (_gameState!.gameMode == GameMode.pvai) {
+    final isWinByCapture = _gameState!.isWinByCapture();
+    final isWinByTemple = _gameState!.isWinByTemple(_gameState!.lastMove!.to.r, _gameState!.lastMove!.to.c, PlayerColor.blue);
+    if (_gameState!.gameMode == GameMode.pvai && !isWinByCapture && !isWinByTemple) {
       await _gameState!.makeAIMove(_showEndDialog, widget.hasDelay);
       setState(() {});
     }
@@ -121,6 +121,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
         reserveCard: _gameState!.reserveCard,
         currentPlayer: _gameState!.currentPlayer,
         lastMove: _gameState!.lastMoveAsMap,
+        status: isWinByTemple || isWinByCapture ? 'finished' : null,
       );
       _firestoreService.updateGame(widget.gameId!, updatedGame);
     }

@@ -135,6 +135,19 @@ class _MenuScreenState extends State<MenuScreen> {
     final result = await _firestoreService.findOrCreateGame(_playerUid!);
     final gameId = result['gameId'];
     final isHost = result['isHost'];
+    final inProgress = result['inProgress'] ?? false;
+
+    if (inProgress) {
+      if (!mounted) return;
+      Navigator.pop(context); // Close waiting dialog
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OnitamaHome(gameMode: GameMode.online, gameId: gameId, playerUid: _playerUid!, isHost: isHost),
+        ),
+      );
+      return;
+    }
 
     if (isHost) {
       _gameCreationTimer = Timer(const Duration(seconds: 20), () {
