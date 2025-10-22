@@ -121,7 +121,8 @@ class OnitamaHomeState extends State<OnitamaHome> {
         reserveCard: _gameState!.reserveCard,
         currentPlayer: _gameState!.currentPlayer,
         lastMove: _gameState!.lastMoveAsMap,
-        status: isWinByTemple || isWinByCapture ? 'finished' : null,
+        status: _gameState!.winner != null ? 'finished' : null,
+        winner: _gameState!.winner,
       );
       _firestoreService.updateGame(widget.gameId!, updatedGame);
     }

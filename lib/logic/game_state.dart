@@ -29,6 +29,7 @@ class GameState {
   late CardModel reserveCard;
 
   PlayerColor currentPlayer = PlayerColor.blue;
+  PlayerColor? winner;
 
   CardModel? selectedCardForMove;
   Point? selectedCell;
@@ -41,6 +42,7 @@ class GameState {
     }
     _setupCards();
     _setupBoard();
+    winner = null;
   }
 
   GameState._internal({
@@ -57,6 +59,7 @@ class GameState {
     this.selectedCell,
     this.aiPlayer,
     this.lastMove,
+    this.winner,
   });
 
   factory GameState.fromFirestore(FirestoreGame firestoreGame, GameMode gameMode, AIDifficulty? aiDifficulty) {
@@ -81,6 +84,7 @@ class GameState {
               ),
             )
           : null,
+      winner: firestoreGame.winner,
     );
     gameState._setupCards(firestoreGame.redHand, firestoreGame.blueHand, firestoreGame.reserveCard);
     if (firestoreGame.gameMode == GameMode.pvai) {
@@ -195,16 +199,18 @@ class GameState {
 
   void verifyWin(Function onWin) {
     if (isWinByCapture()) {
-      onWin('${_playerName(currentPlayer)} won by capture!');
+      winner = currentPlayer;
+      onWin('${_playerName(winner!)} won by capture!');
       return;
     }
-
     for (var c = 0; c < size; c++) {
       if (isWinByTemple(0, c, PlayerColor.red)) {
+        winner = PlayerColor.red;
         onWin('Red won by temple!');
         return;
       }
       if (isWinByTemple(4, c, PlayerColor.blue)) {
+        winner = PlayerColor.blue;
         onWin('Blue won by temple!');
         return;
       }
@@ -242,12 +248,13 @@ class GameState {
       selectedCell = null;
 
       if (isWinByCapture()) {
-        onWin('${_playerName(currentPlayer)} won by capture!');
+        winner = currentPlayer;
+        onWin('${_playerName(winner!)} won by capture!');
         return true;
       }
-
       if (isWinByTemple(r, c, currentPlayer)) {
-        onWin('${_playerName(currentPlayer)} won by temple!');
+        winner = currentPlayer;
+        onWin('${_playerName(winner!)} won by temple!');
         return true;
       }
 
@@ -281,12 +288,13 @@ class GameState {
     swapCardWithReserve(move.card);
 
     if (isWinByCapture()) {
-      onWin('${_playerName(currentPlayer)} won by capture!');
+      winner = currentPlayer;
+      onWin('${_playerName(winner!)} won by capture!');
       return;
     }
-
     if (isWinByTemple(move.to.r, move.to.c, currentPlayer)) {
-      onWin('${_playerName(currentPlayer)} won by temple!');
+      winner = currentPlayer;
+      onWin('${_playerName(winner!)} won by temple!');
       return;
     }
 
@@ -347,5 +355,6 @@ class GameState {
   void restart() {
     _setupCards();
     _setupBoard();
+    winner = null;
   }
 }
