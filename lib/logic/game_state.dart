@@ -36,6 +36,7 @@ class GameState {
   Point? selectedCell;
   String message = '';
   Move? lastMove;
+  List<Move> gameHistory = [];
 
   GameState({required this.gameMode, this.aiDifficulty}) {
     if (gameMode == GameMode.pvai) {
@@ -61,6 +62,7 @@ class GameState {
     this.aiPlayer,
     this.lastMove,
     this.winner,
+    this.gameHistory = const [],
   });
 
   factory GameState.fromFirestore(FirestoreGame firestoreGame, GameMode gameMode, AIDifficulty? aiDifficulty) {
@@ -86,6 +88,7 @@ class GameState {
             )
           : null,
       winner: firestoreGame.winner,
+      gameHistory: firestoreGame.gameHistory,
     );
     gameState._setupCards(firestoreGame.redHand, firestoreGame.blueHand, firestoreGame.reserveCard);
     if (firestoreGame.gameMode == GameMode.pvai) {
@@ -123,6 +126,7 @@ class GameState {
       message: message,
       aiPlayer: aiPlayer,
       lastMove: lastMove,
+      gameHistory: List.from(gameHistory),
     );
   }
 
@@ -244,6 +248,7 @@ class GameState {
       board[from.r][from.c] = null;
 
       lastMove = Move(from, Point(r, c), selectedCardForMove!);
+      gameHistory.add(lastMove!);
       swapCardWithReserve(selectedCardForMove!);
       selectedCardForMove = null;
       selectedCell = null;
@@ -287,6 +292,7 @@ class GameState {
     board[move.from.r][move.from.c] = null;
 
     lastMove = move;
+    gameHistory.add(lastMove!);
     swapCardWithReserve(move.card);
 
     if (isWinByCapture()) {

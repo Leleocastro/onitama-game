@@ -8,6 +8,7 @@ import './piece.dart';
 import './piece_type.dart';
 import './player.dart';
 import './point.dart';
+import 'move.dart';
 
 class FirestoreGame {
   final String id;
@@ -23,6 +24,7 @@ class FirestoreGame {
   final String status;
   final GameMode gameMode;
   final AIDifficulty? aiDifficulty;
+  final List<Move> gameHistory;
 
   FirestoreGame({
     required this.id,
@@ -38,6 +40,7 @@ class FirestoreGame {
     this.winner,
     this.lastMove,
     this.aiDifficulty,
+    this.gameHistory = const [],
   });
 
   factory FirestoreGame.fromFirestore(DocumentSnapshot doc) {
@@ -82,6 +85,7 @@ class FirestoreGame {
       status: data['status'] ?? 'inprogress',
       gameMode: GameMode.values.firstWhere((e) => e.name == data['gameMode'], orElse: () => GameMode.online),
       aiDifficulty: data['aiDifficulty'] == null ? null : AIDifficulty.values.firstWhere((e) => e.name == data['aiDifficulty']),
+      gameHistory: data['gameHistory'] != null ? (data['gameHistory'] as List).map((move) => Move.fromMap(move)).toList() : [],
     );
   }
 
@@ -111,6 +115,7 @@ class FirestoreGame {
       'status': status,
       'gameMode': gameMode.name,
       if (aiDifficulty != null) 'aiDifficulty': aiDifficulty!.name,
+      'gameHistory': gameHistory.map((move) => move.toMap()).toList(),
     };
   }
 
@@ -125,6 +130,7 @@ class FirestoreGame {
     String? status,
     GameMode? gameMode,
     AIDifficulty? aiDifficulty,
+    List<Move>? gameHistory,
   }) {
     return FirestoreGame(
       id: id,
@@ -140,6 +146,7 @@ class FirestoreGame {
       status: status ?? this.status,
       gameMode: gameMode ?? this.gameMode,
       aiDifficulty: aiDifficulty ?? this.aiDifficulty,
+      gameHistory: gameHistory ?? this.gameHistory,
     );
   }
 }

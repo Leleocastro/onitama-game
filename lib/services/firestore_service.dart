@@ -115,4 +115,9 @@ class FirestoreService {
   Future<void> addGameLog(String gameId, Map<String, dynamic> logEntry) async {
     await _db.collection('games').doc(gameId).collection('logs').add(logEntry);
   }
+
+  Future<List<FirestoreGame>> getFinishedGames() async {
+    final snapshot = await _db.collection('games').where('status', isEqualTo: 'finished').get();
+    return snapshot.docs.map((doc) => FirestoreGame.fromFirestore(doc)).toList();
+  }
 }

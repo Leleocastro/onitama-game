@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:onitama/screens/historic_game_detail_screen.dart';
+
 import '../l10n/app_localizations.dart';
 import '../logic/game_state.dart';
 import '../models/ai_difficulty.dart';
@@ -124,6 +126,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
         lastMove: _gameState!.lastMoveAsMap,
         status: _gameState!.winner != null ? 'finished' : null,
         winner: _gameState!.winner,
+        gameHistory: _gameState!.gameHistory,
       );
       _firestoreService.updateGame(widget.gameId!, updatedGame);
     }
@@ -395,6 +398,19 @@ class OnitamaHomeState extends State<OnitamaHome> {
                             }
                           },
                         ),
+                  ListTile(
+                    leading: const Icon(Icons.history),
+                    title: Text('Current Game History'),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              HistoricGameDetailScreen(moves: _gameState!.gameHistory),
+                        ),
+                      );
+                    },
+                  ),
                   const Spacer(),
                   if (widget.gameMode != GameMode.online)
                     ListTile(
