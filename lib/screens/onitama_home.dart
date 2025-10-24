@@ -416,8 +416,17 @@ class OnitamaHomeState extends State<OnitamaHome> {
                               ),
                             );
                             if (shouldSurrender == true) {
+                              // Finaliza a partida, define o adversário como winner e status como finished
+                              if (_firestoreGame != null && widget.gameMode == GameMode.online) {
+                                final opponentColor = widget.isHost! ? PlayerColor.red : PlayerColor.blue;
+                                final updatedGame = _firestoreGame!.copyWith(
+                                  status: 'finished',
+                                  winner: opponentColor,
+                                );
+                                await _firestoreService.updateGame(widget.gameId!, updatedGame);
+                              }
                               Navigator.of(context).pop();
-                              Navigator.of(context).pop(); // Navigate back to menu
+                              Navigator.of(context).pop(); // Volta ao menu
                             }
                           },
                         ),
