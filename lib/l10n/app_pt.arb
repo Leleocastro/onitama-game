@@ -81,5 +81,6 @@
   "historyTitle": "Histórico de Jogos",
   "moveHistoryTitle": "Histórico da Partida",
   "moveHistoryMove": "Movimento {number}",
-  "moveHistoryFromTo": "De: ({fromR}, {fromC}) Para: ({toR}, {toC}) com {cardName}"
+  "moveHistoryFromTo": "De: ({fromR}, {fromC}) Para: ({toR}, {toC}) com {cardName}",
+  "undoWithAd": "Assistir anúncio para desfazer"
 }

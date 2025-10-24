@@ -81,5 +81,6 @@
   "historyTitle": "Game History",
   "moveHistoryTitle": "Current Game History",
   "moveHistoryMove": "Move {number}",
-  "moveHistoryFromTo": "From: ({fromR}, {fromC}) To: ({toR}, {toC}) with {cardName}"
+  "moveHistoryFromTo": "From: ({fromR}, {fromC}) To: ({toR}, {toC}) with {cardName}",
+  "undoWithAd": "Watch ad to undo"
 }

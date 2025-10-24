@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'package:onitama/screens/historic_game_detail_screen.dart';
-
 import '../l10n/app_localizations.dart';
 import '../logic/game_state.dart';
 import '../models/ai_difficulty.dart';
@@ -15,7 +13,9 @@ import '../models/win_condition.dart';
 import '../services/firestore_service.dart';
 import '../widgets/board_widget.dart';
 import '../widgets/card_widget.dart';
+import 'historic_game_detail_screen.dart';
 import 'interstitial_ad_screen.dart';
+import 'rewarded_ad_screen.dart';
 
 class OnitamaHome extends StatefulWidget {
   final GameMode gameMode;
@@ -116,7 +116,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
       await _gameState!.makeAIMove(_showEndDialog, widget.hasDelay);
       setState(() {});
     }
-    if (_firestoreGame != null) {
+    if (_firestoreGame != null && widget.gameMode == GameMode.online) {
       final updatedGame = _firestoreGame!.copyWith(
         board: _gameState!.board,
         redHand: _gameState!.redHand,
@@ -168,7 +168,23 @@ class OnitamaHomeState extends State<OnitamaHome> {
               Navigator.of(context).pop(); // Navigate back to menu
             },
           ),
-          if (_gameState!.gameMode == GameMode.online)
+          if (widget.gameMode == GameMode.pvai && winner == PlayerColor.red)
+            TextButton(
+              child: Text(l10n.undoWithAd),
+              onPressed: () {
+                Navigator.of(context).pop(); // fecha o diálogo
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => RewardedAdScreen(
+                      onReward: () async {
+                        await _undoLastTwoAndPersist();
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+          if (_gameState!.gameMode == GameMode.pvp)
             TextButton(
               child: Text(l10n.restart),
               onPressed: () {
@@ -192,6 +208,13 @@ class OnitamaHomeState extends State<OnitamaHome> {
         ],
       ),
     );
+  }
+
+  Future<void> _undoLastTwoAndPersist() async {
+    if (_gameState == null) return;
+    final ok = _gameState!.undoLastTwoMoves();
+    if (!ok) return;
+    setState(() {});
   }
 
   String _getWinnerName(PlayerColor winner) {
@@ -405,8 +428,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
                       Navigator.of(context).pop();
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) =>
-                              HistoricGameDetailScreen(moves: _gameState!.gameHistory),
+                          builder: (context) => HistoricGameDetailScreen(moves: _gameState!.gameHistory),
                         ),
                       );
                     },

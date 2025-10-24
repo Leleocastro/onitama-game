@@ -598,6 +598,12 @@ abstract class AppLocalizations {
   /// **'From: ({fromR}, {fromC}) To: ({toR}, {toC}) with {cardName}'**
   String moveHistoryFromTo(
       Object cardName, Object fromC, Object fromR, Object toC, Object toR);
+
+  /// No description provided for @undoWithAd.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch ad to undo'**
+  String get undoWithAd;
 }
 
 class _AppLocalizationsDelegate

@@ -276,4 +276,7 @@ class AppLocalizationsEs extends AppLocalizations {
       Object cardName, Object fromC, Object fromR, Object toC, Object toR) {
     return 'De: ($fromR, $fromC) A: ($toR, $toC) con $cardName';
   }
+
+  @override
+  String get undoWithAd => 'Ver anuncio para deshacer';
 }

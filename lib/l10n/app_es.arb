@@ -81,5 +81,6 @@
   "historyTitle": "Historial de Partidas",
   "moveHistoryTitle": "Historial de la Partida",
   "moveHistoryMove": "Movimiento {number}",
-  "moveHistoryFromTo": "De: ({fromR}, {fromC}) A: ({toR}, {toC}) con {cardName}"
+  "moveHistoryFromTo": "De: ({fromR}, {fromC}) A: ({toR}, {toC}) con {cardName}",
+  "undoWithAd": "Ver anuncio para deshacer"
 }

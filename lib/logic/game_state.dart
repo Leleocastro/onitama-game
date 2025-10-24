@@ -12,8 +12,8 @@ import '../models/piece.dart';
 import '../models/piece_type.dart';
 import '../models/player.dart';
 import '../models/point.dart';
-import 'ai_player.dart';
 import '../models/win_condition.dart';
+import 'ai_player.dart';
 
 class GameState {
   static const int size = 5;
@@ -37,6 +37,8 @@ class GameState {
   String message = '';
   Move? lastMove;
   List<Move> gameHistory = [];
+  // Histórico de snapshots completos do estado do jogo para desfazer jogadas
+  List<Map<String, dynamic>> stateHistory = [];
 
   GameState({required this.gameMode, this.aiDifficulty}) {
     if (gameMode == GameMode.pvai) {
@@ -127,7 +129,106 @@ class GameState {
       aiPlayer: aiPlayer,
       lastMove: lastMove,
       gameHistory: List.from(gameHistory),
+      // não copiamos stateHistory por ser uma estrutura de controle separada
     );
+  }
+
+  // Serializa o estado completo do jogo para um snapshot leve
+  Map<String, dynamic> toSnapshot() {
+    final flatBoard = <Map<String, dynamic>>[];
+    for (var r = 0; r < board.length; r++) {
+      for (var c = 0; c < board[r].length; c++) {
+        final piece = board[r][c];
+        flatBoard.add({'row': r, 'col': c, 'owner': piece?.owner.name ?? '', 'type': piece?.type.name ?? ''});
+      }
+    }
+
+    List<Map<String, int>> movesToMap(List<Point> moves) => moves.map((m) => {'r': m.r, 'c': m.c}).toList();
+
+    return {
+      'board': flatBoard,
+      'redHand': redHand.map((card) => {'name': card.name, 'moves': movesToMap(card.moves), 'color': card.color.toARGB32()}).toList(),
+      'blueHand': blueHand.map((card) => {'name': card.name, 'moves': movesToMap(card.moves), 'color': card.color.toARGB32()}).toList(),
+      'reserveCard': {'name': reserveCard.name, 'moves': movesToMap(reserveCard.moves), 'color': reserveCard.color.toARGB32()},
+      'currentPlayer': currentPlayer.name,
+      'winner': winner?.name,
+      'lastMove': lastMoveAsMap,
+      'gameHistory': gameHistory.map((m) => m.toMap()).toList(),
+      'gameMode': gameMode.name,
+      'aiDifficulty': aiDifficulty?.name,
+    };
+  }
+
+  // Restaura o estado a partir de um snapshot
+  void restoreFromSnapshot(Map<String, dynamic> snap) {
+    final boardData = snap['board'] as List;
+    board = List.generate(5, (r) {
+      return List.generate(5, (c) {
+        final pieceMap = boardData.cast<Map<String, dynamic>>().firstWhere(
+              (p) => p['row'] == r && p['col'] == c,
+              orElse: () => <String, dynamic>{'owner': '', 'type': ''},
+            );
+        if ((pieceMap['owner'] as String).isEmpty) {
+          return null;
+        }
+        return Piece(
+          PlayerColor.values.firstWhere((e) => e.name == pieceMap['owner']),
+          PieceType.values.firstWhere((e) => e.name == pieceMap['type']),
+        );
+      });
+    });
+
+    List<Point> mapToMoves(List list) => list.map((m) => Point(m['r'], m['c'])).toList();
+
+    redHand = (snap['redHand'] as List).map((card) => CardModel(card['name'], mapToMoves(card['moves']), Color(card['color']))).toList();
+    blueHand = (snap['blueHand'] as List).map((card) => CardModel(card['name'], mapToMoves(card['moves']), Color(card['color']))).toList();
+    final rc = snap['reserveCard'];
+    reserveCard = CardModel(rc['name'], mapToMoves(rc['moves']), Color(rc['color']));
+
+    currentPlayer = PlayerColor.values.firstWhere((e) => e.name == snap['currentPlayer']);
+    winner = snap['winner'] == null ? null : PlayerColor.values.firstWhere((e) => e.name == snap['winner']);
+
+    if (snap['lastMove'] != null) {
+      final lm = snap['lastMove'] as Map<String, dynamic>;
+      lastMove = Move(
+        Point(lm['from'][0], lm['from'][1]),
+        Point(lm['to'][0], lm['to'][1]),
+        CardModel(
+          lm['card']['name'],
+          (lm['card']['moves'] as List).map((m) => Point(m['r'], m['c'])).toList(),
+          Color(lm['card']['color']),
+        ),
+      );
+    } else {
+      lastMove = null;
+    }
+
+    gameHistory = (snap['gameHistory'] as List).map((m) => Move.fromMap(m)).toList();
+  }
+
+  // Armazena o snapshot atual (limitando o tamanho para evitar crescer demais)
+  void pushSnapshot({int maxLength = 40}) {
+    stateHistory.add(toSnapshot());
+    if (stateHistory.length > maxLength) {
+      stateHistory.removeAt(0);
+    }
+  }
+
+  // Desfaz as duas últimas jogadas (a do oponente e a sua)
+  bool undoLastTwoMoves() {
+    if (stateHistory.length < 3) return false;
+    // Estado desejado é o de 2 jogadas atrás
+    final target = stateHistory[stateHistory.length - 3];
+    // remove os dois últimos snapshots
+    stateHistory.removeLast();
+    stateHistory.removeLast();
+    // Restaura
+    restoreFromSnapshot(target);
+    // Após restaurar, a vez deve ser do oponente do jogador do snapshot
+    currentPlayer = opponent(currentPlayer);
+    // Ao desfazer, não deve haver vencedor
+    winner = null;
+    return true;
   }
 
   void _setupBoard() {
@@ -268,9 +369,11 @@ class GameState {
       message = "${_playerName(currentPlayer)}'s turn";
 
       if (gameMode != GameMode.pvai) {
+        pushSnapshot();
         return true;
       }
 
+      pushSnapshot();
       return gameMode == GameMode.pvai && currentPlayer == PlayerColor.red;
     }
     return false;
@@ -294,6 +397,8 @@ class GameState {
     lastMove = move;
     gameHistory.add(lastMove!);
     swapCardWithReserve(move.card);
+    // Registrar snapshot da jogada da IA antes de verificar vitória
+    pushSnapshot();
 
     if (isWinByCapture()) {
       winner = currentPlayer;

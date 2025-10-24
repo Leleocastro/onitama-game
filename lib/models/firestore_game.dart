@@ -25,6 +25,7 @@ class FirestoreGame {
   final GameMode gameMode;
   final AIDifficulty? aiDifficulty;
   final List<Move> gameHistory;
+  final List<Map<String, dynamic>>? stateHistory;
 
   FirestoreGame({
     required this.id,
@@ -41,6 +42,7 @@ class FirestoreGame {
     this.lastMove,
     this.aiDifficulty,
     this.gameHistory = const [],
+    this.stateHistory,
   });
 
   factory FirestoreGame.fromFirestore(DocumentSnapshot doc) {
@@ -49,8 +51,12 @@ class FirestoreGame {
     final boardData = data['board'] as List;
     final board = List.generate(5, (r) {
       return List.generate(5, (c) {
-        final pieceData = boardData.firstWhere((p) => p['row'] == r && p['col'] == c, orElse: () => null);
-        if (pieceData == null || (pieceData['owner'] as String).isEmpty) {
+        final pieceData = boardData.firstWhere(
+          (p) => p['row'] == r && p['col'] == c,
+          // Retorna um mapa sentinela para evitar orElse retornar null e causar erro de tipo
+          orElse: () => {'row': r, 'col': c, 'owner': '', 'type': ''},
+        );
+        if ((pieceData['owner'] as String).isEmpty) {
           return null;
         }
         return Piece(PlayerColor.values.firstWhere((e) => e.name == pieceData['owner']), PieceType.values.firstWhere((e) => e.name == pieceData['type']));
@@ -86,6 +92,7 @@ class FirestoreGame {
       gameMode: GameMode.values.firstWhere((e) => e.name == data['gameMode'], orElse: () => GameMode.online),
       aiDifficulty: data['aiDifficulty'] == null ? null : AIDifficulty.values.firstWhere((e) => e.name == data['aiDifficulty']),
       gameHistory: data['gameHistory'] != null ? (data['gameHistory'] as List).map((move) => Move.fromMap(move)).toList() : [],
+      stateHistory: data['stateHistory'] != null ? (data['stateHistory'] as List).map((e) => Map<String, dynamic>.from(e as Map)).toList() : null,
     );
   }
 
@@ -116,6 +123,7 @@ class FirestoreGame {
       'gameMode': gameMode.name,
       if (aiDifficulty != null) 'aiDifficulty': aiDifficulty!.name,
       'gameHistory': gameHistory.map((move) => move.toMap()).toList(),
+      if (stateHistory != null) 'stateHistory': stateHistory,
     };
   }
 
@@ -131,6 +139,7 @@ class FirestoreGame {
     GameMode? gameMode,
     AIDifficulty? aiDifficulty,
     List<Move>? gameHistory,
+    List<Map<String, dynamic>>? stateHistory,
   }) {
     return FirestoreGame(
       id: id,
@@ -147,6 +156,7 @@ class FirestoreGame {
       gameMode: gameMode ?? this.gameMode,
       aiDifficulty: aiDifficulty ?? this.aiDifficulty,
       gameHistory: gameHistory ?? this.gameHistory,
+      stateHistory: stateHistory ?? this.stateHistory,
     );
   }
 }

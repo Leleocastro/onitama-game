@@ -276,4 +276,7 @@ class AppLocalizationsPt extends AppLocalizations {
       Object cardName, Object fromC, Object fromR, Object toC, Object toR) {
     return 'De: ($fromR, $fromC) Para: ($toR, $toC) com $cardName';
   }
+
+  @override
+  String get undoWithAd => 'Assistir anúncio para desfazer';
 }

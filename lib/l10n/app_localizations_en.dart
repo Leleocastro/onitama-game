@@ -276,4 +276,7 @@ class AppLocalizationsEn extends AppLocalizations {
       Object cardName, Object fromC, Object fromR, Object toC, Object toR) {
     return 'From: ($fromR, $fromC) To: ($toR, $toC) with $cardName';
   }
+
+  @override
+  String get undoWithAd => 'Watch ad to undo';
 }
