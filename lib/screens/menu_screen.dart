@@ -52,7 +52,12 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   Future<void> _initializeUser() async {
-    _playerUid = await _firestoreService.signInAnonymously();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      _playerUid = await _firestoreService.signInAnonymously();
+    } else {
+      _playerUid = user.uid;
+    }
     setState(() {});
   }
 
