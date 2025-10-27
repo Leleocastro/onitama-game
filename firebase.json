@@ -1,1 +1,57 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"onitama-game","appId":"1:444683843595:android:ec92a4f766b3253568af0e","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"onitama-game","appId":"1:444683843595:ios:b7bc8483c811f6b468af0e","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"onitama-game","appId":"1:444683843595:ios:b7bc8483c811f6b468af0e","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"onitama-game","configurations":{"android":"1:444683843595:android:ec92a4f766b3253568af0e","ios":"1:444683843595:ios:b7bc8483c811f6b468af0e","macos":"1:444683843595:ios:b7bc8483c811f6b468af0e","web":"1:444683843595:web:21168adc9118e63568af0e","windows":"1:444683843595:web:963c670e3cd2bd6d68af0e"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "onitama-game",
+          "appId": "1:444683843595:android:ec92a4f766b3253568af0e",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "onitama-game",
+          "appId": "1:444683843595:ios:b7bc8483c811f6b468af0e",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "onitama-game",
+          "appId": "1:444683843595:ios:b7bc8483c811f6b468af0e",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "onitama-game",
+          "configurations": {
+            "android": "1:444683843595:android:ec92a4f766b3253568af0e",
+            "ios": "1:444683843595:ios:b7bc8483c811f6b468af0e",
+            "macos": "1:444683843595:ios:b7bc8483c811f6b468af0e",
+            "web": "1:444683843595:web:21168adc9118e63568af0e",
+            "windows": "1:444683843595:web:963c670e3cd2bd6d68af0e"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ]
+}
