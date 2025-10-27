@@ -264,6 +264,27 @@ class AppLocalizationsEs extends AppLocalizations {
   String get historyTitle => 'Historial de Partidas';
 
   @override
+  String get login => 'Login';
+
+  @override
+  String get chooseUsername => 'Elige un nombre de usuario para continuar:';
+
+  @override
+  String get username => 'Nombre de usuario';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get usernameAlreadyExists => 'Este nombre de usuario ya está en uso.';
+
+  @override
+  String get signInWithGoogle => 'Iniciar sesión con Google';
+
+  @override
+  String get signInWithApple => 'Iniciar sesión con Apple';
+
+  @override
   String get moveHistoryTitle => 'Historial de la Partida';
 
   @override

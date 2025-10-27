@@ -264,6 +264,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyTitle => 'Game History';
 
   @override
+  String get login => 'Login';
+
+  @override
+  String get chooseUsername => 'Choose a username to continue:';
+
+  @override
+  String get username => 'Username';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get usernameAlreadyExists => 'This username is already taken.';
+
+  @override
+  String get signInWithGoogle => 'Sign in with Google';
+
+  @override
+  String get signInWithApple => 'Sign in with Apple';
+
+  @override
   String get moveHistoryTitle => 'Current Game History';
 
   @override

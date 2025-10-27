@@ -8,6 +8,29 @@ import '../models/game_mode.dart';
 import '../models/player.dart';
 
 class FirestoreService {
+  Future<bool> usernameExists(String username) async {
+    final query = await _db.collection('users').where('username', isEqualTo: username).limit(1).get();
+    return query.docs.isNotEmpty;
+  }
+
+  Future<String?> getUsername(String uid) async {
+    final doc = await _db.collection('users').doc(uid).get();
+    if (doc.exists && doc.data()?['username'] != null) {
+      return doc.data()!['username'] as String;
+    }
+    return null;
+  }
+
+  Future<void> setUsername(String uid, String username) async {
+    await _db.collection('users').doc(uid).set(
+      {
+        'id': uid,
+        'username': username,
+      },
+      SetOptions(merge: true),
+    );
+  }
+
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 

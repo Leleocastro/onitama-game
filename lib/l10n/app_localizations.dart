@@ -580,6 +580,48 @@ abstract class AppLocalizations {
   /// **'Game History'**
   String get historyTitle;
 
+  /// No description provided for @login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login;
+
+  /// No description provided for @chooseUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a username to continue:'**
+  String get chooseUsername;
+
+  /// No description provided for @username.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get username;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @usernameAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This username is already taken.'**
+  String get usernameAlreadyExists;
+
+  /// No description provided for @signInWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get signInWithGoogle;
+
+  /// No description provided for @signInWithApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Apple'**
+  String get signInWithApple;
+
   /// No description provided for @moveHistoryTitle.
   ///
   /// In en, this message translates to:
