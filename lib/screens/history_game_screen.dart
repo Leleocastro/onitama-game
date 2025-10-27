@@ -51,7 +51,7 @@ class _HistoryGameScreenState extends State<HistoryGameScreen> {
               String resultText;
               if (userId != null && (game.winner == null)) {
                 resultText = l10n.historyNA;
-              } else if (userId != null && (game.players[game.winner] == userId)) {
+              } else if (userId != null && (game.players[game.winner?.name] == userId)) {
                 resultText = l10n.historyWon;
               } else if (userId != null && (game.players.values.contains(userId))) {
                 resultText = l10n.historyLost;
