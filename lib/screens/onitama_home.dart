@@ -11,6 +11,7 @@ import '../models/game_mode.dart';
 import '../models/player.dart';
 import '../models/win_condition.dart';
 import '../services/firestore_service.dart';
+import '../services/theme_manager.dart';
 import '../widgets/board_widget.dart';
 import '../widgets/card_widget.dart';
 import 'historic_game_detail_screen.dart';
@@ -325,9 +326,24 @@ class OnitamaHomeState extends State<OnitamaHome> {
 
   @override
   Widget build(BuildContext context) {
+    final bgImage = ThemeManager.cachedImage('background');
+    final background = bgImage != null
+        ? Image(
+            image: bgImage,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+          )
+        : null;
+
     final l10n = AppLocalizations.of(context)!;
     if (_gameState == null) {
-      return Scaffold(body: Center(child: Text(l10n.loading)));
+      return Scaffold(
+        backgroundColor: background != null ? Colors.transparent : null,
+        body: Center(
+          child: Text(l10n.loading),
+        ),
+      );
     }
     return StreamBuilder(
       stream: widget.gameMode == GameMode.online ? _gameStream : null,
@@ -335,178 +351,184 @@ class OnitamaHomeState extends State<OnitamaHome> {
         if (widget.gameMode == GameMode.online && asyncSnapshot.connectionState == ConnectionState.waiting && _gameState == null) {
           return Scaffold(body: Center(child: Text(l10n.loading)));
         }
-        return Scaffold(
-          key: scaffoldKey,
-          floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.settings),
-            onPressed: () => scaffoldKey.currentState?.openEndDrawer(),
-          ),
-          endDrawer: Drawer(
-            child: SafeArea(
-              child: Column(
-                children: [
-                  widget.gameMode != GameMode.online
-                      ? ListTile(
-                          leading: const Icon(Icons.refresh),
-                          title: Text(l10n.restartGame),
-                          onTap: () async {
-                            final shouldRestart = await showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text(l10n.restartGame),
-                                content: Text(l10n.areYouSureRestart),
-                                actions: [
-                                  TextButton(
-                                    child: Text(l10n.cancel),
-                                    onPressed: () {
-                                      Navigator.of(context).pop(false);
-                                    },
+        return Stack(
+          children: [
+            if (background != null) background,
+            Scaffold(
+              key: scaffoldKey,
+              backgroundColor: background != null ? Colors.transparent : null,
+              floatingActionButton: FloatingActionButton(
+                child: const Icon(Icons.settings),
+                onPressed: () => scaffoldKey.currentState?.openEndDrawer(),
+              ),
+              endDrawer: Drawer(
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      widget.gameMode != GameMode.online
+                          ? ListTile(
+                              leading: const Icon(Icons.refresh),
+                              title: Text(l10n.restartGame),
+                              onTap: () async {
+                                final shouldRestart = await showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(l10n.restartGame),
+                                    content: Text(l10n.areYouSureRestart),
+                                    actions: [
+                                      TextButton(
+                                        child: Text(l10n.cancel),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(false);
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: Text(l10n.restart),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(true);
+                                        },
+                                      ),
+                                    ],
                                   ),
-                                  TextButton(
-                                    child: Text(l10n.restart),
-                                    onPressed: () {
-                                      Navigator.of(context).pop(true);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                            if (shouldRestart == true) {
-                              Navigator.of(context).pop(); // Close the drawer
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder: (context) => InterstitialAdScreen(
-                                    navigateTo: OnitamaHome(
-                                      gameMode: widget.gameMode,
-                                      aiDifficulty: widget.aiDifficulty,
-                                      gameId: widget.gameId,
-                                      playerUid: widget.playerUid,
-                                      isHost: widget.isHost,
-                                      hasDelay: widget.hasDelay,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        )
-                      : ListTile(
-                          leading: const Icon(Icons.flag_outlined),
-                          title: Text(l10n.surrender),
-                          onTap: () async {
-                            final shouldSurrender = await showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text(l10n.surrenderGame),
-                                content: Text(l10n.areYouSureSurrender),
-                                actions: [
-                                  TextButton(
-                                    child: Text(l10n.cancel),
-                                    onPressed: () {
-                                      Navigator.of(context).pop(false);
-                                    },
-                                  ),
-                                  TextButton(
-                                    child: Text(l10n.surrender),
-                                    onPressed: () {
-                                      Navigator.of(context).pop(true);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                            if (shouldSurrender == true) {
-                              // Finaliza a partida, define o adversário como winner e status como finished
-                              if (_firestoreGame != null && widget.gameMode == GameMode.online) {
-                                final opponentColor = widget.isHost! ? PlayerColor.red : PlayerColor.blue;
-                                final updatedGame = _firestoreGame!.copyWith(
-                                  status: 'finished',
-                                  winner: opponentColor,
                                 );
-                                await _firestoreService.updateGame(widget.gameId!, updatedGame);
-                              }
-                              Navigator.of(context).pop();
-                              Navigator.of(context).pop(); // Volta ao menu
+                                if (shouldRestart == true) {
+                                  Navigator.of(context).pop(); // Close the drawer
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (context) => InterstitialAdScreen(
+                                        navigateTo: OnitamaHome(
+                                          gameMode: widget.gameMode,
+                                          aiDifficulty: widget.aiDifficulty,
+                                          gameId: widget.gameId,
+                                          playerUid: widget.playerUid,
+                                          isHost: widget.isHost,
+                                          hasDelay: widget.hasDelay,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            )
+                          : ListTile(
+                              leading: const Icon(Icons.flag_outlined),
+                              title: Text(l10n.surrender),
+                              onTap: () async {
+                                final shouldSurrender = await showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(l10n.surrenderGame),
+                                    content: Text(l10n.areYouSureSurrender),
+                                    actions: [
+                                      TextButton(
+                                        child: Text(l10n.cancel),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(false);
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: Text(l10n.surrender),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(true);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (shouldSurrender == true) {
+                                  // Finaliza a partida, define o adversário como winner e status como finished
+                                  if (_firestoreGame != null && widget.gameMode == GameMode.online) {
+                                    final opponentColor = widget.isHost! ? PlayerColor.red : PlayerColor.blue;
+                                    final updatedGame = _firestoreGame!.copyWith(
+                                      status: 'finished',
+                                      winner: opponentColor,
+                                    );
+                                    await _firestoreService.updateGame(widget.gameId!, updatedGame);
+                                  }
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop(); // Volta ao menu
+                                }
+                              },
+                            ),
+                      ListTile(
+                        leading: const Icon(Icons.history),
+                        title: Text('Current Game History'),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => HistoricGameDetailScreen(moves: _gameState!.gameHistory),
+                            ),
+                          );
+                        },
+                      ),
+                      const Spacer(),
+                      if (widget.gameMode != GameMode.online)
+                        ListTile(
+                          leading: const Icon(Icons.exit_to_app),
+                          title: Text(l10n.exitGame),
+                          onTap: () async {
+                            final shouldExit = await showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(l10n.exitGame),
+                                content: Text(l10n.areYouSureExit),
+                                actions: [
+                                  TextButton(
+                                    child: Text(l10n.cancel),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(false);
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: Text(l10n.exit),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (shouldExit == true) {
+                              Navigator.of(context).pop(); // Close the drawer
+                              Navigator.of(context).pop(); // Navigate back to menu
                             }
                           },
                         ),
-                  ListTile(
-                    leading: const Icon(Icons.history),
-                    title: Text('Current Game History'),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => HistoricGameDetailScreen(moves: _gameState!.gameHistory),
+                    ],
+                  ),
+                ),
+              ),
+              body: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      _buildHands(widget.isHost! ? PlayerColor.red : PlayerColor.blue),
+                      Expanded(
+                        child: Center(
+                          child: BoardWidget(gameState: _gameState!, onCellTap: _onCellTap, playerColor: widget.isHost! ? PlayerColor.blue : PlayerColor.red),
                         ),
-                      );
-                    },
+                      ),
+                      _buildHands(widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+                      const SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: CardWidget(
+                          card: _gameState!.reserveCard,
+                          localizedName: _getLocalizedCardName(context, _gameState!.reserveCard.name),
+                          selectable: false,
+                          invert: true,
+                          color: Colors.green,
+                          isReserve: true,
+                        ),
+                      ),
+                    ],
                   ),
-                  const Spacer(),
-                  if (widget.gameMode != GameMode.online)
-                    ListTile(
-                      leading: const Icon(Icons.exit_to_app),
-                      title: Text(l10n.exitGame),
-                      onTap: () async {
-                        final shouldExit = await showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text(l10n.exitGame),
-                            content: Text(l10n.areYouSureExit),
-                            actions: [
-                              TextButton(
-                                child: Text(l10n.cancel),
-                                onPressed: () {
-                                  Navigator.of(context).pop(false);
-                                },
-                              ),
-                              TextButton(
-                                child: Text(l10n.exit),
-                                onPressed: () {
-                                  Navigator.of(context).pop(true);
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                        if (shouldExit == true) {
-                          Navigator.of(context).pop(); // Close the drawer
-                          Navigator.of(context).pop(); // Navigate back to menu
-                        }
-                      },
-                    ),
-                ],
+                ),
               ),
             ),
-          ),
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  _buildHands(widget.isHost! ? PlayerColor.red : PlayerColor.blue),
-                  Expanded(
-                    child: Center(
-                      child: BoardWidget(gameState: _gameState!, onCellTap: _onCellTap, playerColor: widget.isHost! ? PlayerColor.blue : PlayerColor.red),
-                    ),
-                  ),
-                  _buildHands(widget.isHost! ? PlayerColor.blue : PlayerColor.red),
-                  const SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: CardWidget(
-                      card: _gameState!.reserveCard,
-                      localizedName: _getLocalizedCardName(context, _gameState!.reserveCard.name),
-                      selectable: false,
-                      invert: true,
-                      color: Colors.green,
-                      isReserve: true,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          ],
         );
       },
     );

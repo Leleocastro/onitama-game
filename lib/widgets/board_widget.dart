@@ -6,6 +6,7 @@ import '../logic/game_state.dart';
 import '../models/move.dart';
 import '../models/player.dart';
 import '../models/point.dart';
+import '../services/theme_manager.dart';
 import './piece_widget.dart';
 
 class BoardWidget extends StatelessWidget {
@@ -39,6 +40,12 @@ class BoardWidget extends StatelessWidget {
             ),
           ],
           borderRadius: BorderRadius.circular(8),
+          image: ThemeManager.assetUrl('board') != null
+              ? DecorationImage(
+                  image: NetworkImage(ThemeManager.assetUrl('board')!),
+                  fit: BoxFit.cover,
+                )
+              : null,
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {

@@ -139,7 +139,13 @@ class GameState {
     for (var r = 0; r < board.length; r++) {
       for (var c = 0; c < board[r].length; c++) {
         final piece = board[r][c];
-        flatBoard.add({'row': r, 'col': c, 'owner': piece?.owner.name ?? '', 'type': piece?.type.name ?? ''});
+        flatBoard.add({
+          'row': r,
+          'col': c,
+          'owner': piece?.owner.name ?? '',
+          'type': piece?.type.name ?? '',
+          'id': piece?.id ?? '',
+        });
       }
     }
 
@@ -174,6 +180,7 @@ class GameState {
         return Piece(
           PlayerColor.values.firstWhere((e) => e.name == pieceMap['owner']),
           PieceType.values.firstWhere((e) => e.name == pieceMap['type']),
+          id: (pieceMap['id'] as String?)?.isNotEmpty == true ? pieceMap['id'] as String : null,
         );
       });
     });
@@ -238,17 +245,18 @@ class GameState {
       }
     }
 
-    board[0][0] = Piece(PlayerColor.red, PieceType.student);
-    board[0][1] = Piece(PlayerColor.red, PieceType.student);
-    board[0][2] = Piece(PlayerColor.red, PieceType.master);
-    board[0][3] = Piece(PlayerColor.red, PieceType.student);
-    board[0][4] = Piece(PlayerColor.red, PieceType.student);
+    // Assign deterministic ids so each student can have a unique themed image
+    board[0][0] = Piece(PlayerColor.red, PieceType.student, id: 'r0');
+    board[0][1] = Piece(PlayerColor.red, PieceType.student, id: 'r1');
+    board[0][2] = Piece(PlayerColor.red, PieceType.master, id: 'rM');
+    board[0][3] = Piece(PlayerColor.red, PieceType.student, id: 'r2');
+    board[0][4] = Piece(PlayerColor.red, PieceType.student, id: 'r3');
 
-    board[4][0] = Piece(PlayerColor.blue, PieceType.student);
-    board[4][1] = Piece(PlayerColor.blue, PieceType.student);
-    board[4][2] = Piece(PlayerColor.blue, PieceType.master);
-    board[4][3] = Piece(PlayerColor.blue, PieceType.student);
-    board[4][4] = Piece(PlayerColor.blue, PieceType.student);
+    board[4][0] = Piece(PlayerColor.blue, PieceType.student, id: 'b0');
+    board[4][1] = Piece(PlayerColor.blue, PieceType.student, id: 'b1');
+    board[4][2] = Piece(PlayerColor.blue, PieceType.master, id: 'bM');
+    board[4][3] = Piece(PlayerColor.blue, PieceType.student, id: 'b2');
+    board[4][4] = Piece(PlayerColor.blue, PieceType.student, id: 'b3');
 
     selectedCardForMove = null;
     selectedCell = null;

@@ -5,7 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
-import 'screens/menu_screen.dart';
+import 'screens/preload_screen.dart';
 import 'style/theme.dart';
 
 void main() async {
@@ -35,7 +35,7 @@ class OnitamaApp extends StatelessWidget {
         Locale('es'), // Spanish
         Locale('pt'), // Portuguese
       ],
-      home: const MenuScreen(),
+      home: PreloadScreen(),
     );
   }
 }
