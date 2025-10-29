@@ -29,34 +29,7 @@ class PieceWidget extends StatelessWidget {
         errorBuilder: (c, e, s) => const Icon(Icons.error),
       );
 
-      return piece.owner == PlayerColor.red
-          ? img
-          : ColorFiltered(
-              // Dessaturação leve (s ≈ 0.8) — mantém as cores, só reduz a saturação
-              colorFilter: const ColorFilter.matrix(<double>[
-                0.84252,
-                0.14304,
-                0.01444,
-                0,
-                0,
-                0.04252,
-                0.94304,
-                0.01444,
-                0,
-                0,
-                0.04252,
-                0.14304,
-                0.81444,
-                0,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-              ]),
-              child: img,
-            );
+      return img;
     }
     // fallback visual
     return CircleAvatar(
