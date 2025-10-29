@@ -24,6 +24,10 @@ class BoardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRed = playerColor == PlayerColor.red;
+    final board = ThemeManager.cachedImage('default-board');
+    final board0 = ThemeManager.cachedImage('default-board0');
+    final board1 = ThemeManager.cachedImage('default-board1');
+
     return AspectRatio(
       aspectRatio: 1,
       child: Container(
@@ -36,13 +40,13 @@ class BoardWidget extends StatelessWidget {
             BoxShadow(
               color: Colors.black.withAlpha((255 * 0.1).round()),
               blurRadius: 12,
-              offset: const Offset(0, 8),
+              offset: const Offset(0, 12),
             ),
           ],
           borderRadius: BorderRadius.circular(8),
-          image: ThemeManager.assetUrl('board') != null
+          image: board != null
               ? DecorationImage(
-                  image: NetworkImage(ThemeManager.assetUrl('board')!),
+                  image: board,
                   fit: BoxFit.cover,
                 )
               : null,
@@ -81,8 +85,11 @@ class BoardWidget extends StatelessWidget {
                       child: Container(
                         margin: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
-                          color: (r + c) % 2 == 0 ? Colors.grey.shade200 : Colors.grey.shade300,
+                          color: (r + c) % 2 == 0 ? Colors.grey.shade200.withOpacity(0.6) : Colors.grey.shade300.withOpacity(0.6),
                           borderRadius: BorderRadius.circular(2),
+                          image: (r + c) % 2 == 0
+                              ? (board0 != null ? DecorationImage(image: board0, fit: BoxFit.cover) : null)
+                              : (board1 != null ? DecorationImage(image: board1, fit: BoxFit.cover) : null),
                         ),
                         child: Stack(
                           children: [
