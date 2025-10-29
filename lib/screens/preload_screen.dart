@@ -58,6 +58,14 @@ class _PreloadScreenState extends State<PreloadScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Hero(
+              tag: 'logo',
+              child: Image.asset(
+                'assets/images/logo.png',
+                width: 250,
+              ),
+            ),
+            const SizedBox(height: 16),
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
             Text(_status),
