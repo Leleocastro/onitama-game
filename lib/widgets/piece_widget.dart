@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../models/piece.dart';
@@ -12,22 +13,50 @@ class PieceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ThemeManager.themes.values.first;
-    String? imageUrl;
+    CachedNetworkImageProvider? image;
     if (piece.type == PieceType.master) {
-      imageUrl = ThemeManager.assetUrl(piece.owner == PlayerColor.red ? 'master_red' : 'master_blue');
+      image = ThemeManager.cachedImage(piece.owner == PlayerColor.red ? 'default-master_red' : 'default-master_blue');
     } else {
       // Estudante: cada peça tem id única
-      imageUrl = ThemeManager.assetUrl(piece.id ?? (piece.owner == PlayerColor.red ? 'student_red' : 'student_blue'));
+      image = ThemeManager.cachedImage(piece.id != null ? 'default-${piece.id}' : (piece.owner == PlayerColor.red ? 'default-r0' : 'default-b0'));
     }
-    if (imageUrl != null && imageUrl.isNotEmpty) {
-      return CircleAvatar(
-        radius: 20,
-        backgroundColor: Colors.transparent,
-        child: ClipOval(
-          child: Image.network(imageUrl, fit: BoxFit.cover, width: 40, height: 40, errorBuilder: (c, e, s) => const Icon(Icons.error)),
-        ),
+    if (image != null) {
+      final img = Image(
+        image: image,
+        fit: BoxFit.cover,
+        width: 50,
+        height: 50,
+        errorBuilder: (c, e, s) => const Icon(Icons.error),
       );
+
+      return piece.owner == PlayerColor.red
+          ? img
+          : ColorFiltered(
+              // Dessaturação leve (s ≈ 0.8) — mantém as cores, só reduz a saturação
+              colorFilter: const ColorFilter.matrix(<double>[
+                0.84252,
+                0.14304,
+                0.01444,
+                0,
+                0,
+                0.04252,
+                0.94304,
+                0.01444,
+                0,
+                0,
+                0.04252,
+                0.14304,
+                0.81444,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+              ]),
+              child: img,
+            );
     }
     // fallback visual
     return CircleAvatar(

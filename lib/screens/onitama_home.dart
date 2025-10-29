@@ -326,7 +326,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
 
   @override
   Widget build(BuildContext context) {
-    final bgImage = ThemeManager.cachedImage('background');
+    final bgImage = ThemeManager.cachedImage('default-background');
     final background = bgImage != null
         ? Image(
             image: bgImage,
