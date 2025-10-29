@@ -31,7 +31,6 @@ class PieceWidget extends StatelessWidget {
 
       return img;
     }
-    // fallback visual
     return CircleAvatar(
       radius: 20,
       backgroundColor: piece.owner == PlayerColor.red ? Colors.red : Colors.blue,
