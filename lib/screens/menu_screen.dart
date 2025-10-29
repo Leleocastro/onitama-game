@@ -323,7 +323,7 @@ class _MenuScreenState extends State<MenuScreen> {
                           ),
                         ),
                         Text(l10n.gameOfTheMasters, style: Theme.of(context).textTheme.titleMedium),
-                        const SizedBox(height: 60),
+                        const SizedBox(height: 30),
                         StyledButton(
                           onPressed: () {
                             Navigator.push(
