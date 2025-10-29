@@ -294,10 +294,39 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String moveHistoryFromTo(
-      Object cardName, Object fromC, Object fromR, Object toC, Object toR) {
+      Object cardName, Object fromR, Object fromC, Object toR, Object toC) {
     return 'De: ($fromR, $fromC) Para: ($toR, $toC) com $cardName';
   }
 
   @override
   String get undoWithAd => 'Assistir anúncio para desfazer';
+
+  @override
+  String get preloadLoadingTheme => 'Carregando tema...';
+
+  @override
+  String get preloadFetchingThemes => 'Buscando temas disponíveis...';
+
+  @override
+  String get preloadPreloadingImages => 'Pré-carregando imagens...';
+
+  @override
+  String preloadDownloadingImages(Object done, Object total) {
+    return 'Baixando imagens ($done/$total)...';
+  }
+
+  @override
+  String get preloadDone => 'Concluído!';
+
+  @override
+  String preloadImagesCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count imagens',
+      one: '1 imagem',
+      zero: 'Nenhuma imagem',
+    );
+    return '$_temp0';
+  }
 }

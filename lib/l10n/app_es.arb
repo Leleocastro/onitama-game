@@ -1,4 +1,5 @@
 {
+  "@@locale": "es",
   "hello": "Hola",
   "onitama": "Maestros de Onitama",
   "gameOfTheMasters": "El Juego de los Maestros",
@@ -89,5 +90,38 @@
   "moveHistoryTitle": "Historial de la Partida",
   "moveHistoryMove": "Movimiento {number}",
   "moveHistoryFromTo": "De: ({fromR}, {fromC}) A: ({toR}, {toC}) con {cardName}",
-  "undoWithAd": "Ver anuncio para deshacer"
+  "undoWithAd": "Ver anuncio para deshacer",
+
+  "preloadLoadingTheme": "Cargando tema...",
+  "preloadFetchingThemes": "Buscando temas disponibles...",
+  "preloadPreloadingImages": "Pre-cargando imágenes...",
+  "preloadDownloadingImages": "Descargando imágenes ({done}/{total})...",
+  "preloadDone": "¡Listo!",
+  "preloadImagesCount": "{count, plural, =0{Sin imágenes} =1{1 imagen} other{{count} imágenes}}",
+
+  "@moveHistoryMove": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "@moveHistoryFromTo": {
+    "placeholders": {
+      "cardName": {},
+      "fromR": {},
+      "fromC": {},
+      "toR": {},
+      "toC": {}
+    }
+  },
+  "@preloadDownloadingImages": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "@preloadImagesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  }
 }

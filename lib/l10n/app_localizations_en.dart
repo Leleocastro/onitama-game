@@ -294,10 +294,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String moveHistoryFromTo(
-      Object cardName, Object fromC, Object fromR, Object toC, Object toR) {
+      Object cardName, Object fromR, Object fromC, Object toR, Object toC) {
     return 'From: ($fromR, $fromC) To: ($toR, $toC) with $cardName';
   }
 
   @override
   String get undoWithAd => 'Watch ad to undo';
+
+  @override
+  String get preloadLoadingTheme => 'Loading theme...';
+
+  @override
+  String get preloadFetchingThemes => 'Fetching available themes...';
+
+  @override
+  String get preloadPreloadingImages => 'Preloading images...';
+
+  @override
+  String preloadDownloadingImages(Object done, Object total) {
+    return 'Downloading images ($done/$total)...';
+  }
+
+  @override
+  String get preloadDone => 'Done!';
+
+  @override
+  String preloadImagesCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count images',
+      one: '1 image',
+      zero: 'No images',
+    );
+    return '$_temp0';
+  }
 }
