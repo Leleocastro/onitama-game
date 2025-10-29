@@ -260,50 +260,6 @@ class _MenuScreenState extends State<MenuScreen> {
         body: SafeArea(
           child: Stack(
             children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: StreamBuilder<User?>(
-                  stream: FirebaseAuth.instance.authStateChanges(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-                    if (snapshot.hasData && snapshot.data != null && !snapshot.data!.isAnonymous) {
-                      final user = snapshot.data!;
-                      final initial = user.displayName?.isNotEmpty ?? false
-                          ? user.displayName![0].toUpperCase()
-                          : (user.email?.isNotEmpty ?? false ? user.email![0].toUpperCase() : '?');
-                      return Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => ProfileModal(user: user),
-                            );
-                          },
-                          child: CircleAvatar(
-                            child: Text(initial),
-                          ),
-                        ),
-                      );
-                    } else {
-                      return Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const LoginScreen()),
-                            );
-                          },
-                          child: const Text('Sign In'),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
               Expanded(
                 child: SingleChildScrollView(
                   child: Container(
@@ -382,6 +338,50 @@ class _MenuScreenState extends State<MenuScreen> {
                       ],
                     ),
                   ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: StreamBuilder<User?>(
+                  stream: FirebaseAuth.instance.authStateChanges(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+                    if (snapshot.hasData && snapshot.data != null && !snapshot.data!.isAnonymous) {
+                      final user = snapshot.data!;
+                      final initial = user.displayName?.isNotEmpty ?? false
+                          ? user.displayName![0].toUpperCase()
+                          : (user.email?.isNotEmpty ?? false ? user.email![0].toUpperCase() : '?');
+                      return Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => ProfileModal(user: user),
+                            );
+                          },
+                          child: CircleAvatar(
+                            child: Text(initial),
+                          ),
+                        ),
+                      );
+                    } else {
+                      return Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            );
+                          },
+                          child: const Text('Sign In'),
+                        ),
+                      );
+                    }
+                  },
                 ),
               ),
             ],
