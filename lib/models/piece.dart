@@ -4,5 +4,7 @@ import './player.dart';
 class Piece {
   final PlayerColor owner;
   final PieceType type;
-  Piece(this.owner, this.type);
+  final String? id; // optional id to uniquely identify a piece (useful for themed student images)
+
+  Piece(this.owner, this.type, {this.id});
 }

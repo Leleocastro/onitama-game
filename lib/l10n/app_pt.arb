@@ -1,4 +1,5 @@
 {
+  "@@locale": "pt",
   "hello": "Olá",
   "onitama": "Mestres de Onitama",
   "gameOfTheMasters": "O Jogo dos Mestres",
@@ -61,7 +62,7 @@
   "cardGoose": "Ganso",
   "cardRooster": "Galo",
   "cardMonkey": "Macaco",
-  "cardMantis": "Louva-a-deus",
+  "cardMantis": "Louva-deus",
   "cardHorse": "Cavalo",
   "cardOx": "Boi",
   "cardCrane": "Grou",
@@ -89,5 +90,37 @@
   "moveHistoryTitle": "Histórico da Partida",
   "moveHistoryMove": "Movimento {number}",
   "moveHistoryFromTo": "De: ({fromR}, {fromC}) Para: ({toR}, {toC}) com {cardName}",
-  "undoWithAd": "Assistir anúncio para desfazer"
+  "undoWithAd": "Assistir anúncio para desfazer",
+  "preloadLoadingTheme": "Carregando tema...",
+  "preloadFetchingThemes": "Buscando temas disponíveis...",
+  "preloadPreloadingImages": "Pré-carregando imagens...",
+  "preloadDownloadingImages": "Baixando imagens ({done}/{total})...",
+  "preloadDone": "Concluído!",
+  "preloadImagesCount": "{count, plural, =0{Nenhuma imagem} =1{1 imagem} other{{count} imagens}}",
+
+  "@moveHistoryMove": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "@moveHistoryFromTo": {
+    "placeholders": {
+      "cardName": {},
+      "fromR": {},
+      "fromC": {},
+      "toR": {},
+      "toC": {}
+    }
+  },
+  "@preloadDownloadingImages": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "@preloadImagesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  }
 }

@@ -639,13 +639,49 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From: ({fromR}, {fromC}) To: ({toR}, {toC}) with {cardName}'**
   String moveHistoryFromTo(
-      Object cardName, Object fromC, Object fromR, Object toC, Object toR);
+      Object cardName, Object fromR, Object fromC, Object toR, Object toC);
 
   /// No description provided for @undoWithAd.
   ///
   /// In en, this message translates to:
   /// **'Watch ad to undo'**
   String get undoWithAd;
+
+  /// No description provided for @preloadLoadingTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading theme...'**
+  String get preloadLoadingTheme;
+
+  /// No description provided for @preloadFetchingThemes.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching available themes...'**
+  String get preloadFetchingThemes;
+
+  /// No description provided for @preloadPreloadingImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Preloading images...'**
+  String get preloadPreloadingImages;
+
+  /// No description provided for @preloadDownloadingImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading images ({done}/{total})...'**
+  String preloadDownloadingImages(Object done, Object total);
+
+  /// No description provided for @preloadDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done!'**
+  String get preloadDone;
+
+  /// No description provided for @preloadImagesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No images} =1{1 image} other{{count} images}}'**
+  String preloadImagesCount(num count);
 }
 
 class _AppLocalizationsDelegate
