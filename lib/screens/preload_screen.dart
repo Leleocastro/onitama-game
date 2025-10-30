@@ -12,7 +12,6 @@ class PreloadScreen extends StatefulWidget {
 }
 
 class _PreloadScreenState extends State<PreloadScreen> {
-  int _done = 0;
   int _total = 1;
   String _status = '';
 
@@ -38,7 +37,6 @@ class _PreloadScreenState extends State<PreloadScreen> {
       context,
       onProgress: (done, total) {
         setState(() {
-          _done = done;
           _total = total;
           _status = l10n.preloadDownloadingImages(done, total);
         });
