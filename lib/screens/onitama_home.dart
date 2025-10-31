@@ -11,6 +11,7 @@ import '../models/game_mode.dart';
 import '../models/player.dart';
 import '../models/win_condition.dart';
 import '../services/firestore_service.dart';
+import '../services/ranking_service.dart';
 import '../services/theme_manager.dart';
 import '../widgets/board_widget.dart';
 import '../widgets/card_widget.dart';
@@ -44,9 +45,11 @@ class OnitamaHomeState extends State<OnitamaHome> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   GameState? _gameState;
   final FirestoreService _firestoreService = FirestoreService();
+  final RankingService _rankingService = RankingService();
   Stream<FirestoreGame>? _gameStream;
   StreamSubscription? _gameSubscription;
   FirestoreGame? _firestoreGame;
+  bool _rankingSubmitted = false;
 
   @override
   void initState() {
@@ -63,7 +66,11 @@ class OnitamaHomeState extends State<OnitamaHome> {
         final oldSelectedCard = _gameState?.selectedCardForMove;
 
         setState(() {
-          _gameState = GameState.fromFirestore(firestoreGame, widget.gameMode, widget.aiDifficulty);
+          _gameState = GameState.fromFirestore(
+            firestoreGame,
+            widget.gameMode,
+            widget.aiDifficulty,
+          );
           _gameState?.selectedCell = oldSelectedCell;
           _gameState?.selectedCardForMove = oldSelectedCard;
           if (_gameState?.lastMove == null && (ModalRoute.of(context)?.isCurrent != true)) {
@@ -72,9 +79,14 @@ class OnitamaHomeState extends State<OnitamaHome> {
 
           _gameState?.verifyWin(_showEndDialog);
         });
+
+        _submitRankingIfNeeded(firestoreGame);
       });
     } else {
-      _gameState = GameState(gameMode: widget.gameMode, aiDifficulty: widget.aiDifficulty);
+      _gameState = GameState(
+        gameMode: widget.gameMode,
+        aiDifficulty: widget.aiDifficulty,
+      );
     }
   }
 
@@ -83,7 +95,11 @@ class OnitamaHomeState extends State<OnitamaHome> {
       final firestoreGame = await _firestoreService.getGame(widget.gameId!);
       if (firestoreGame != null) {
         setState(() {
-          _gameState = GameState.fromFirestore(firestoreGame, widget.gameMode, widget.aiDifficulty);
+          _gameState = GameState.fromFirestore(
+            firestoreGame,
+            widget.gameMode,
+            widget.aiDifficulty,
+          );
         });
       }
     }
@@ -112,7 +128,11 @@ class OnitamaHomeState extends State<OnitamaHome> {
 
   Future<void> _handleAIMove() async {
     final isWinByCapture = _gameState!.isWinByCapture();
-    final isWinByTemple = _gameState!.isWinByTemple(_gameState!.lastMove!.to.r, _gameState!.lastMove!.to.c, PlayerColor.blue);
+    final isWinByTemple = _gameState!.isWinByTemple(
+      _gameState!.lastMove!.to.r,
+      _gameState!.lastMove!.to.c,
+      PlayerColor.blue,
+    );
     if (_gameState!.gameMode == GameMode.pvai && !isWinByCapture && !isWinByTemple) {
       await _gameState!.makeAIMove(_showEndDialog, widget.hasDelay);
       setState(() {});
@@ -209,6 +229,23 @@ class OnitamaHomeState extends State<OnitamaHome> {
         ],
       ),
     );
+  }
+
+  Future<void> _submitRankingIfNeeded(FirestoreGame game) async {
+    if (_rankingSubmitted || widget.gameMode != GameMode.online || widget.gameId == null) {
+      return;
+    }
+    if (game.status != 'finished') {
+      return;
+    }
+
+    _rankingSubmitted = true;
+    try {
+      await _rankingService.submitMatchResult(widget.gameId!);
+    } catch (error) {
+      debugPrint('Failed to submit ranking for game ${widget.gameId}: $error');
+      _rankingSubmitted = false;
+    }
   }
 
   Future<void> _undoLastTwoAndPersist() async {
@@ -443,7 +480,10 @@ class OnitamaHomeState extends State<OnitamaHome> {
                                       status: 'finished',
                                       winner: opponentColor,
                                     );
-                                    await _firestoreService.updateGame(widget.gameId!, updatedGame);
+                                    await _firestoreService.updateGame(
+                                      widget.gameId!,
+                                      updatedGame,
+                                    );
                                   }
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop(); // Volta ao menu
@@ -457,7 +497,9 @@ class OnitamaHomeState extends State<OnitamaHome> {
                           Navigator.of(context).pop();
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => HistoricGameDetailScreen(moves: _gameState!.gameHistory),
+                              builder: (context) => HistoricGameDetailScreen(
+                                moves: _gameState!.gameHistory,
+                              ),
                             ),
                           );
                         },
@@ -504,19 +546,30 @@ class OnitamaHomeState extends State<OnitamaHome> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
-                      _buildHands(widget.isHost! ? PlayerColor.red : PlayerColor.blue),
+                      _buildHands(
+                        widget.isHost! ? PlayerColor.red : PlayerColor.blue,
+                      ),
                       Expanded(
                         child: Center(
-                          child: BoardWidget(gameState: _gameState!, onCellTap: _onCellTap, playerColor: widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+                          child: BoardWidget(
+                            gameState: _gameState!,
+                            onCellTap: _onCellTap,
+                            playerColor: widget.isHost! ? PlayerColor.blue : PlayerColor.red,
+                          ),
                         ),
                       ),
-                      _buildHands(widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+                      _buildHands(
+                        widget.isHost! ? PlayerColor.blue : PlayerColor.red,
+                      ),
                       const SizedBox(height: 10),
                       Align(
                         alignment: Alignment.centerLeft,
                         child: CardWidget(
                           card: _gameState!.reserveCard,
-                          localizedName: _getLocalizedCardName(context, _gameState!.reserveCard.name),
+                          localizedName: _getLocalizedCardName(
+                            context,
+                            _gameState!.reserveCard.name,
+                          ),
                           selectable: false,
                           invert: true,
                           color: Colors.green,

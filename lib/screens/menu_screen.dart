@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models/ai_difficulty.dart';
 import '../models/game_mode.dart';
+import '../models/leaderboard_entry.dart';
 import '../services/firestore_service.dart';
+import '../services/ranking_service.dart';
 import '../services/theme_manager.dart';
 import '../widgets/styled_button.dart';
 import './game_lobby_screen.dart';
@@ -26,6 +28,7 @@ class MenuScreen extends StatefulWidget {
 
 class _MenuScreenState extends State<MenuScreen> {
   final FirestoreService _firestoreService = FirestoreService();
+  final RankingService _rankingService = RankingService();
   final TextEditingController _gameIdController = TextEditingController();
 
   String? _playerUid;
@@ -77,8 +80,13 @@ class _MenuScreenState extends State<MenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.easy, isHost: true)),
+                    builder: (context) => const InterstitialAdScreen(
+                      navigateTo: OnitamaHome(
+                        gameMode: GameMode.pvai,
+                        aiDifficulty: AIDifficulty.easy,
+                        isHost: true,
+                      ),
+                    ),
                   ),
                 );
               },
@@ -91,8 +99,13 @@ class _MenuScreenState extends State<MenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.medium, isHost: true)),
+                    builder: (context) => const InterstitialAdScreen(
+                      navigateTo: OnitamaHome(
+                        gameMode: GameMode.pvai,
+                        aiDifficulty: AIDifficulty.medium,
+                        isHost: true,
+                      ),
+                    ),
                   ),
                 );
               },
@@ -105,8 +118,13 @@ class _MenuScreenState extends State<MenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvai, aiDifficulty: AIDifficulty.hard, isHost: true)),
+                    builder: (context) => const InterstitialAdScreen(
+                      navigateTo: OnitamaHome(
+                        gameMode: GameMode.pvai,
+                        aiDifficulty: AIDifficulty.hard,
+                        isHost: true,
+                      ),
+                    ),
                   ),
                 );
               },
@@ -166,7 +184,12 @@ class _MenuScreenState extends State<MenuScreen> {
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => OnitamaHome(gameMode: GameMode.online, gameId: gameId, playerUid: currentUid, isHost: isHost),
+          builder: (context) => OnitamaHome(
+            gameMode: GameMode.online,
+            gameId: gameId,
+            playerUid: currentUid,
+            isHost: isHost,
+          ),
         ),
       );
       return;
@@ -217,7 +240,12 @@ class _MenuScreenState extends State<MenuScreen> {
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => OnitamaHome(gameMode: GameMode.online, gameId: gameId, playerUid: currentUid, isHost: false),
+          builder: (context) => OnitamaHome(
+            gameMode: GameMode.online,
+            gameId: gameId,
+            playerUid: currentUid,
+            isHost: false,
+          ),
         ),
       );
     }
@@ -277,14 +305,22 @@ class _MenuScreenState extends State<MenuScreen> {
                           width: 250,
                         ),
                       ),
-                      Text(l10n.gameOfTheMasters, style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        l10n.gameOfTheMasters,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: 30),
                       StyledButton(
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const InterstitialAdScreen(navigateTo: OnitamaHome(gameMode: GameMode.pvp, isHost: true)),
+                              builder: (context) => const InterstitialAdScreen(
+                                navigateTo: OnitamaHome(
+                                  gameMode: GameMode.pvp,
+                                  isHost: true,
+                                ),
+                              ),
                             ),
                           );
                         },
@@ -292,11 +328,21 @@ class _MenuScreenState extends State<MenuScreen> {
                         icon: Icons.people,
                       ),
                       const SizedBox(height: 20),
-                      StyledButton(onPressed: () => _showDifficultyDialog(context), text: l10n.playerVsAi, icon: Icons.computer),
+                      StyledButton(
+                        onPressed: () => _showDifficultyDialog(context),
+                        text: l10n.playerVsAi,
+                        icon: Icons.computer,
+                      ),
                       const SizedBox(height: 20),
                       Row(
                         children: [
-                          Expanded(child: StyledButton(onPressed: _findOrCreateGame, text: l10n.onlineMultiplayer, icon: Icons.public)),
+                          Expanded(
+                            child: StyledButton(
+                              onPressed: _findOrCreateGame,
+                              text: l10n.onlineMultiplayer,
+                              icon: Icons.public,
+                            ),
+                          ),
                           const SizedBox(width: 8),
                           IconButton(
                             onPressed: () {
@@ -315,25 +361,42 @@ class _MenuScreenState extends State<MenuScreen> {
                         title: Text(l10n.privateGame),
                         children: [
                           const SizedBox(height: 10),
-                          StyledButton(onPressed: _createGame, text: l10n.createOnlineGame, icon: Icons.add),
+                          StyledButton(
+                            onPressed: _createGame,
+                            text: l10n.createOnlineGame,
+                            icon: Icons.add,
+                          ),
                           const SizedBox(height: 20),
                           TextField(
                             controller: _gameIdController,
-                            decoration: InputDecoration(labelText: l10n.gameId, border: const OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: l10n.gameId,
+                              border: const OutlineInputBorder(),
+                            ),
                           ),
                           const SizedBox(height: 10),
-                          StyledButton(onPressed: _joinGame, text: l10n.joinOnlineGame, icon: Icons.login),
+                          StyledButton(
+                            onPressed: _joinGame,
+                            text: l10n.joinOnlineGame,
+                            icon: Icons.login,
+                          ),
                           const SizedBox(height: 10),
                         ],
                       ),
                       const SizedBox(height: 20),
                       TextButton.icon(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const HowToPlayScreen()));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HowToPlayScreen(),
+                            ),
+                          );
                         },
                         label: Text(l10n.howToPlay),
                         icon: const Icon(Icons.rule),
                       ),
+                      _buildLeaderboardSection(),
                     ],
                   ),
                 ),
@@ -372,7 +435,9 @@ class _MenuScreenState extends State<MenuScreen> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const LoginScreen()),
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
                             );
                           },
                           child: const Text('Sign In'),
@@ -384,6 +449,79 @@ class _MenuScreenState extends State<MenuScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeaderboardSection() {
+    if (_playerUid == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      margin: const EdgeInsets.only(top: 24),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Ranking',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            StreamBuilder<LeaderboardEntry?>(
+              stream: _rankingService.watchPlayerEntry(_playerUid!),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+                  return const LinearProgressIndicator();
+                }
+                final entry = snapshot.data;
+                if (entry == null) {
+                  return const Text(
+                    'Jogue partidas online para entrar no ranking!',
+                  );
+                }
+                final winRate = (entry.winRate * 100).toStringAsFixed(1);
+                return Text(
+                  'Sua classificação: ${entry.rating} • ${entry.tier} • $winRate% vitórias',
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            StreamBuilder<List<LeaderboardEntry>>(
+              stream: _rankingService.watchTopEntries(limit: 5),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final entries = snapshot.data;
+                if (entries == null || entries.isEmpty) {
+                  return const Text('Seja o primeiro a aparecer no topo!');
+                }
+
+                return Column(
+                  children: entries
+                      .map(
+                        (entry) => ListTile(
+                          dense: true,
+                          leading: CircleAvatar(
+                            radius: 16,
+                            child: Text('${entry.rank ?? '-'}'),
+                          ),
+                          title: Text(entry.username),
+                          subtitle: Text('${entry.rating} pontos • ${entry.tier}'),
+                          trailing: Text(
+                            '${(entry.winRate * 100).toStringAsFixed(0)}%',
+                          ),
+                        ),
+                      )
+                      .toList(),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
