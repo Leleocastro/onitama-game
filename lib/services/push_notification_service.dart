@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -24,23 +26,35 @@ class PushNotificationService {
   static Future<void> initialize() async {
     // Register background handler
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
-    // Initialize local notifications for foreground display
-    const initializationSettingsAndroid = AndroidInitializationSettings('ic_launcher_adaptive_fore');
-    const initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    // Initialize local notifications for foreground display (Android + iOS)
+    final initializationSettingsAndroid = AndroidInitializationSettings('ic_launcher_adaptive_fore');
+    final initializationSettingsDarwin = DarwinInitializationSettings();
+    final initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin,
+    );
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
     // Create a notification channel for Android (required for Android 8+)
-    const channel = AndroidNotificationChannel(
-      'default_channel', // id
-      'Default', // title
-      description: 'Default channel for notifications',
-      importance: Importance.high,
-    );
-    await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
+    if (Platform.isAndroid) {
+      const channel = AndroidNotificationChannel(
+        'default_channel', // id
+        'Default', // title
+        description: 'Default channel for notifications',
+        importance: Importance.high,
+      );
+      await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
+    }
 
     // Request permission for iOS (and Android 13+)
     final settingsMessaging = await FirebaseMessaging.instance.requestPermission();
+
+    // Ensure notifications are presented when app is in foreground on iOS
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
 
     if (kDebugMode) {
       FirebaseMessaging.instance.getToken().then((token) => debugPrint('FCM token: $token'));
@@ -51,17 +65,24 @@ class PushNotificationService {
     FirebaseMessaging.onMessage.listen((message) {
       final notification = message.notification;
       if (notification != null) {
+        // Android-specific details
+        AndroidNotificationDetails? androidDetails;
+        if (Platform.isAndroid) {
+          androidDetails = AndroidNotificationDetails(
+            'default_channel',
+            'Default',
+            channelDescription: 'Default channel for notifications',
+            icon: 'ic_launcher_adaptive_fore',
+          );
+        }
+
         flutterLocalNotificationsPlugin.show(
           notification.hashCode,
           notification.title,
           notification.body,
           NotificationDetails(
-            android: AndroidNotificationDetails(
-              channel.id,
-              channel.name,
-              channelDescription: channel.description,
-              icon: 'ic_launcher_adaptive_fore',
-            ),
+            android: androidDetails,
+            iOS: const DarwinNotificationDetails(),
           ),
         );
       }
