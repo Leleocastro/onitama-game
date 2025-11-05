@@ -11,10 +11,13 @@ import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'screens/preload_screen.dart';
 import 'services/analytics_service.dart';
+import 'services/push_notification_service.dart';
 import 'style/theme.dart';
 
 Future<void> main() async {
   FirebaseCrashlytics? crashlytics;
+
+  // Push notifications are initialized in PushNotificationService
 
   await runZonedGuarded<Future<void>>(
     () async {
@@ -23,6 +26,9 @@ Future<void> main() async {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+
+      // Initialize push notifications (registers background handler, channels and listeners)
+      await PushNotificationService.initialize();
 
       crashlytics = FirebaseCrashlytics.instance;
       await crashlytics!.setCrashlyticsCollectionEnabled(!kDebugMode);
