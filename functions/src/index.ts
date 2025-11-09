@@ -596,3 +596,61 @@ export const updateRanking = functions.https.onCall(
     return result;
   }
 );
+
+export const adjustPvaiDifficulty = functions.firestore
+  .document("games/{gameId}")
+  .onUpdate(async (change) => {
+    const beforeData = change.before.data();
+    const afterData = change.after.data();
+
+    if (!afterData) {
+      return null;
+    }
+
+    const beforeGameMode = beforeData?.gameMode;
+    const afterGameMode = afterData.gameMode;
+    const beforePlayers = (beforeData?.players ?? {}) as Record<
+      string,
+      unknown
+    >;
+    const afterPlayers = (afterData.players ?? {}) as Record<string, unknown>;
+
+    const beforeRed =
+      typeof beforePlayers.red === "string" ? beforePlayers.red : undefined;
+    const afterRed =
+      typeof afterPlayers.red === "string" ? afterPlayers.red : undefined;
+
+    const hasRelevantChange =
+      afterGameMode === "pvai" &&
+      afterRed === "ai" &&
+      (beforeGameMode !== afterGameMode || beforeRed !== afterRed);
+
+    if (!hasRelevantChange) {
+      return null;
+    }
+
+    const blueId =
+      typeof afterPlayers.blue === "string" ? afterPlayers.blue : undefined;
+
+    if (!blueId || blueId === "ai") {
+      return null;
+    }
+
+    const leaderboardSnap = await db
+      .collection("leaderboard")
+      .doc(blueId)
+      .get();
+    const leaderboardData = ensureLeaderboardDoc(leaderboardSnap.data());
+
+    if (leaderboardData.rating < 1700) {
+      return null;
+    }
+
+    if (afterData.aiDifficulty === "hard") {
+      return null;
+    }
+
+    await change.after.ref.update({ aiDifficulty: "hard" });
+
+    return null;
+  });
