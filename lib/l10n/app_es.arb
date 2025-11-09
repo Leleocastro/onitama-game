@@ -98,6 +98,21 @@
   "preloadDownloadingImages": "Descargando imágenes ({done}/{total})...",
   "preloadDone": "¡Listo!",
   "preloadImagesCount": "{count, plural, =0{Sin imágenes} =1{1 imagen} other{{count} imágenes}}",
+  "lobbyGameIdLabel": "ID de la partida: {gameId}",
+  "lobbyGameIdCopied": "ID de la partida copiado al portapapeles",
+  "lobbyPlayersCount": "Jugadores: {count}/2",
+
+  "leaderboardTitle": "Clasificación",
+  "leaderboardInvite": "¡Juega partidas en línea para entrar en la clasificación!",
+  "leaderboardPlayerSummary": "Tu clasificación: {rating} • {tier} • {winRate}% victorias",
+  "leaderboardEmpty": "¡Sé el primero en llegar a la cima!",
+  "leaderboardPlayerSubtitle": "{rating} puntos • {tier}",
+  "leaderboardWinRateShort": "{winRate}%",
+  "leaderboardTierBronze": "Bronce",
+  "leaderboardTierSilver": "Plata",
+  "leaderboardTierGold": "Oro",
+  "leaderboardTierPlatine": "Platino",
+  "leaderboardTierDiamond": "Diamante",
 
   "@moveHistoryMove": {
     "placeholders": {
@@ -122,6 +137,34 @@
   "@preloadImagesCount": {
     "placeholders": {
       "count": {}
+    }
+  },
+  "@lobbyGameIdLabel": {
+    "placeholders": {
+      "gameId": {}
+    }
+  },
+  "@lobbyPlayersCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@leaderboardPlayerSummary": {
+    "placeholders": {
+      "rating": {},
+      "tier": {},
+      "winRate": {}
+    }
+  },
+  "@leaderboardPlayerSubtitle": {
+    "placeholders": {
+      "rating": {},
+      "tier": {}
+    }
+  },
+  "@leaderboardWinRateShort": {
+    "placeholders": {
+      "winRate": {}
     }
   }
 }

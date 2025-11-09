@@ -329,4 +329,57 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String lobbyGameIdLabel(Object gameId) {
+    return 'Game ID: $gameId';
+  }
+
+  @override
+  String get lobbyGameIdCopied => 'Game ID copied to clipboard';
+
+  @override
+  String lobbyPlayersCount(Object count) {
+    return 'Players: $count/2';
+  }
+
+  @override
+  String get leaderboardTitle => 'Leaderboard';
+
+  @override
+  String get leaderboardInvite =>
+      'Play online matches to join the leaderboard!';
+
+  @override
+  String leaderboardPlayerSummary(Object rating, Object tier, Object winRate) {
+    return 'Your rank: $rating • $tier • $winRate% wins';
+  }
+
+  @override
+  String get leaderboardEmpty => 'Be the first to reach the top!';
+
+  @override
+  String leaderboardPlayerSubtitle(Object rating, Object tier) {
+    return '$rating points • $tier';
+  }
+
+  @override
+  String leaderboardWinRateShort(Object winRate) {
+    return '$winRate%';
+  }
+
+  @override
+  String get leaderboardTierBronze => 'Bronze';
+
+  @override
+  String get leaderboardTierSilver => 'Silver';
+
+  @override
+  String get leaderboardTierGold => 'Gold';
+
+  @override
+  String get leaderboardTierPlatine => 'Platinum';
+
+  @override
+  String get leaderboardTierDiamond => 'Diamond';
 }

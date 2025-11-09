@@ -68,11 +68,11 @@ const kFactorFor = (rating: number, gamesPlayed: number) => {
 };
 
 const determineTier = (rating: number): string => {
-  if (rating >= 1900) return "Diamante";
-  if (rating >= 1700) return "Platina";
-  if (rating >= 1500) return "Ouro";
-  if (rating >= 1300) return "Prata";
-  return "Bronze";
+  if (rating >= 1900) return "diamond";
+  if (rating >= 1700) return "platinum";
+  if (rating >= 1500) return "gold";
+  if (rating >= 1300) return "silver";
+  return "bronze";
 };
 
 const currentSeason = (now: Date): string => {

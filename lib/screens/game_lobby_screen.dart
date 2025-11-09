@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/firestore_game.dart';
 import '../models/game_mode.dart';
 import '../services/firestore_service.dart';
@@ -26,6 +27,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       body: StreamBuilder<FirestoreGame>(
         stream: _firestoreService.streamGame(widget.gameId),
         builder: (context, snapshot) {
+          final l10n = AppLocalizations.of(context)!;
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
@@ -57,17 +59,19 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                const Text('Waiting for opponent...'),
+                Text(l10n.waitingForAnOpponent),
                 const SizedBox(height: 20),
                 TextButton(
-                  child: Text('Game ID: ${widget.gameId}'),
+                  child: Text(l10n.lobbyGameIdLabel(widget.gameId)),
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: widget.gameId));
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Game ID copied to clipboard')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.lobbyGameIdCopied)),
+                    );
                   },
                 ),
                 const SizedBox(height: 20),
-                Text('Players: ${game.players.length}/2'),
+                Text(l10n.lobbyPlayersCount(game.players.length)),
               ],
             ),
           );

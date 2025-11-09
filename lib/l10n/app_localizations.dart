@@ -682,6 +682,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0{No images} =1{1 image} other{{count} images}}'**
   String preloadImagesCount(num count);
+
+  /// No description provided for @lobbyGameIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Game ID: {gameId}'**
+  String lobbyGameIdLabel(Object gameId);
+
+  /// No description provided for @lobbyGameIdCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Game ID copied to clipboard'**
+  String get lobbyGameIdCopied;
+
+  /// No description provided for @lobbyPlayersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Players: {count}/2'**
+  String lobbyPlayersCount(Object count);
+
+  /// No description provided for @leaderboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get leaderboardTitle;
+
+  /// No description provided for @leaderboardInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Play online matches to join the leaderboard!'**
+  String get leaderboardInvite;
+
+  /// No description provided for @leaderboardPlayerSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rank: {rating} • {tier} • {winRate}% wins'**
+  String leaderboardPlayerSummary(Object rating, Object tier, Object winRate);
+
+  /// No description provided for @leaderboardEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Be the first to reach the top!'**
+  String get leaderboardEmpty;
+
+  /// No description provided for @leaderboardPlayerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{rating} points • {tier}'**
+  String leaderboardPlayerSubtitle(Object rating, Object tier);
+
+  /// No description provided for @leaderboardWinRateShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{winRate}%'**
+  String leaderboardWinRateShort(Object winRate);
+
+  /// No description provided for @leaderboardTierBronze.
+  ///
+  /// In en, this message translates to:
+  /// **'Bronze'**
+  String get leaderboardTierBronze;
+
+  /// No description provided for @leaderboardTierSilver.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver'**
+  String get leaderboardTierSilver;
+
+  /// No description provided for @leaderboardTierGold.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold'**
+  String get leaderboardTierGold;
+
+  /// No description provided for @leaderboardTierPlatine.
+  ///
+  /// In en, this message translates to:
+  /// **'Platinum'**
+  String get leaderboardTierPlatine;
+
+  /// No description provided for @leaderboardTierDiamond.
+  ///
+  /// In en, this message translates to:
+  /// **'Diamond'**
+  String get leaderboardTierDiamond;
 }
 
 class _AppLocalizationsDelegate

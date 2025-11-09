@@ -459,6 +459,8 @@ class _MenuScreenState extends State<MenuScreen> {
       return const SizedBox.shrink();
     }
 
+    final l10n = AppLocalizations.of(context)!;
+
     return Card(
       margin: const EdgeInsets.only(top: 24),
       child: Padding(
@@ -467,7 +469,7 @@ class _MenuScreenState extends State<MenuScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Ranking',
+              l10n.leaderboardTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
@@ -479,13 +481,14 @@ class _MenuScreenState extends State<MenuScreen> {
                 }
                 final entry = snapshot.data;
                 if (entry == null) {
-                  return const Text(
-                    'Jogue partidas online para entrar no ranking!',
+                  return Text(
+                    l10n.leaderboardInvite,
                   );
                 }
                 final winRate = (entry.winRate * 100).toStringAsFixed(1);
+                final tierLabel = _localizedTier(entry.tier, l10n);
                 return Text(
-                  'Sua classificação: ${entry.rating} • ${entry.tier} • $winRate% vitórias',
+                  l10n.leaderboardPlayerSummary(entry.rating, tierLabel, winRate),
                 );
               },
             ),
@@ -498,7 +501,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 }
                 final entries = snapshot.data;
                 if (entries == null || entries.isEmpty) {
-                  return const Text('Seja o primeiro a aparecer no topo!');
+                  return Text(l10n.leaderboardEmpty);
                 }
 
                 return Column(
@@ -511,9 +514,9 @@ class _MenuScreenState extends State<MenuScreen> {
                             child: Text('${entry.rank ?? '-'}'),
                           ),
                           title: Text(entry.username),
-                          subtitle: Text('${entry.rating} pontos • ${entry.tier}'),
+                          subtitle: Text(l10n.leaderboardPlayerSubtitle(entry.rating, _localizedTier(entry.tier, l10n))),
                           trailing: Text(
-                            '${(entry.winRate * 100).toStringAsFixed(0)}%',
+                            l10n.leaderboardWinRateShort((entry.winRate * 100).toStringAsFixed(0)),
                           ),
                         ),
                       )
@@ -525,5 +528,23 @@ class _MenuScreenState extends State<MenuScreen> {
         ),
       ),
     );
+  }
+
+  String _localizedTier(String? tier, AppLocalizations l10n) {
+    switch (tier?.toLowerCase()) {
+      case 'bronze':
+        return l10n.leaderboardTierBronze;
+      case 'silver':
+        return l10n.leaderboardTierSilver;
+      case 'gold':
+        return l10n.leaderboardTierGold;
+      case 'platine':
+      case 'platinum':
+        return l10n.leaderboardTierPlatine;
+      case 'diamond':
+        return l10n.leaderboardTierDiamond;
+      default:
+        return tier ?? '-';
+    }
   }
 }
