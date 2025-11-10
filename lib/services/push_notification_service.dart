@@ -27,7 +27,7 @@ class PushNotificationService {
     // Register background handler
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     // Initialize local notifications for foreground display (Android + iOS)
-    final initializationSettingsAndroid = AndroidInitializationSettings('ic_launcher_adaptive_fore');
+    final initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher_adaptive_fore');
     final initializationSettingsDarwin = DarwinInitializationSettings();
     final initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
