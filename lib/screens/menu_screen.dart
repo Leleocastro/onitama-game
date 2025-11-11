@@ -285,170 +285,169 @@ class _MenuScreenState extends State<MenuScreen> {
           : null,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                child: Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.all(48),
-                  constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Hero(
-                        tag: 'logo',
-                        child: Image.asset(
-                          'assets/images/logo.png',
-                          width: 250,
-                        ),
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(48),
+              child: Container(
+                alignment: Alignment.center,
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const SizedBox(height: 48),
+                    Hero(
+                      tag: 'logo',
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        width: 250,
                       ),
-                      Text(
-                        l10n.gameOfTheMasters,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 30),
-                      StyledButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const InterstitialAdScreen(
-                                navigateTo: OnitamaHome(
-                                  gameMode: GameMode.pvp,
-                                  isHost: true,
-                                ),
+                    ),
+                    Text(
+                      l10n.gameOfTheMasters,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 30),
+                    StyledButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const InterstitialAdScreen(
+                              navigateTo: OnitamaHome(
+                                gameMode: GameMode.pvp,
+                                isHost: true,
                               ),
                             ),
-                          );
-                        },
-                        text: l10n.localMultiplayer,
-                        icon: Icons.people,
-                      ),
-                      const SizedBox(height: 20),
-                      StyledButton(
-                        onPressed: () => _showDifficultyDialog(context),
-                        text: l10n.playerVsAi,
-                        icon: Icons.computer,
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: StyledButton(
-                              onPressed: _findOrCreateGame,
-                              text: l10n.onlineMultiplayer,
-                              icon: Icons.public,
-                            ),
                           ),
-                          const SizedBox(width: 8),
-                          IconButton(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => HistoryGameScreen(),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.history),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      ExpansionTile(
-                        title: Text(l10n.privateGame),
-                        children: [
-                          const SizedBox(height: 10),
-                          StyledButton(
-                            onPressed: _createGame,
-                            text: l10n.createOnlineGame,
-                            icon: Icons.add,
-                          ),
-                          const SizedBox(height: 20),
-                          TextField(
-                            controller: _gameIdController,
-                            decoration: InputDecoration(
-                              labelText: l10n.gameId,
-                              border: const OutlineInputBorder(),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          StyledButton(
-                            onPressed: _joinGame,
-                            text: l10n.joinOnlineGame,
-                            icon: Icons.login,
-                          ),
-                          const SizedBox(height: 10),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      TextButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const HowToPlayScreen(),
-                            ),
-                          );
-                        },
-                        label: Text(l10n.howToPlay),
-                        icon: const Icon(Icons.rule),
-                      ),
-                      _buildLeaderboardSection(),
-                    ],
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.topRight,
-                child: StreamBuilder<User?>(
-                  stream: FirebaseAuth.instance.authStateChanges(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-                    if (snapshot.hasData && snapshot.data != null && !snapshot.data!.isAnonymous) {
-                      final user = snapshot.data!;
-                      final initial = user.displayName?.isNotEmpty ?? false
-                          ? user.displayName![0].toUpperCase()
-                          : (user.email?.isNotEmpty ?? false ? user.email![0].toUpperCase() : '?');
-                      return Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => ProfileModal(user: user),
-                            );
-                          },
-                          child: CircleAvatar(
-                            child: Text(initial),
+                        );
+                      },
+                      text: l10n.localMultiplayer,
+                      icon: Icons.people,
+                    ),
+                    const SizedBox(height: 20),
+                    StyledButton(
+                      onPressed: () => _showDifficultyDialog(context),
+                      text: l10n.playerVsAi,
+                      icon: Icons.computer,
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: StyledButton(
+                            onPressed: _findOrCreateGame,
+                            text: l10n.onlineMultiplayer,
+                            icon: Icons.public,
                           ),
                         ),
-                      );
-                    } else {
-                      return Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: TextButton(
+                        const SizedBox(width: 8),
+                        IconButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
+                            Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => const LoginScreen(),
+                                builder: (context) => HistoryGameScreen(),
                               ),
                             );
                           },
-                          child: const Text('Sign In'),
+                          icon: const Icon(Icons.history),
                         ),
-                      );
-                    }
-                  },
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    ExpansionTile(
+                      title: Text(l10n.privateGame),
+                      children: [
+                        const SizedBox(height: 10),
+                        StyledButton(
+                          onPressed: _createGame,
+                          text: l10n.createOnlineGame,
+                          icon: Icons.add,
+                        ),
+                        const SizedBox(height: 20),
+                        TextField(
+                          controller: _gameIdController,
+                          decoration: InputDecoration(
+                            labelText: l10n.gameId,
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        StyledButton(
+                          onPressed: _joinGame,
+                          text: l10n.joinOnlineGame,
+                          icon: Icons.login,
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HowToPlayScreen(),
+                          ),
+                        );
+                      },
+                      label: Text(l10n.howToPlay),
+                      icon: const Icon(Icons.rule),
+                    ),
+                    _buildLeaderboardSection(),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+            Align(
+              alignment: Alignment.topRight,
+              child: StreamBuilder<User?>(
+                stream: FirebaseAuth.instance.authStateChanges(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  if (snapshot.hasData && snapshot.data != null && !snapshot.data!.isAnonymous) {
+                    final user = snapshot.data!;
+                    final initial = user.displayName?.isNotEmpty ?? false
+                        ? user.displayName![0].toUpperCase()
+                        : (user.email?.isNotEmpty ?? false ? user.email![0].toUpperCase() : '?');
+                    return Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => ProfileModal(user: user),
+                          );
+                        },
+                        child: CircleAvatar(
+                          child: Text(initial),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return Padding(
+                      padding: EdgeInsets.only(left: 8, right: 8, top: MediaQuery.of(context).viewPadding.top, bottom: 8),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text('Sign In'),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
