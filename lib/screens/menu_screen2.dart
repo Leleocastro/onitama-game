@@ -137,7 +137,7 @@ class _MenuScreen2State extends State<MenuScreen2> {
                     style: TextStyle(
                       fontFamily: 'HIROMISAKE',
                       color: AppTheme.primary,
-                      fontSize: 54,
+                      fontSize: 62,
                     ),
                   ),
                 ),
