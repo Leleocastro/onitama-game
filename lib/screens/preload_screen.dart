@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/theme_manager.dart';
-import 'menu_screen.dart';
+import 'menu_screen2.dart';
 
 class PreloadScreen extends StatefulWidget {
   const PreloadScreen({super.key});
@@ -18,8 +19,9 @@ class _PreloadScreenState extends State<PreloadScreen> {
   @override
   void initState() {
     super.initState();
-    // schedule after first frame so localization delegates are available
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadThemeAndImages());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadThemeAndImages();
+    });
   }
 
   Future<void> _loadThemeAndImages() async {
@@ -48,7 +50,7 @@ class _PreloadScreenState extends State<PreloadScreen> {
     await Future.delayed(const Duration(milliseconds: 500));
 
     await Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const MenuScreen()),
+      MaterialPageRoute(builder: (_) => const MenuScreen2()),
     );
   }
 
@@ -63,17 +65,31 @@ class _PreloadScreenState extends State<PreloadScreen> {
               tag: 'logo',
               child: Image.asset(
                 'assets/images/logo.png',
-                width: 250,
+                width: 150,
               ),
             ),
-            const SizedBox(height: 16),
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            Text(_status),
-            if (_total > 1) Text(AppLocalizations.of(context)!.preloadImagesCount(_total)),
+            Lottie.asset(
+              'assets/lotties/kungfu.json',
+              repeat: true,
+              animate: true,
+            ),
+            // const SizedBox(height: 16),
+            // Text(_status),
+            // if (_total > 1) Text(AppLocalizations.of(context)!.preloadImagesCount(_total)),
           ],
         ),
       ),
     );
   }
+}
+
+Future<LottieComposition?> customDecoder(List<int> bytes) {
+  return LottieComposition.decodeZip(
+    bytes,
+    filePicker: (files) {
+      return files.firstWhere(
+        (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
+      );
+    },
+  );
 }

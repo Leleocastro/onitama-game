@@ -113,6 +113,11 @@
   "leaderboardTierGold": "Oro",
   "leaderboardTierPlatine": "Platino",
   "leaderboardTierDiamond": "Diamante",
+  "play": "Jugar",
+  "signOut": "Salir",
+  "profile": "Perfil",
+  "email": "Email",
+  "displayName": "Nombre",
 
   "@moveHistoryMove": {
     "placeholders": {

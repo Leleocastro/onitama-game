@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primary = Color.fromARGB(255, 112, 73, 22);
-  static const Color primaryDark = Color(0xFF4E342E);
-  static const Color primaryLight = Color(0xFF8D6E63);
+  static const Color primary = Color.fromARGB(255, 168, 25, 25);
+  static const Color primaryDark = Color.fromARGB(255, 90, 55, 52);
+  static const Color primaryLight = Color.fromARGB(255, 141, 102, 99);
   static const Color accent = Color.fromARGB(255, 211, 134, 18);
   static const Color background = Color.fromARGB(255, 239, 234, 234);
   static const Color textPrimary = Color(0xFF212121);
@@ -13,6 +14,13 @@ class AppTheme {
     primaryColor: primary,
     primaryColorDark: primaryDark,
     primaryColorLight: primaryLight,
+    primaryTextTheme: GoogleFonts.onestTextTheme(),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: primary,
+        textStyle: GoogleFonts.onest(fontSize: 16),
+      ),
+    ),
     colorScheme: ColorScheme.fromSwatch(
       primarySwatch: _getMaterialColor(primary),
     ).copyWith(secondary: accent, surface: background),

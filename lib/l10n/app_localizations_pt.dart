@@ -383,4 +383,19 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get leaderboardTierDiamond => 'Diamante';
+
+  @override
+  String get play => 'Jogar';
+
+  @override
+  String get signOut => 'Sair';
+
+  @override
+  String get profile => 'Perfil';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get displayName => 'Nome';
 }

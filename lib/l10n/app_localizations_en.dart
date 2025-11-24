@@ -382,4 +382,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get leaderboardTierDiamond => 'Diamond';
+
+  @override
+  String get play => 'Play';
+
+  @override
+  String get signOut => 'Sign Out';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get displayName => 'Display Name';
 }
