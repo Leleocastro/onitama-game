@@ -463,41 +463,39 @@ class OnitamaHomeState extends State<OnitamaHome> {
     final isPlayerTurn = _gameState!.currentPlayer == player;
     final isOnline = widget.gameMode == GameMode.online;
 
-    return AbsorbPointer(
-      absorbing: !isPlayerTurn,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5),
-        child: Row(
-          mainAxisAlignment: isOnline ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
-          children: [
-            if (!isOnline)
-              Text(
-                _getPlayerLabel(player),
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: player == PlayerColor.red ? Colors.red : Colors.blue,
-                  decoration: isPlayerTurn ? TextDecoration.underline : TextDecoration.none,
-                  decorationColor: player == PlayerColor.red ? Colors.red : Colors.blue,
-                ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      child: Row(
+        mainAxisAlignment: isOnline ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
+        children: [
+          if (!isOnline)
+            Text(
+              _getPlayerLabel(player),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: player == PlayerColor.red ? Colors.red : Colors.blue,
+                decoration: isPlayerTurn ? TextDecoration.underline : TextDecoration.none,
+                decorationColor: player == PlayerColor.red ? Colors.red : Colors.blue,
               ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: hand
-                  .map(
-                    (c) => CardWidget(
-                      card: c,
-                      localizedName: _getLocalizedCardName(context, c.name),
-                      color: player == PlayerColor.red ? Colors.red : Colors.blue,
-                      isSelected: _gameState!.selectedCardForMove?.name == c.name,
-                      onTap: _onCardTap,
-                      invert: player == (widget.isHost! ? PlayerColor.blue : PlayerColor.red),
-                    ),
-                  )
-                  .toList(),
             ),
-          ],
-        ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: hand
+                .map(
+                  (c) => CardWidget(
+                    card: c,
+                    localizedName: _getLocalizedCardName(context, c.name),
+                    color: player == PlayerColor.red ? Colors.red : Colors.blue,
+                    isSelected: _gameState!.selectedCardForMove?.name == c.name,
+                    onTap: _onCardTap,
+                    invert: player == (widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+                    canTap: isPlayerTurn,
+                  ),
+                )
+                .toList(),
+          ),
+        ],
       ),
     );
   }
