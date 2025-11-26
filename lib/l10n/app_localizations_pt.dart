@@ -398,4 +398,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get displayName => 'Nome';
+
+  @override
+  String get currentGameHistory => 'Histórico da Partida Atual';
 }

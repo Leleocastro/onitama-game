@@ -397,4 +397,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get displayName => 'Nombre';
+
+  @override
+  String get currentGameHistory => 'Historial de la Partida Actual';
 }

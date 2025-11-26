@@ -492,7 +492,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
                             ),
                       ListTile(
                         leading: const Icon(Icons.history),
-                        title: Text('Current Game History'),
+                        title: Text(l10n.currentGameHistory),
                         onTap: () {
                           Navigator.of(context).pop();
                           Navigator.of(context).push(

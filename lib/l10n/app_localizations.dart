@@ -796,6 +796,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Display Name'**
   String get displayName;
+
+  /// No description provided for @currentGameHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Game History'**
+  String get currentGameHistory;
 }
 
 class _AppLocalizationsDelegate

@@ -117,6 +117,7 @@
   "profile": "Perfil",
   "email": "Email",
   "displayName": "Nome",
+  "currentGameHistory": "Histórico da Partida Atual",
 
   "@moveHistoryMove": {
     "placeholders": {

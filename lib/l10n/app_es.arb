@@ -118,6 +118,7 @@
   "profile": "Perfil",
   "email": "Email",
   "displayName": "Nombre",
+  "currentGameHistory": "Historial de la Partida Actual",
 
   "@moveHistoryMove": {
     "placeholders": {
