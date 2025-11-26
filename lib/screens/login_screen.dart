@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uni_links/uni_links.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/firestore_service.dart';
+import '../utils/extensions.dart';
+import '../widgets/input_text.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,10 +20,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   bool _showUsernameInput = false;
   String? _uid;
   String? _usernameError;
+  String? _emailStatus;
   bool _isLoading = false;
+  StreamSubscription? _sub;
 
   Future<void> _signInWithGoogle() async {
     setState(() {
@@ -53,6 +62,50 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  Future<void> _sendSignInLink() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      setState(() {
+        _emailStatus = 'Informe um e-mail válido.';
+      });
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final actionCodeSettings = ActionCodeSettings(
+        url: 'https://onitama-game.firebaseapp.com',
+        handleCodeInApp: true,
+        androidPackageName: 'com.ltag.onitama',
+        androidInstallApp: true,
+        iOSBundleId: 'com.ltag.onitama',
+      );
+
+      await FirebaseAuth.instance.sendSignInLinkToEmail(
+        email: email,
+        actionCodeSettings: actionCodeSettings,
+      );
+
+      // Store email locally to complete sign-in when the link is opened
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('email_for_signin', email);
+      } catch (e) {
+        debugPrint('Could not save email to prefs: $e');
+      }
+
+      setState(() {
+        _emailStatus = 'Link de login enviado para $email. Verifique seu e-mail.';
+      });
+    } catch (e) {
+      debugPrint('Erro ao enviar link de login por email: $e');
+      setState(() {
+        _emailStatus = 'Erro ao enviar link. Tente novamente.';
+      });
+    }
+    setState(() => _isLoading = false);
+  }
+
   Future<void> _checkUsername() async {
     if (_uid == null) return;
     setState(() {
@@ -68,6 +121,103 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     } else {
       Navigator.pop(context);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa escuta de deep links para completar o sign-in por email
+    _initUniLinks();
+  }
+
+  Future<void> _initUniLinks() async {
+    // trata o caso em que o app foi aberto a partir do link
+    try {
+      final initialUri = await getInitialUri();
+      if (initialUri != null) {
+        await _handleIncomingLink(initialUri.toString());
+      }
+    } catch (e) {
+      debugPrint('Erro ao obter initialUri: $e');
+    }
+
+    // escuta links subsequentes
+    _sub = uriLinkStream.listen(
+      (uri) {
+        if (uri != null) {
+          _handleIncomingLink(uri.toString());
+        }
+      },
+      onError: (err) {
+        debugPrint('Erro no uriLinkStream: $err');
+      },
+    );
+  }
+
+  Future<void> _handleIncomingLink(String link) async {
+    debugPrint('Incoming link: $link');
+    try {
+      final auth = FirebaseAuth.instance;
+      if (auth.isSignInWithEmailLink(link)) {
+        setState(() => _isLoading = true);
+
+        // tenta recuperar email salvo
+        String? email;
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          email = prefs.getString('email_for_signin');
+        } catch (e) {
+          debugPrint('Erro ao ler SharedPreferences: $e');
+        }
+
+        // se não tivermos o email salvo, peça para o usuário digitar
+        if (email == null || email.isEmpty) {
+          email = await showDialog<String?>(
+            context: context,
+            builder: (ctx) {
+              final ctrl = TextEditingController();
+              return AlertDialog(
+                title: const Text('Confirme seu e-mail'),
+                content: TextField(
+                  controller: ctrl,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(hintText: 'Seu e-mail usado no pedido do link'),
+                ),
+                actions: [
+                  TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancelar')),
+                  TextButton(onPressed: () => Navigator.of(ctx).pop(ctrl.text.trim()), child: const Text('OK')),
+                ],
+              );
+            },
+          );
+        }
+
+        if (email == null || email.isEmpty) {
+          setState(() => _isLoading = false);
+          return;
+        }
+
+        try {
+          final userCred = await auth.signInWithEmailLink(email: email, emailLink: link);
+          _uid = userCred.user?.uid;
+          // remove o email salvo
+          try {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.remove('email_for_signin');
+          } catch (e) {
+            debugPrint('Erro ao remover email das prefs: $e');
+          }
+
+          await _checkUsername();
+        } catch (e) {
+          debugPrint('Erro ao completar signInWithEmailLink: $e');
+        }
+
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      debugPrint('Erro ao tratar incoming link: $e');
     }
   }
 
@@ -115,12 +265,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       Text(l10n.chooseUsername),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 32),
-                        child: TextField(
+                        child: InputText(
                           controller: _usernameController,
-                          decoration: InputDecoration(
-                            labelText: l10n.username,
-                            errorText: _usernameError,
-                          ),
+                          labelText: l10n.username,
+                          errorText: _usernameError ?? '',
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -134,20 +282,73 @@ class _LoginScreenState extends State<LoginScreen> {
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton.icon(
-                        onPressed: _signInWithGoogle,
-                        icon: const Icon(Icons.login),
-                        label: Text(l10n.signInWithGoogle),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: InputText(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          hint: 'Email',
+                        ),
                       ),
-                      const SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        onPressed: _signInWithApple,
-                        icon: const Icon(Icons.apple),
-                        label: Text(l10n.signInWithApple),
+                      if (_emailStatus != null) ...[
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: Text(
+                            _emailStatus!,
+                            style: const TextStyle(fontSize: 12, color: Colors.black54),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: _sendSignInLink,
+                        child: const Text('Entrar com email'),
+                      ),
+                      const SizedBox(height: 18),
+                      Row(
+                        children: const [
+                          Expanded(
+                            child: Divider(
+                              indent: 32,
+                              endIndent: 8,
+                              color: Colors.black12,
+                            ),
+                          ),
+                          Text('OU'),
+                          Expanded(
+                            child: Divider(
+                              indent: 8,
+                              endIndent: 32,
+                              color: Colors.black12,
+                            ),
+                          ),
+                        ],
+                      ),
+                      10.0.spaceY,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: _signInWithGoogle,
+                            icon: Image.asset('assets/icons/google.png', width: 30, height: 30),
+                          ),
+                          20.0.spaceX,
+                          IconButton(
+                            onPressed: _signInWithApple,
+                            icon: Icon(Icons.apple, size: 34),
+                          ),
+                        ],
                       ),
                     ],
                   ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
   }
 }
