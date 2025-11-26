@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../utils/extensions.dart';
+import '../widgets/username_avatar.dart';
 
 class ProfileModal extends StatelessWidget {
   final User user;
@@ -18,11 +20,16 @@ class ProfileModal extends StatelessWidget {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('${l10n.username}: $username'),
+          UsernameAvatar(username: username, size: 50),
+          Text(
+            username,
+            textAlign: TextAlign.center,
+          ),
+          10.0.spaceY,
           Text('${l10n.email}: ${user.email ?? 'N/A'}'),
           Text('${l10n.displayName}: ${user.displayName ?? 'N/A'}'),
-          const SizedBox(height: 20),
-          ElevatedButton(
+          10.0.spaceY,
+          TextButton(
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
               if (context.mounted) {

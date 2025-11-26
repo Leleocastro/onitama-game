@@ -13,6 +13,7 @@ import '../widgets/leaderboard_widget.dart';
 import '../widgets/username_avatar.dart';
 import 'how_to_play_screen.dart';
 import 'login_screen.dart';
+import 'play_menu.dart';
 import 'profile_modal.dart';
 
 class MenuScreen2 extends StatefulWidget {
@@ -22,7 +23,7 @@ class MenuScreen2 extends StatefulWidget {
   State<MenuScreen2> createState() => _MenuScreen2State();
 }
 
-class _MenuScreen2State extends State<MenuScreen2> {
+class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin {
   final FirestoreService _firestoreService = FirestoreService();
   late File file;
   late RiveWidgetController controller;
@@ -132,7 +133,14 @@ class _MenuScreen2State extends State<MenuScreen2> {
               Center(
                 child: InkWell(
                   onTap: () {
-                    print('Jogar tapped');
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      barrierColor: Colors.black87,
+                      transitionAnimationController: AnimationController(vsync: this, duration: Duration(milliseconds: 500)),
+                      isScrollControlled: true,
+                      builder: (_) => PlayMenu(playerUid: _playerUid!),
+                    );
                   },
                   child: Text(
                     l10n.play,
