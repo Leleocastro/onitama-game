@@ -78,6 +78,7 @@ class _PlayMenuState extends State<PlayMenu> {
                   children: [
                     IconButton(
                       onPressed: () {
+                        Navigator.pop(context);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -171,6 +172,7 @@ class _PlayMenuState extends State<PlayMenu> {
             StyledButton(
               onPressed: () {
                 Navigator.pop(context);
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -190,6 +192,7 @@ class _PlayMenuState extends State<PlayMenu> {
             StyledButton(
               onPressed: () {
                 Navigator.pop(context);
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -208,6 +211,7 @@ class _PlayMenuState extends State<PlayMenu> {
             const SizedBox(height: 10),
             StyledButton(
               onPressed: () {
+                Navigator.pop(context);
                 Navigator.pop(context);
                 Navigator.push(
                   context,
@@ -236,6 +240,8 @@ class _PlayMenuState extends State<PlayMenu> {
     if (currentUid == null) return;
     final gameId = await _firestoreService.createGame(currentUid);
     if (!mounted) return;
+    Navigator.pop(context);
+    Navigator.pop(context);
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -251,6 +257,8 @@ class _PlayMenuState extends State<PlayMenu> {
     final gameId = _gameIdController.text.trim();
     if (gameId.isNotEmpty) {
       if (!mounted) return;
+      Navigator.pop(context);
+      Navigator.pop(context);
       _firestoreService.joinGame(gameId, currentUid);
       await Navigator.push(
         context,
@@ -295,6 +303,7 @@ class _PlayMenuState extends State<PlayMenu> {
         _firestoreService.convertToPvAI(gameId);
         if (!mounted) return;
         Navigator.pop(context); // Close waiting dialog
+        Navigator.pop(context);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -314,6 +323,7 @@ class _PlayMenuState extends State<PlayMenu> {
           _gameCreationTimer?.cancel();
           if (!mounted) return;
           Navigator.pop(context); // Close waiting dialog
+          Navigator.pop(context);
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -331,6 +341,7 @@ class _PlayMenuState extends State<PlayMenu> {
     } else {
       if (!mounted) return;
       Navigator.pop(context); // Close waiting dialog
+      Navigator.pop(context);
       await Navigator.push(
         context,
         MaterialPageRoute(

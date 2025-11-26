@@ -22,7 +22,7 @@ class CardWidget extends StatelessWidget {
     this.selectable = true,
     this.onTap,
     this.invert = false,
-    this.isReserve = false,
+    this.isReserve = true,
   });
 
   @override

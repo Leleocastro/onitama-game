@@ -13,8 +13,10 @@ import '../models/win_condition.dart';
 import '../services/firestore_service.dart';
 import '../services/ranking_service.dart';
 import '../services/theme_manager.dart';
+import '../utils/extensions.dart';
 import '../widgets/board_widget.dart';
 import '../widgets/card_widget.dart';
+import '../widgets/username_avatar.dart';
 import 'historic_game_detail_screen.dart';
 import 'interstitial_ad_screen.dart';
 import 'rewarded_ad_screen.dart';
@@ -50,6 +52,8 @@ class OnitamaHomeState extends State<OnitamaHome> {
   StreamSubscription? _gameSubscription;
   FirestoreGame? _firestoreGame;
   bool _rankingSubmitted = false;
+  final Map<String, String> _usernameCache = <String, String>{};
+  final Set<String> _loadingUsernameUids = <String>{};
 
   @override
   void initState() {
@@ -62,6 +66,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
     if (widget.gameMode == GameMode.online) {
       _gameSubscription = _gameStream?.listen((firestoreGame) {
         _firestoreGame = firestoreGame;
+        _maybeLoadUsernames(firestoreGame.players);
         final oldSelectedCell = _gameState?.selectedCell;
         final oldSelectedCard = _gameState?.selectedCardForMove;
 
@@ -95,12 +100,14 @@ class OnitamaHomeState extends State<OnitamaHome> {
       final firestoreGame = await _firestoreService.getGame(widget.gameId!);
       if (firestoreGame != null) {
         setState(() {
+          _firestoreGame = firestoreGame;
           _gameState = GameState.fromFirestore(
             firestoreGame,
             widget.gameMode,
             widget.aiDifficulty,
           );
         });
+        _maybeLoadUsernames(firestoreGame.players);
       }
     }
   }
@@ -255,14 +262,55 @@ class OnitamaHomeState extends State<OnitamaHome> {
     setState(() {});
   }
 
+  void _maybeLoadUsernames(Map<String, String> players) {
+    if (widget.gameMode != GameMode.online) return;
+    players.forEach((_, uid) {
+      if (uid.isEmpty || uid == 'ai') return;
+      if (_usernameCache.containsKey(uid) || _loadingUsernameUids.contains(uid)) return;
+      _loadingUsernameUids.add(uid);
+      _firestoreService.getUsername(uid).then((username) {
+        if (!mounted) return;
+        setState(() {
+          _usernameCache[uid] = username ?? '';
+          _loadingUsernameUids.remove(uid);
+        });
+      }).catchError((error) {
+        debugPrint('Failed to load username for $uid: $error');
+        if (!mounted) return;
+        setState(() {
+          _usernameCache[uid] = '';
+          _loadingUsernameUids.remove(uid);
+        });
+      });
+    });
+  }
+
+  String? _usernameForColor(PlayerColor color) {
+    if (widget.gameMode != GameMode.online) {
+      return null;
+    }
+    final players = _firestoreGame?.players;
+    if (players == null) return null;
+    final key = color == PlayerColor.blue ? 'blue' : 'red';
+    final uid = players[key];
+    if (uid == null || uid.isEmpty || uid == 'ai') {
+      return null;
+    }
+    final username = _usernameCache[uid];
+    if (username != null && username.isNotEmpty) {
+      return username;
+    }
+    return null;
+  }
+
   String _getWinnerName(PlayerColor winner) {
     final l10n = AppLocalizations.of(context)!;
     if (widget.gameMode == GameMode.online) {
-      if ((winner == PlayerColor.blue && widget.isHost!) || (winner == PlayerColor.red && !widget.isHost!)) {
-        return l10n.you;
-      } else {
-        return l10n.opponent;
+      final username = _usernameForColor(winner);
+      if (username != null) {
+        return username;
       }
+      return l10n.loading;
     } else {
       return winner == PlayerColor.blue ? l10n.blue : l10n.red;
     }
@@ -270,6 +318,16 @@ class OnitamaHomeState extends State<OnitamaHome> {
 
   String _getPlayerLabel(PlayerColor player) {
     final l10n = AppLocalizations.of(context)!;
+    if (widget.gameMode == GameMode.online) {
+      final username = _usernameForColor(player);
+      if (username != null) {
+        return username;
+      }
+      return l10n.loading;
+    }
+    if (widget.gameMode == GameMode.pvp) {
+      return player == PlayerColor.red ? l10n.red : l10n.blue;
+    }
     if (widget.isHost!) {
       // Host is always blue
       return player == PlayerColor.blue ? l10n.you : l10n.opponent;
@@ -322,26 +380,28 @@ class OnitamaHomeState extends State<OnitamaHome> {
   Widget _buildHands(PlayerColor player) {
     final hand = player == PlayerColor.red ? _gameState!.redHand : _gameState!.blueHand;
     final isPlayerTurn = _gameState!.currentPlayer == player;
+    final isOnline = widget.gameMode == GameMode.online;
 
     return AbsorbPointer(
       absorbing: !isPlayerTurn,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: isOnline ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              _getPlayerLabel(player),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: player == PlayerColor.red ? Colors.red : Colors.blue,
-                decoration: isPlayerTurn ? TextDecoration.underline : TextDecoration.none,
-                decorationColor: player == PlayerColor.red ? Colors.red : Colors.blue,
+            if (!isOnline)
+              Text(
+                _getPlayerLabel(player),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: player == PlayerColor.red ? Colors.red : Colors.blue,
+                  decoration: isPlayerTurn ? TextDecoration.underline : TextDecoration.none,
+                  decorationColor: player == PlayerColor.red ? Colors.red : Colors.blue,
+                ),
               ),
-            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: hand
                   .map(
                     (c) => CardWidget(
@@ -382,6 +442,12 @@ class OnitamaHomeState extends State<OnitamaHome> {
         ),
       );
     }
+    final player = widget.isHost! ? PlayerColor.blue : PlayerColor.red;
+    final opponentPlayer = player == PlayerColor.red ? PlayerColor.blue : PlayerColor.red;
+    final isPlayerTurn = _gameState!.currentPlayer == player;
+    final username = _getPlayerLabel(player);
+    final opponentUsername = _getPlayerLabel(opponentPlayer);
+
     return StreamBuilder(
       stream: widget.gameMode == GameMode.online ? _gameStream : null,
       builder: (context, asyncSnapshot) {
@@ -546,6 +612,116 @@ class OnitamaHomeState extends State<OnitamaHome> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
+                      if (widget.gameMode == GameMode.online) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isPlayerTurn
+                                          ? player == PlayerColor.red
+                                              ? Colors.red
+                                              : Colors.blue
+                                          : Colors.transparent,
+                                      width: 2.5,
+                                    ),
+                                  ),
+                                  child: UsernameAvatar(
+                                    username: username,
+                                    size: 30,
+                                  ),
+                                ),
+                                8.0.spaceX,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      username,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: player == PlayerColor.red ? Colors.red : Colors.blue,
+                                        decorationColor: player == PlayerColor.red ? Colors.red : Colors.blue,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.star_border, size: 12, color: Colors.grey),
+                                        4.0.spaceX,
+                                        Text(
+                                          '1500 Pts',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      opponentUsername,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: opponentPlayer == PlayerColor.red ? Colors.red : Colors.blue,
+                                        decorationColor: opponentPlayer == PlayerColor.red ? Colors.red : Colors.blue,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          '1500 Pts',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        4.0.spaceX,
+                                        Icon(Icons.star_border, size: 12, color: Colors.grey),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                8.0.spaceX,
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: !isPlayerTurn
+                                          ? opponentPlayer == PlayerColor.red
+                                              ? Colors.red
+                                              : Colors.blue
+                                          : Colors.transparent,
+                                      width: 2.5,
+                                    ),
+                                  ),
+                                  child: UsernameAvatar(
+                                    username: opponentUsername,
+                                    size: 30,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        10.0.spaceY,
+                      ],
                       _buildHands(
                         widget.isHost! ? PlayerColor.red : PlayerColor.blue,
                       ),
@@ -573,7 +749,6 @@ class OnitamaHomeState extends State<OnitamaHome> {
                           selectable: false,
                           invert: true,
                           color: Colors.green,
-                          isReserve: true,
                         ),
                       ),
                     ],

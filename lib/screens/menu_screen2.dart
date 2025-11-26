@@ -136,7 +136,6 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                     showModalBottomSheet(
                       context: context,
                       backgroundColor: Colors.transparent,
-                      barrierColor: Colors.black87,
                       transitionAnimationController: AnimationController(vsync: this, duration: Duration(milliseconds: 500)),
                       isScrollControlled: true,
                       builder: (_) => PlayMenu(playerUid: _playerUid!),
