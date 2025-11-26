@@ -54,6 +54,8 @@ class OnitamaHomeState extends State<OnitamaHome> {
   bool _rankingSubmitted = false;
   final Map<String, String> _usernameCache = <String, String>{};
   final Set<String> _loadingUsernameUids = <String>{};
+  final Map<String, int?> _ratingCache = <String, int?>{};
+  final Set<String> _loadingRatingUids = <String>{};
 
   @override
   void initState() {
@@ -66,7 +68,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
     if (widget.gameMode == GameMode.online) {
       _gameSubscription = _gameStream?.listen((firestoreGame) {
         _firestoreGame = firestoreGame;
-        _maybeLoadUsernames(firestoreGame.players);
+        _maybeLoadPlayerProfiles(firestoreGame.players);
         final oldSelectedCell = _gameState?.selectedCell;
         final oldSelectedCard = _gameState?.selectedCardForMove;
 
@@ -107,7 +109,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
             widget.aiDifficulty,
           );
         });
-        _maybeLoadUsernames(firestoreGame.players);
+        _maybeLoadPlayerProfiles(firestoreGame.players);
       }
     }
   }
@@ -262,25 +264,49 @@ class OnitamaHomeState extends State<OnitamaHome> {
     setState(() {});
   }
 
-  void _maybeLoadUsernames(Map<String, String> players) {
+  void _maybeLoadPlayerProfiles(Map<String, String> players) {
     if (widget.gameMode != GameMode.online) return;
     players.forEach((_, uid) {
       if (uid.isEmpty || uid == 'ai') return;
-      if (_usernameCache.containsKey(uid) || _loadingUsernameUids.contains(uid)) return;
-      _loadingUsernameUids.add(uid);
-      _firestoreService.getUsername(uid).then((username) {
-        if (!mounted) return;
-        setState(() {
-          _usernameCache[uid] = username ?? '';
-          _loadingUsernameUids.remove(uid);
-        });
-      }).catchError((error) {
-        debugPrint('Failed to load username for $uid: $error');
-        if (!mounted) return;
-        setState(() {
-          _usernameCache[uid] = '';
-          _loadingUsernameUids.remove(uid);
-        });
+      _loadUsernameIfNeeded(uid);
+      _loadRatingIfNeeded(uid);
+    });
+  }
+
+  void _loadUsernameIfNeeded(String uid) {
+    if (_usernameCache.containsKey(uid) || _loadingUsernameUids.contains(uid)) return;
+    _loadingUsernameUids.add(uid);
+    _firestoreService.getUsername(uid).then((username) {
+      if (!mounted) return;
+      setState(() {
+        _usernameCache[uid] = username ?? '';
+        _loadingUsernameUids.remove(uid);
+      });
+    }).catchError((error) {
+      debugPrint('Failed to load username for $uid: $error');
+      if (!mounted) return;
+      setState(() {
+        _usernameCache[uid] = '';
+        _loadingUsernameUids.remove(uid);
+      });
+    });
+  }
+
+  void _loadRatingIfNeeded(String uid) {
+    if (_ratingCache.containsKey(uid) || _loadingRatingUids.contains(uid)) return;
+    _loadingRatingUids.add(uid);
+    _rankingService.fetchPlayerEntry(uid).then((entry) {
+      if (!mounted) return;
+      setState(() {
+        _ratingCache[uid] = entry?.rating;
+        _loadingRatingUids.remove(uid);
+      });
+    }).catchError((error) {
+      debugPrint('Failed to load rating for $uid: $error');
+      if (!mounted) return;
+      setState(() {
+        _ratingCache[uid] = null;
+        _loadingRatingUids.remove(uid);
       });
     });
   }
@@ -299,6 +325,23 @@ class OnitamaHomeState extends State<OnitamaHome> {
     final username = _usernameCache[uid];
     if (username != null && username.isNotEmpty) {
       return username;
+    }
+    return null;
+  }
+
+  int? _ratingForColor(PlayerColor color) {
+    if (widget.gameMode != GameMode.online) {
+      return null;
+    }
+    final players = _firestoreGame?.players;
+    if (players == null) return null;
+    final key = color == PlayerColor.blue ? 'blue' : 'red';
+    final uid = players[key];
+    if (uid == null || uid.isEmpty || uid == 'ai') {
+      return null;
+    }
+    if (_ratingCache.containsKey(uid)) {
+      return _ratingCache[uid];
     }
     return null;
   }
@@ -447,6 +490,8 @@ class OnitamaHomeState extends State<OnitamaHome> {
     final isPlayerTurn = _gameState!.currentPlayer == player;
     final username = _getPlayerLabel(player);
     final opponentUsername = _getPlayerLabel(opponentPlayer);
+    final playerRating = _ratingForColor(player);
+    final opponentRating = _ratingForColor(opponentPlayer);
 
     return StreamBuilder(
       stream: widget.gameMode == GameMode.online ? _gameStream : null,
@@ -654,8 +699,8 @@ class OnitamaHomeState extends State<OnitamaHome> {
                                         Icon(Icons.star_border, size: 12, color: Colors.grey),
                                         4.0.spaceX,
                                         Text(
-                                          '1500 Pts',
-                                          style: TextStyle(
+                                          playerRating != null ? '$playerRating' : '1200',
+                                          style: const TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
                                             color: Colors.grey,
@@ -685,15 +730,15 @@ class OnitamaHomeState extends State<OnitamaHome> {
                                     Row(
                                       children: [
                                         Text(
-                                          '1500 Pts',
-                                          style: TextStyle(
+                                          opponentRating != null ? '$opponentRating' : '1200',
+                                          style: const TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
                                             color: Colors.grey,
                                           ),
                                         ),
                                         4.0.spaceX,
-                                        Icon(Icons.star_border, size: 12, color: Colors.grey),
+                                        const Icon(Icons.star_border, size: 12, color: Colors.grey),
                                       ],
                                     ),
                                   ],

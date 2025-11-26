@@ -283,6 +283,7 @@ class _PlayMenuState extends State<PlayMenu> {
     if (inProgress) {
       if (!mounted) return;
       Navigator.pop(context); // Close waiting dialog
+      Navigator.pop(context);
       await Navigator.push(
         context,
         MaterialPageRoute(
