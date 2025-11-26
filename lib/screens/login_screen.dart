@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uni_links/uni_links.dart';
 
@@ -223,7 +224,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _saveUsername() async {
     final username = _usernameController.text.trim();
+    // Validate: only letters (upper/lower) and numbers, no spaces/specials, max 48 chars
+    final validRe = RegExp(r'^[A-Za-z0-9]{1,48}$');
     if (_uid != null && username.isNotEmpty) {
+      if (!validRe.hasMatch(username)) {
+        setState(() {
+          _usernameError = 'Apenas letras e números (máx. 48 caracteres), sem espaços.';
+        });
+        return;
+      }
+      // clear previous error
+      setState(() {
+        _usernameError = null;
+      });
       setState(() {
         _isLoading = true;
       });
@@ -269,6 +282,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _usernameController,
                           labelText: l10n.username,
                           errorText: _usernameError ?? '',
+                          maxLength: 48,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
+                            LengthLimitingTextInputFormatter(48),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 10),

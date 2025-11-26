@@ -31,8 +31,8 @@ class InputText extends StatefulWidget {
   final double? height;
   final ValueChanged<String>? onSubmitted;
   final bool readOnly;
-
   final bool isEnableBorder;
+  final int? maxLength;
 
   const InputText({
     required this.controller,
@@ -62,6 +62,7 @@ class InputText extends StatefulWidget {
     this.height,
     this.onSubmitted,
     this.readOnly = false,
+    this.maxLength,
   });
 
   @override
@@ -95,6 +96,7 @@ class _InputTextState extends State<InputText> {
             focusNode: widget.focusNode,
             maxLines: widget.maxLines ?? 1,
             enabled: widget.isEnabled,
+            maxLength: widget.maxLength,
             obscureText: isPassword ? _obscureText : false,
             inputFormatters: widget.inputFormatters,
             onFieldSubmitted: widget.onSubmitted,
