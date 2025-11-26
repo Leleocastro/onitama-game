@@ -5,8 +5,9 @@ import '../l10n/app_localizations.dart';
 
 class ProfileModal extends StatelessWidget {
   final User user;
+  final String username;
 
-  const ProfileModal({required this.user, super.key});
+  const ProfileModal({required this.user, required this.username, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +18,7 @@ class ProfileModal extends StatelessWidget {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Text('${l10n.username}: $username'),
           Text('${l10n.email}: ${user.email ?? 'N/A'}'),
           Text('${l10n.displayName}: ${user.displayName ?? 'N/A'}'),
           const SizedBox(height: 20),

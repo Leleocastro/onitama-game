@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models/leaderboard_entry.dart';
 import '../services/ranking_service.dart';
+import 'username_avatar.dart';
 
 class LeaderboardWidget extends StatefulWidget {
   const LeaderboardWidget({required this.playerUid, super.key});
@@ -84,9 +85,21 @@ class _LeaderboardWidgetState extends State<LeaderboardWidget> {
                       .map(
                         (entry) => ListTile(
                           dense: true,
-                          leading: CircleAvatar(
-                            radius: 16,
-                            child: Text('${entry.rank ?? '-'}'),
+                          contentPadding: EdgeInsets.zero,
+                          leading: SizedBox(
+                            width: 80,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('${entry.rank ?? '-'}', style: Theme.of(context).textTheme.titleSmall),
+                                const SizedBox(width: 8),
+                                UsernameAvatar(
+                                  username: entry.username,
+                                  size: 32,
+                                  tooltip: entry.username,
+                                ),
+                              ],
+                            ),
                           ),
                           title: Text(entry.username),
                           subtitle: Text(l10n.leaderboardPlayerSubtitle(entry.rating, _localizedTier(entry.tier, l10n))),

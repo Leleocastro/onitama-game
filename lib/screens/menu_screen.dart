@@ -11,6 +11,7 @@ import '../services/firestore_service.dart';
 import '../services/ranking_service.dart';
 import '../services/theme_manager.dart';
 import '../widgets/styled_button.dart';
+import '../widgets/username_avatar.dart';
 import './game_lobby_screen.dart';
 import './how_to_play_screen.dart';
 import './interstitial_ad_screen.dart';
@@ -30,6 +31,7 @@ class _MenuScreenState extends State<MenuScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final RankingService _rankingService = RankingService();
   final TextEditingController _gameIdController = TextEditingController();
+  final Map<String, Future<String?>> _usernameFutures = <String, Future<String?>>{};
 
   String? _playerUid;
   StreamSubscription? _gameSubscription;
@@ -411,22 +413,31 @@ class _MenuScreenState extends State<MenuScreen> {
                   }
                   if (snapshot.hasData && snapshot.data != null && !snapshot.data!.isAnonymous) {
                     final user = snapshot.data!;
-                    final initial = user.displayName?.isNotEmpty ?? false
-                        ? user.displayName![0].toUpperCase()
-                        : (user.email?.isNotEmpty ?? false ? user.email![0].toUpperCase() : '?');
-                    return Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: GestureDetector(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => ProfileModal(user: user),
-                          );
-                        },
-                        child: CircleAvatar(
-                          child: Text(initial),
-                        ),
-                      ),
+                    final usernameFuture = _usernameFutures.putIfAbsent(user.uid, () => _firestoreService.getUsername(user.uid));
+                    return FutureBuilder<String?>(
+                      future: usernameFuture,
+                      builder: (context, usernameSnapshot) {
+                        final username = usernameSnapshot.data ?? user.displayName ?? user.email ?? 'player';
+                        return Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => ProfileModal(
+                                  user: user,
+                                  username: username,
+                                ),
+                              );
+                            },
+                            child: UsernameAvatar(
+                              username: username,
+                              size: 42,
+                              tooltip: username,
+                            ),
+                          ),
+                        );
+                      },
                     );
                   } else {
                     return Padding(
@@ -508,9 +519,21 @@ class _MenuScreenState extends State<MenuScreen> {
                       .map(
                         (entry) => ListTile(
                           dense: true,
-                          leading: CircleAvatar(
-                            radius: 16,
-                            child: Text('${entry.rank ?? '-'}'),
+                          contentPadding: EdgeInsets.zero,
+                          leading: SizedBox(
+                            width: 80,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('${entry.rank ?? '-'}', style: Theme.of(context).textTheme.titleSmall),
+                                const SizedBox(width: 8),
+                                UsernameAvatar(
+                                  username: entry.username,
+                                  size: 32,
+                                  tooltip: entry.username,
+                                ),
+                              ],
+                            ),
                           ),
                           title: Text(entry.username),
                           subtitle: Text(l10n.leaderboardPlayerSubtitle(entry.rating, _localizedTier(entry.tier, l10n))),

@@ -10,6 +10,7 @@ import '../l10n/app_localizations.dart';
 import '../services/firestore_service.dart';
 import '../style/theme.dart';
 import '../widgets/leaderboard_widget.dart';
+import '../widgets/username_avatar.dart';
 import 'how_to_play_screen.dart';
 import 'login_screen.dart';
 import 'profile_modal.dart';
@@ -35,6 +36,7 @@ class _MenuScreen2State extends State<MenuScreen2> {
 
   StreamSubscription<User?>? _authStateChangesSubscription;
   String? _playerUid;
+  final Map<String, Future<String?>> _usernameFutures = <String, Future<String?>>{};
 
   @override
   void initState() {
@@ -155,6 +157,8 @@ class _MenuScreen2State extends State<MenuScreen2> {
                   // if (user != null && !user.isAnonymous)
                   IconButton(
                     onPressed: () {
+                      final playerUid = user?.uid ?? _playerUid;
+                      if (playerUid == null) return;
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
@@ -163,7 +167,7 @@ class _MenuScreen2State extends State<MenuScreen2> {
                         builder: (context) => Container(
                           color: Colors.transparent,
                           padding: EdgeInsets.all(20),
-                          child: LeaderboardWidget(playerUid: user!.uid),
+                          child: LeaderboardWidget(playerUid: playerUid),
                         ),
                       );
                     },
@@ -202,22 +206,30 @@ class _MenuScreen2State extends State<MenuScreen2> {
                   }
                   if (snapshot.hasData && snapshot.data != null && !snapshot.data!.isAnonymous) {
                     final user = snapshot.data!;
-                    final initial = user.displayName?.isNotEmpty ?? false
-                        ? user.displayName![0].toUpperCase()
-                        : (user.email?.isNotEmpty ?? false ? user.email![0].toUpperCase() : '?');
-                    return Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: GestureDetector(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => ProfileModal(user: user),
-                          );
-                        },
-                        child: CircleAvatar(
-                          child: Text(initial),
-                        ),
-                      ),
+                    final usernameFuture = _usernameFutures.putIfAbsent(user.uid, () => _firestoreService.getUsername(user.uid));
+                    return FutureBuilder<String?>(
+                      future: usernameFuture,
+                      builder: (context, usernameSnapshot) {
+                        final username = usernameSnapshot.data ?? user.displayName ?? user.email ?? 'player';
+                        return Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => ProfileModal(
+                                  user: user,
+                                  username: username,
+                                ),
+                              );
+                            },
+                            child: UsernameAvatar(
+                              username: username,
+                              tooltip: username,
+                            ),
+                          ),
+                        );
+                      },
                     );
                   } else {
                     return Padding(
