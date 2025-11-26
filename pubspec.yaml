@@ -58,6 +58,9 @@ flutter:
     - family: HIROMISAKE
       fonts:
         - asset: assets/fonts/HIROMISAKE.ttf
+    - family: SpellOfAsia
+      fonts:
+        - asset: assets/fonts/spell_of_asia.ttf
 
 flutter_launcher_icons:
   ios: true

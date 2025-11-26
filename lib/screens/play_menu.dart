@@ -68,9 +68,25 @@ class _PlayMenuState extends State<PlayMenu> {
             Spacer(),
             Column(
               children: [
+                // InkWell(
+                //   onTap: () {},
+                //   child: Text(
+                //     'Start Game',
+                //     style: TextStyle(
+                //       fontFamily: 'SpellOfAsia',
+                //       color: Colors.white,
+                //       fontSize: 48,
+                //     ),
+                //   ),
+                // ),
                 StyledButton(
                   onPressed: _findOrCreateGame,
-                  text: l10n.play.toUpperCase(),
+                  textStyle: TextStyle(
+                    fontFamily: 'SpellOfAsia',
+                    color: Colors.white,
+                    fontSize: 32,
+                  ),
+                  text: 'Start',
                 ),
                 10.0.spaceY,
                 Row(

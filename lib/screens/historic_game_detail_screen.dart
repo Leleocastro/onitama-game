@@ -13,7 +13,7 @@ class HistoricGameDetailScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.moveHistoryTitle),
+        title: Text(l10n.moveHistoryTitle, style: TextStyle(fontFamily: 'SpellOfAsia')),
       ),
       body: ListView.builder(
         itemCount: moves.length,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 
@@ -56,6 +57,34 @@ class OnitamaHomeState extends State<OnitamaHome> {
   final Set<String> _loadingUsernameUids = <String>{};
   final Map<String, int?> _ratingCache = <String, int?>{};
   final Set<String> _loadingRatingUids = <String>{};
+  final Map<PlayerColor, String> _fallbackUsernames = <PlayerColor, String>{};
+  final Random _random = Random();
+
+  static const List<String> _fakeFirstNames = <String>[
+    'Aiko',
+    'Hiro',
+    'Kenji',
+    'Mika',
+    'Ren',
+    'Sora',
+    'Taro',
+    'Yumi',
+    'Daichi',
+    'Kumi',
+  ];
+
+  static const List<String> _fakeLastNames = <String>[
+    'Tanaka',
+    'Sato',
+    'Nakamura',
+    'Yamamoto',
+    'Suzuki',
+    'Fujimoto',
+    'Kobayashi',
+    'Hayashi',
+    'Okada',
+    'Shimizu',
+  ];
 
   @override
   void initState() {
@@ -346,6 +375,15 @@ class OnitamaHomeState extends State<OnitamaHome> {
     return null;
   }
 
+  String _fakeUsernameForColor(PlayerColor color) {
+    return _fallbackUsernames.putIfAbsent(color, () {
+      final first = _fakeFirstNames[_random.nextInt(_fakeFirstNames.length)];
+      final last = _fakeLastNames[_random.nextInt(_fakeLastNames.length)];
+      final suffix = (_random.nextInt(900) + 100).toString();
+      return '$first$last$suffix';
+    });
+  }
+
   String _getWinnerName(PlayerColor winner) {
     final l10n = AppLocalizations.of(context)!;
     if (widget.gameMode == GameMode.online) {
@@ -353,7 +391,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
       if (username != null) {
         return username;
       }
-      return l10n.loading;
+      return _fakeUsernameForColor(winner);
     } else {
       return winner == PlayerColor.blue ? l10n.blue : l10n.red;
     }
@@ -366,7 +404,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
       if (username != null) {
         return username;
       }
-      return l10n.loading;
+      return _fakeUsernameForColor(player);
     }
     if (widget.gameMode == GameMode.pvp) {
       return player == PlayerColor.red ? l10n.red : l10n.blue;
@@ -794,6 +832,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
                           selectable: false,
                           invert: true,
                           color: Colors.green,
+                          isReserve: true,
                         ),
                       ),
                     ],

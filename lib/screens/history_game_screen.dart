@@ -28,7 +28,7 @@ class _HistoryGameScreenState extends State<HistoryGameScreen> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.historyTitle),
+        title: Text(l10n.historyTitle, style: TextStyle(fontFamily: 'SpellOfAsia')),
       ),
       body: FutureBuilder<List<FirestoreGame>>(
         future: _gamesFuture,

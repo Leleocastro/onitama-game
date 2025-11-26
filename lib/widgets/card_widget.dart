@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/card_model.dart';
 import '../models/point.dart';
+import '../services/theme_manager.dart';
+import '../utils/extensions.dart';
 
 class CardWidget extends StatelessWidget {
   final CardModel card;
@@ -22,22 +24,31 @@ class CardWidget extends StatelessWidget {
     this.selectable = true,
     this.onTap,
     this.invert = false,
-    this.isReserve = true,
+    this.isReserve = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final moves = invert ? _invertMoves(card.moves) : card.moves;
+    final headerColor = _darken(color, 0.2);
+    final detailsColor = Color(0xFFd2be8f);
+    final image = ThemeManager.cachedImage('default-card${card.name}');
 
     return GestureDetector(
       onTap: selectable ? () => onTap?.call(card) : null,
       child: Container(
-        width: isReserve ? 80 : 110,
+        width: isReserve ? 70 : 85,
         margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: isSelected ? Colors.green : Colors.black12),
+          image: image != null
+              ? DecorationImage(
+                  image: image,
+                  fit: BoxFit.cover,
+                  opacity: 0.4,
+                )
+              : null,
+          color: Colors.black,
+          border: Border.all(color: isSelected ? color : detailsColor),
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(color: Colors.black12, blurRadius: 4, offset: const Offset(2, 2)),
@@ -46,13 +57,41 @@ class CardWidget extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              localizedName,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: isReserve ? 12 : 14),
-              textAlign: TextAlign.center,
+            Container(
+              decoration: BoxDecoration(
+                color: headerColor,
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(4),
+                ),
+                border: Border(
+                  bottom: BorderSide(color: detailsColor),
+                  left: BorderSide(color: detailsColor),
+                  right: BorderSide(color: detailsColor),
+                ),
+              ),
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: 4,
+              ),
+              child: Text(
+                localizedName,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isReserve ? 10 : 12,
+                  fontFamily: 'SpellOfAsia',
+                  color: Color(0xFFd2be8f),
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
-            SizedBox(height: isReserve ? 4 : 6),
-            _buildMovesMiniGrid(moves, isReserve: isReserve),
+            10.0.spaceY,
+            Container(
+              alignment: Alignment.center,
+              width: isReserve ? 50 : 60,
+              child: _buildMovesMiniGrid(moves, isReserve: isReserve),
+            ),
+            10.0.spaceY,
           ],
         ),
       ),
@@ -67,15 +106,15 @@ class CardWidget extends StatelessWidget {
         final isCenter = rr == 0 && cc == 0;
         cells.add(
           Container(
-            width: isReserve ? 10 : 14,
-            height: isReserve ? 10 : 14,
+            width: isReserve ? 8 : 10,
+            height: isReserve ? 8 : 10,
             margin: const EdgeInsets.all(1),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.black12),
+              border: Border.all(color: Color(0xAAd2be8f)),
               color: hasMove
                   ? color
                   : isCenter
-                      ? Colors.black54
+                      ? Colors.white
                       : Colors.transparent,
               shape: BoxShape.circle,
             ),
@@ -88,5 +127,11 @@ class CardWidget extends StatelessWidget {
 
   List<Point> _invertMoves(List<Point> moves) {
     return moves.map((m) => Point((m.r * -1), (m.c * -1))).toList();
+  }
+
+  Color _darken(Color base, [double amount = 0.1]) {
+    final hsl = HSLColor.fromColor(base);
+    final lightness = (hsl.lightness - amount).clamp(0.0, 1.0);
+    return hsl.withLightness(lightness).toColor();
   }
 }

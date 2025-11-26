@@ -267,7 +267,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.login)),
+      appBar: AppBar(title: Text(l10n.login, style: TextStyle(fontFamily: 'SpellOfAsia'))),
       body: Center(
         child: _isLoading
             ? const CircularProgressIndicator()

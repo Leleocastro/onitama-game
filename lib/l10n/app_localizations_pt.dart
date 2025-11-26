@@ -210,7 +210,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get cardMonkey => 'Macaco';
 
   @override
-  String get cardMantis => 'Louva-deus';
+  String get cardMantis => 'Louvadeus';
 
   @override
   String get cardHorse => 'Cavalo';

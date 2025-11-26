@@ -23,7 +23,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Game Lobby')),
+      appBar: AppBar(title: const Text('Lobby', style: TextStyle(fontFamily: 'SpellOfAsia'))),
       body: StreamBuilder<FirestoreGame>(
         stream: _firestoreService.streamGame(widget.gameId),
         builder: (context, snapshot) {
