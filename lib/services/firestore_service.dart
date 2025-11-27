@@ -6,6 +6,7 @@ import '../models/ai_difficulty.dart';
 import '../models/firestore_game.dart';
 import '../models/game_mode.dart';
 import '../models/player.dart';
+import '../models/user_profile.dart';
 
 class FirestoreService {
   Future<bool> usernameExists(String username) async {
@@ -21,6 +22,19 @@ class FirestoreService {
     return null;
   }
 
+  Future<UserProfile?> fetchUserProfile(String uid) async {
+    final doc = await _db.collection('users').doc(uid).get();
+    if (!doc.exists) return null;
+    return UserProfile.fromSnapshot(doc);
+  }
+
+  Stream<UserProfile?> watchUserProfile(String uid) {
+    return _db.collection('users').doc(uid).snapshots().map((snapshot) {
+      if (!snapshot.exists) return null;
+      return UserProfile.fromSnapshot(snapshot);
+    });
+  }
+
   Future<void> setUsername(String uid, String username) async {
     await _db.collection('users').doc(uid).set(
       {
@@ -29,6 +43,34 @@ class FirestoreService {
       },
       SetOptions(merge: true),
     );
+  }
+
+  Future<void> updateUserPhoto(String uid, String photoUrl) async {
+    await _db.collection('users').doc(uid).set(
+      {
+        'photoUrl': photoUrl,
+      },
+      SetOptions(merge: true),
+    );
+  }
+
+  Future<void> ensureUserPhoto(User user) async {
+    final photoUrl = user.photoURL;
+    if (photoUrl == null || photoUrl.isEmpty) {
+      return;
+    }
+    final docRef = _db.collection('users').doc(user.uid);
+    final doc = await docRef.get();
+    final storedUrl = doc.data()?['photoUrl'] as String?;
+    if (storedUrl == null || storedUrl.isEmpty) {
+      await docRef.set(
+        {
+          'id': user.uid,
+          'photoUrl': photoUrl,
+        },
+        SetOptions(merge: true),
+      );
+    }
   }
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;

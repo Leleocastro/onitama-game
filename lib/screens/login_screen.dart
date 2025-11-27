@@ -114,6 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
     final username = await _firestoreService.getUsername(_uid!);
+    await _syncPhotoFromAuthUser();
     setState(() {
       _isLoading = false;
     });
@@ -123,6 +124,16 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     } else {
       Navigator.pop(context);
+    }
+  }
+
+  Future<void> _syncPhotoFromAuthUser() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    try {
+      await _firestoreService.ensureUserPhoto(user);
+    } catch (error) {
+      debugPrint('Failed to sync user photo: $error');
     }
   }
 

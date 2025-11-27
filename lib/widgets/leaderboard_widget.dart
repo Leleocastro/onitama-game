@@ -98,6 +98,7 @@ class _LeaderboardWidgetState extends State<LeaderboardWidget> {
                                     username: entry.username,
                                     size: 32,
                                     tooltip: entry.username,
+                                    imageUrl: entry.photoUrl,
                                   ),
                                 ],
                               ),

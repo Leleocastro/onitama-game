@@ -431,6 +431,22 @@ class AppLocalizationsPt extends AppLocalizations {
   String get displayName => 'Nome';
 
   @override
+  String get profileChangePhoto => 'Alterar foto';
+
+  @override
+  String get profileCamera => 'Câmera';
+
+  @override
+  String get profileGallery => 'Galeria';
+
+  @override
+  String get profilePhotoUpdated => 'Foto de perfil atualizada!';
+
+  @override
+  String get profilePhotoUpdateError =>
+      'Não foi possível atualizar sua foto. Tente novamente.';
+
+  @override
   String get currentGameHistory => 'Histórico da Partida Atual';
 
   @override

@@ -430,6 +430,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get displayName => 'Display Name';
 
   @override
+  String get profileChangePhoto => 'Change photo';
+
+  @override
+  String get profileCamera => 'Camera';
+
+  @override
+  String get profileGallery => 'Gallery';
+
+  @override
+  String get profilePhotoUpdated => 'Profile photo updated!';
+
+  @override
+  String get profilePhotoUpdateError =>
+      'We couldn\'t update your photo. Try again.';
+
+  @override
   String get currentGameHistory => 'Current Game History';
 
   @override

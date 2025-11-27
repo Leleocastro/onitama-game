@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:rive/rive.dart';
 
 import '../l10n/app_localizations.dart';
+import '../models/user_profile.dart';
 import '../services/firestore_service.dart';
 import '../style/theme.dart';
 import '../widgets/username_avatar.dart';
@@ -30,7 +31,6 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
 
   StreamSubscription<User?>? _authStateChangesSubscription;
   String? _playerUid;
-  final Map<String, Future<String?>> _usernameFutures = <String, Future<String?>>{};
 
   @override
   void initState() {
@@ -177,11 +177,12 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                   }
                   if (snapshot.hasData && snapshot.data != null && !snapshot.data!.isAnonymous) {
                     final user = snapshot.data!;
-                    final usernameFuture = _usernameFutures.putIfAbsent(user.uid, () => _firestoreService.getUsername(user.uid));
-                    return FutureBuilder<String?>(
-                      future: usernameFuture,
-                      builder: (context, usernameSnapshot) {
-                        final username = usernameSnapshot.data ?? user.displayName ?? user.email ?? 'player';
+                    return StreamBuilder<UserProfile?>(
+                      stream: _firestoreService.watchUserProfile(user.uid),
+                      builder: (context, profileSnapshot) {
+                        final profile = profileSnapshot.data;
+                        final username = profile?.username ?? user.displayName ?? user.email ?? 'player';
+                        final photoUrl = profile?.photoUrl ?? user.photoURL;
                         return Padding(
                           padding: const EdgeInsets.all(8),
                           child: GestureDetector(
@@ -191,12 +192,14 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                                 builder: (context) => ProfileModal(
                                   user: user,
                                   username: username,
+                                  photoUrl: photoUrl,
                                 ),
                               );
                             },
                             child: UsernameAvatar(
                               username: username,
                               tooltip: username,
+                              imageUrl: photoUrl,
                             ),
                           ),
                         );

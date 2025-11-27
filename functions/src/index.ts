@@ -22,6 +22,7 @@ type LeaderboardDoc = {
   losses: number;
   lastMatch?: admin.firestore.Timestamp;
   username?: string;
+  photoUrl?: string;
   tier?: string;
   season?: string;
   country?: string;
@@ -30,6 +31,7 @@ type LeaderboardDoc = {
 type ParticipantSummary = {
   userId: string;
   username: string | null;
+  photoUrl: string | null;
   color: "blue" | "red";
   score: number;
   expectedScore: number;
@@ -46,6 +48,11 @@ type ParticipantSummary = {
     weeks: number;
     amount: number;
   };
+};
+
+type UserProfileRecord = {
+  username: string | null;
+  photoUrl: string | null;
 };
 
 const clampRating = (rating: number) =>
@@ -120,6 +127,7 @@ const ensureLeaderboardDoc = (
         ? (data.lastMatch as admin.firestore.Timestamp)
         : undefined,
     username: typeof data.username === "string" ? data.username : undefined,
+    photoUrl: typeof data.photoUrl === "string" ? data.photoUrl : undefined,
     tier: typeof data.tier === "string" ? data.tier : undefined,
     season: typeof data.season === "string" ? data.season : undefined,
     country: typeof data.country === "string" ? data.country : undefined,
@@ -128,17 +136,20 @@ const ensureLeaderboardDoc = (
   return doc;
 };
 
-const fetchUsername = async (
+const fetchUserProfile = async (
   txn: admin.firestore.Transaction,
   userId: string
-): Promise<string | null> => {
+): Promise<UserProfileRecord> => {
   const userRef = db.collection("users").doc(userId);
   const userSnap = await txn.get(userRef);
   if (!userSnap.exists) {
-    return null;
+    return { username: null, photoUrl: null };
   }
-  const data = userSnap.data() as { username?: string };
-  return typeof data?.username === "string" ? data.username : null;
+  const data = userSnap.data() as { username?: string; photoUrl?: string };
+  return {
+    username: typeof data?.username === "string" ? data.username : null,
+    photoUrl: typeof data?.photoUrl === "string" ? data.photoUrl : null,
+  };
 };
 
 // Ajuste: tempo limite e região opcionais
@@ -332,6 +343,7 @@ export const updateRanking = functions.https.onCall(
           const participantRef = leaderboardRef.doc(userId);
           const participantSnap = await txn.get(participantRef);
           const storedData = ensureLeaderboardDoc(participantSnap.data());
+          const profile = await fetchUserProfile(txn, userId);
           const decayData = applyDecay(
             storedData.rating,
             storedData.lastMatch,
@@ -350,15 +362,12 @@ export const updateRanking = functions.https.onCall(
           const updatedLosses = storedData.losses + (score === 0 ? 1 : 0);
           const tier = determineTier(updatedRating);
 
-          let username = storedData.username ?? null;
-          if (!username) {
-            username = await fetchUsername(txn, userId);
-          }
+          const username = profile.username ?? storedData.username ?? null;
+          const photoUrl = profile.photoUrl ?? storedData.photoUrl ?? null;
 
           const seasonToPersist = season;
 
-          txn.set(
-            participantRef,
+          const participantData: admin.firestore.UpdateData<admin.firestore.DocumentData> =
             {
               rating: updatedRating,
               gamesPlayed: updatedGamesPlayed,
@@ -368,14 +377,18 @@ export const updateRanking = functions.https.onCall(
               username,
               tier,
               season: seasonToPersist,
-            },
-            { merge: true }
-          );
+            };
+          if (photoUrl) {
+            participantData.photoUrl = photoUrl;
+          }
+
+          txn.set(participantRef, participantData, { merge: true });
 
           const previousRounded = Math.round(decayedRating);
           participantsSummaries.push({
             userId,
             username,
+            photoUrl,
             color,
             score,
             expectedScore: expected,
@@ -447,21 +460,19 @@ export const updateRanking = functions.https.onCall(
             redRating + redK * (redScore - redExpected)
           );
 
-          let blueUsername = blueStored.username ?? null;
-          if (!blueUsername) {
-            blueUsername = await fetchUsername(txn, blueId);
-          }
+          const blueProfile = await fetchUserProfile(txn, blueId);
+          const redProfile = await fetchUserProfile(txn, redId);
 
-          let redUsername = redStored.username ?? null;
-          if (!redUsername) {
-            redUsername = await fetchUsername(txn, redId);
-          }
+          const blueUsername =
+            blueProfile.username ?? blueStored.username ?? null;
+          const bluePhoto = blueProfile.photoUrl ?? blueStored.photoUrl ?? null;
+          const redUsername = redProfile.username ?? redStored.username ?? null;
+          const redPhoto = redProfile.photoUrl ?? redStored.photoUrl ?? null;
 
           const blueTier = determineTier(newBlueRating);
           const redTier = determineTier(newRedRating);
 
-          txn.set(
-            blueRef,
+          const blueUpdate: admin.firestore.UpdateData<admin.firestore.DocumentData> =
             {
               rating: newBlueRating,
               gamesPlayed: blueStored.gamesPlayed + 1,
@@ -471,12 +482,12 @@ export const updateRanking = functions.https.onCall(
               username: blueUsername,
               tier: blueTier,
               season,
-            },
-            { merge: true }
-          );
+            };
+          if (bluePhoto) {
+            blueUpdate.photoUrl = bluePhoto;
+          }
 
-          txn.set(
-            redRef,
+          const redUpdate: admin.firestore.UpdateData<admin.firestore.DocumentData> =
             {
               rating: newRedRating,
               gamesPlayed: redStored.gamesPlayed + 1,
@@ -486,13 +497,18 @@ export const updateRanking = functions.https.onCall(
               username: redUsername,
               tier: redTier,
               season,
-            },
-            { merge: true }
-          );
+            };
+          if (redPhoto) {
+            redUpdate.photoUrl = redPhoto;
+          }
+
+          txn.set(blueRef, blueUpdate, { merge: true });
+          txn.set(redRef, redUpdate, { merge: true });
 
           participantsSummaries.push({
             userId: blueId,
             username: blueUsername,
+            photoUrl: bluePhoto,
             color: "blue",
             score: blueScore,
             expectedScore: blueExpected,
@@ -514,6 +530,7 @@ export const updateRanking = functions.https.onCall(
           participantsSummaries.push({
             userId: redId,
             username: redUsername,
+            photoUrl: redPhoto,
             color: "red",
             score: redScore,
             expectedScore: redExpected,
@@ -549,6 +566,7 @@ export const updateRanking = functions.https.onCall(
           participants: participantsSummaries.map((participant) => ({
             userId: participant.userId,
             username: participant.username,
+            photoUrl: participant.photoUrl,
             color: participant.color,
             score: participant.score,
             expectedScore: Number(participant.expectedScore.toFixed(4)),

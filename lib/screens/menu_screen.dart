@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../models/ai_difficulty.dart';
 import '../models/game_mode.dart';
 import '../models/leaderboard_entry.dart';
+import '../models/user_profile.dart';
 import '../services/firestore_service.dart';
 import '../services/ranking_service.dart';
 import '../services/theme_manager.dart';
@@ -31,7 +32,6 @@ class _MenuScreenState extends State<MenuScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final RankingService _rankingService = RankingService();
   final TextEditingController _gameIdController = TextEditingController();
-  final Map<String, Future<String?>> _usernameFutures = <String, Future<String?>>{};
 
   String? _playerUid;
   StreamSubscription? _gameSubscription;
@@ -413,11 +413,12 @@ class _MenuScreenState extends State<MenuScreen> {
                   }
                   if (snapshot.hasData && snapshot.data != null && !snapshot.data!.isAnonymous) {
                     final user = snapshot.data!;
-                    final usernameFuture = _usernameFutures.putIfAbsent(user.uid, () => _firestoreService.getUsername(user.uid));
-                    return FutureBuilder<String?>(
-                      future: usernameFuture,
-                      builder: (context, usernameSnapshot) {
-                        final username = usernameSnapshot.data ?? user.displayName ?? user.email ?? 'player';
+                    return StreamBuilder<UserProfile?>(
+                      stream: _firestoreService.watchUserProfile(user.uid),
+                      builder: (context, profileSnapshot) {
+                        final profile = profileSnapshot.data;
+                        final username = profile?.username ?? user.displayName ?? user.email ?? 'player';
+                        final photoUrl = profile?.photoUrl ?? user.photoURL;
                         return Padding(
                           padding: const EdgeInsets.all(8),
                           child: GestureDetector(
@@ -427,6 +428,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                 builder: (context) => ProfileModal(
                                   user: user,
                                   username: username,
+                                  photoUrl: photoUrl,
                                 ),
                               );
                             },
@@ -434,6 +436,7 @@ class _MenuScreenState extends State<MenuScreen> {
                               username: username,
                               size: 42,
                               tooltip: username,
+                              imageUrl: photoUrl,
                             ),
                           ),
                         );
@@ -531,6 +534,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                   username: entry.username,
                                   size: 32,
                                   tooltip: entry.username,
+                                  imageUrl: entry.photoUrl,
                                 ),
                               ],
                             ),

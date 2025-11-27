@@ -28,11 +28,14 @@ dependencies:
   firebase_analytics: ^12.0.3
   flutter_local_notifications: ^19.5.0
   firebase_messaging: ^16.0.4
+  firebase_storage: ^13.0.4
   lottie: ^3.3.1
   rive: ^0.14.0-dev.14
   google_fonts: ^6.3.2
   flutter_svg: ^2.2.3
   sensors_plus: ^6.1.0
+  image_picker: ^1.1.2
+  flutter_image_compress: ^2.1.0
   foil:
     git:
       url: https://github.com/Leleocastro/foil.git

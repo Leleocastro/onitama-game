@@ -851,6 +851,36 @@ abstract class AppLocalizations {
   /// **'Display Name'**
   String get displayName;
 
+  /// No description provided for @profileChangePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change photo'**
+  String get profileChangePhoto;
+
+  /// No description provided for @profileCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get profileCamera;
+
+  /// No description provided for @profileGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get profileGallery;
+
+  /// No description provided for @profilePhotoUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo updated!'**
+  String get profilePhotoUpdated;
+
+  /// No description provided for @profilePhotoUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t update your photo. Try again.'**
+  String get profilePhotoUpdateError;
+
   /// No description provided for @currentGameHistory.
   ///
   /// In en, this message translates to:

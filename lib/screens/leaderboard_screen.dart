@@ -114,37 +114,6 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                               ],
                             ),
                           ),
-                          // SliverToBoxAdapter(
-                          //   child: _PlayerSummaryCard(
-                          //     playerUid: widget.playerUid,
-                          //     highlightedEntry: highlightedEntry,
-                          //     rankingService: _rankingService,
-                          //   ),
-                          // ),
-                          // SliverPadding(
-                          //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          //   sliver: remainingEntries.isEmpty
-                          //       ? SliverToBoxAdapter(
-                          //           child: _EmptyState(message: l10n.leaderboardInvite),
-                          //         )
-                          //       : SliverList(
-                          //           delegate: SliverChildBuilderDelegate(
-                          //             (context, index) {
-                          //               final entry = remainingEntries[index];
-                          //               final isCurrentPlayer = entry.userId == widget.playerUid;
-                          //               return Padding(
-                          //                 padding: EdgeInsets.only(bottom: index == remainingEntries.length - 1 ? context.bottomPadding : 12),
-                          //                 child: _LeaderboardTile(
-                          //                   entry: entry,
-                          //                   isCurrentPlayer: isCurrentPlayer,
-                          //                   l10n: l10n,
-                          //                 ),
-                          //               );
-                          //             },
-                          //             childCount: remainingEntries.length,
-                          //           ),
-                          //         ),
-                          // ),
                         ],
                       ),
                     ),
@@ -250,6 +219,7 @@ class _PodiumSection extends StatelessWidget {
                         username: entry?.username ?? '',
                         size: place == 1 ? 48 : 36,
                         tooltip: entry?.username ?? '',
+                        imageUrl: entry?.photoUrl,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -349,6 +319,7 @@ class _PlayerSummaryCard extends StatelessWidget {
                   username: entry.username,
                   size: 48,
                   tooltip: entry.username,
+                  imageUrl: entry.photoUrl,
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -418,6 +389,7 @@ class _LeaderboardTile extends StatelessWidget {
             username: entry.username,
             size: 40,
             tooltip: entry.username,
+            imageUrl: entry.photoUrl,
           ),
           const SizedBox(width: 12),
           Expanded(

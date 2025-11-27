@@ -11,6 +11,7 @@ import '../models/firestore_game.dart';
 import '../models/game_mode.dart';
 import '../models/match_result.dart';
 import '../models/player.dart';
+import '../models/user_profile.dart';
 import '../models/win_condition.dart';
 import '../services/firestore_service.dart';
 import '../services/ranking_service.dart';
@@ -56,8 +57,8 @@ class OnitamaHomeState extends State<OnitamaHome> {
   FirestoreGame? _firestoreGame;
   bool _rankingSubmitted = false;
   bool _isEndDialogVisible = false;
-  final Map<String, String> _usernameCache = <String, String>{};
-  final Set<String> _loadingUsernameUids = <String>{};
+  final Map<String, UserProfile> _profileCache = <String, UserProfile>{};
+  final Set<String> _loadingProfileUids = <String>{};
   final Map<String, int?> _ratingCache = <String, int?>{};
   final Set<String> _loadingRatingUids = <String>{};
   final Map<PlayerColor, String> _fallbackUsernames = <PlayerColor, String>{};
@@ -349,26 +350,26 @@ class OnitamaHomeState extends State<OnitamaHome> {
     if (widget.gameMode != GameMode.online) return;
     players.forEach((_, uid) {
       if (uid.isEmpty || uid == 'ai') return;
-      _loadUsernameIfNeeded(uid);
+      _loadProfileIfNeeded(uid);
       _loadRatingIfNeeded(uid);
     });
   }
 
-  void _loadUsernameIfNeeded(String uid) {
-    if (_usernameCache.containsKey(uid) || _loadingUsernameUids.contains(uid)) return;
-    _loadingUsernameUids.add(uid);
-    _firestoreService.getUsername(uid).then((username) {
+  void _loadProfileIfNeeded(String uid) {
+    if (_profileCache.containsKey(uid) || _loadingProfileUids.contains(uid)) return;
+    _loadingProfileUids.add(uid);
+    _firestoreService.fetchUserProfile(uid).then((profile) {
       if (!mounted) return;
       setState(() {
-        _usernameCache[uid] = username ?? '';
-        _loadingUsernameUids.remove(uid);
+        _profileCache[uid] = profile ?? UserProfile(id: uid, username: '');
+        _loadingProfileUids.remove(uid);
       });
     }).catchError((error) {
-      debugPrint('Failed to load username for $uid: $error');
+      debugPrint('Failed to load profile for $uid: $error');
       if (!mounted) return;
       setState(() {
-        _usernameCache[uid] = '';
-        _loadingUsernameUids.remove(uid);
+        _profileCache[uid] = UserProfile(id: uid, username: '');
+        _loadingProfileUids.remove(uid);
       });
     });
   }
@@ -403,11 +404,26 @@ class OnitamaHomeState extends State<OnitamaHome> {
     if (uid == null || uid.isEmpty || uid == 'ai') {
       return null;
     }
-    final username = _usernameCache[uid];
+    final profile = _profileCache[uid];
+    final username = profile?.username;
     if (username != null && username.isNotEmpty) {
       return username;
     }
     return null;
+  }
+
+  String? _photoUrlForColor(PlayerColor color) {
+    if (widget.gameMode != GameMode.online) {
+      return null;
+    }
+    final players = _firestoreGame?.players;
+    if (players == null) return null;
+    final key = color == PlayerColor.blue ? 'blue' : 'red';
+    final uid = players[key];
+    if (uid == null || uid.isEmpty || uid == 'ai') {
+      return null;
+    }
+    return _profileCache[uid]?.photoUrl;
   }
 
   int? _ratingForColor(PlayerColor color) {
@@ -580,6 +596,8 @@ class OnitamaHomeState extends State<OnitamaHome> {
     final opponentUsername = _getPlayerLabel(opponentPlayer);
     final playerRating = _ratingForColor(player);
     final opponentRating = _ratingForColor(opponentPlayer);
+    final playerPhotoUrl = _photoUrlForColor(player);
+    final opponentPhotoUrl = _photoUrlForColor(opponentPlayer);
 
     return StreamBuilder(
       stream: widget.gameMode == GameMode.online ? _gameStream : null,
@@ -765,6 +783,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
                                   ),
                                   child: UsernameAvatar(
                                     username: username,
+                                    imageUrl: playerPhotoUrl,
                                     size: 30,
                                   ),
                                 ),
@@ -854,6 +873,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
                                   ),
                                   child: UsernameAvatar(
                                     username: opponentUsername,
+                                    imageUrl: opponentPhotoUrl,
                                     size: 30,
                                   ),
                                 ),

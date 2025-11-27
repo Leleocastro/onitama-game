@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/avatar_generator.dart';
@@ -8,16 +9,28 @@ class UsernameAvatar extends StatelessWidget {
     required this.username,
     this.size = 35,
     this.tooltip,
+    this.imageUrl,
     super.key,
   });
 
   final String username;
   final double size;
   final String? tooltip;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
     final avatarSeed = AvatarGenerator.fromUsername(username);
+    final generatedAvatar = SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(
+        painter: _AvatarPainter(avatarSeed),
+        size: Size.square(size),
+      ),
+    );
+
+    final hasCustomImage = (imageUrl ?? '').isNotEmpty;
     final avatar = RepaintBoundary(
       child: Container(
         width: size,
@@ -36,10 +49,16 @@ class UsernameAvatar extends StatelessWidget {
           ],
         ),
         child: ClipOval(
-          child: CustomPaint(
-            painter: _AvatarPainter(avatarSeed),
-            size: Size.square(size),
-          ),
+          child: hasCustomImage
+              ? CachedNetworkImage(
+                  imageUrl: imageUrl!,
+                  width: size,
+                  height: size,
+                  fit: BoxFit.cover,
+                  placeholder: (_, __) => generatedAvatar,
+                  errorWidget: (_, __, ___) => generatedAvatar,
+                )
+              : generatedAvatar,
         ),
       ),
     );

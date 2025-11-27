@@ -12,6 +12,7 @@ class LeaderboardEntry {
     this.country,
     this.season,
     this.rank,
+    this.photoUrl,
   });
 
   final String userId;
@@ -24,11 +25,13 @@ class LeaderboardEntry {
   final String? country;
   final String? season;
   final int? rank;
+  final String? photoUrl;
 
   double get winRate => gamesPlayed == 0 ? 0 : wins / gamesPlayed;
 
   LeaderboardEntry copyWith({
     int? rank,
+    String? photoUrl,
   }) {
     return LeaderboardEntry(
       userId: userId,
@@ -41,6 +44,7 @@ class LeaderboardEntry {
       country: country,
       season: season,
       rank: rank ?? this.rank,
+      photoUrl: photoUrl ?? this.photoUrl,
     );
   }
 
@@ -58,6 +62,7 @@ class LeaderboardEntry {
       tier: (data['tier'] as String?) ?? 'Bronze',
       country: data['country'] as String?,
       season: data['season'] as String?,
+      photoUrl: data['photoUrl'] as String?,
     );
   }
 }
