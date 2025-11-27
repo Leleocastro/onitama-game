@@ -155,7 +155,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Inicializa escuta de deep links para completar o sign-in por email
     _initAppLinks();
   }
 

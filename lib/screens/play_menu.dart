@@ -12,6 +12,7 @@ import '../widgets/input_text.dart';
 import '../widgets/styled_button.dart';
 import 'game_lobby_screen.dart';
 import 'interstitial_ad_screen.dart';
+import 'login_screen.dart';
 import 'onitama_home.dart';
 
 class PlayMenu extends StatefulWidget {
@@ -251,6 +252,7 @@ class _PlayMenuState extends State<PlayMenu> {
   }
 
   Future<void> _createGame() async {
+    if (!await _ensureAuthenticated()) return;
     final user = FirebaseAuth.instance.currentUser;
     final currentUid = user?.uid ?? _playerUid;
     if (currentUid == null) return;
@@ -267,6 +269,7 @@ class _PlayMenuState extends State<PlayMenu> {
   }
 
   Future<void> _joinGame() async {
+    if (!await _ensureAuthenticated()) return;
     final user = FirebaseAuth.instance.currentUser;
     final currentUid = user?.uid ?? _playerUid;
     if (currentUid == null) return;
@@ -286,6 +289,7 @@ class _PlayMenuState extends State<PlayMenu> {
   }
 
   Future<void> _findOrCreateGame() async {
+    if (!await _ensureAuthenticated()) return;
     final user = FirebaseAuth.instance.currentUser;
     final currentUid = user?.uid ?? _playerUid;
     if (currentUid == null) return;
@@ -390,5 +394,37 @@ class _PlayMenuState extends State<PlayMenu> {
         ),
       ),
     );
+  }
+
+  Future<bool> _ensureAuthenticated() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && !user.isAnonymous) {
+      _playerUid = user.uid;
+      return true;
+    }
+    final l10n = AppLocalizations.of(context)!;
+    final shouldLogin = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.loginRequiredTitle),
+        content: Text(l10n.loginRequiredMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.loginRequiredAction),
+          ),
+        ],
+      ),
+    );
+    if (shouldLogin == true && mounted) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
+    return false;
   }
 }

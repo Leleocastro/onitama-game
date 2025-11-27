@@ -105,7 +105,7 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                       backgroundColor: Colors.transparent,
                       transitionAnimationController: AnimationController(vsync: this, duration: Duration(milliseconds: 500)),
                       isScrollControlled: true,
-                      builder: (_) => PlayMenu(playerUid: _playerUid!),
+                      builder: (_) => PlayMenu(playerUid: _playerUid ?? ''),
                     );
                   },
                   child: Text(

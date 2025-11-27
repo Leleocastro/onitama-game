@@ -640,6 +640,24 @@ abstract class AppLocalizations {
   /// **'Login'**
   String get login;
 
+  /// No description provided for @loginRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Login required'**
+  String get loginRequiredTitle;
+
+  /// No description provided for @loginRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You need to be logged in to play online.'**
+  String get loginRequiredMessage;
+
+  /// No description provided for @loginRequiredAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to login'**
+  String get loginRequiredAction;
+
   /// No description provided for @chooseUsername.
   ///
   /// In en, this message translates to:

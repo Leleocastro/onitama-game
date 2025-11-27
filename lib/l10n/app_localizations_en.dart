@@ -298,6 +298,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login => 'Login';
 
   @override
+  String get loginRequiredTitle => 'Login required';
+
+  @override
+  String get loginRequiredMessage => 'You need to be logged in to play online.';
+
+  @override
+  String get loginRequiredAction => 'Go to login';
+
+  @override
   String get chooseUsername => 'Choose a username to continue:';
 
   @override
