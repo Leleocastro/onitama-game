@@ -802,6 +802,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current Game History'**
   String get currentGameHistory;
+
+  /// No description provided for @descriptionElephant.
+  ///
+  /// In en, this message translates to:
+  /// **'He will never forget those who matter most to him.'**
+  String get descriptionElephant;
+
+  /// No description provided for @descriptionTiger.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong and courageous, he fiercely protects his home.'**
+  String get descriptionTiger;
+
+  /// No description provided for @descriptionDragon.
+  ///
+  /// In en, this message translates to:
+  /// **'With ancient wisdom, he guards the secrets of the heavens.'**
+  String get descriptionDragon;
+
+  /// No description provided for @descriptionFrog.
+  ///
+  /// In en, this message translates to:
+  /// **'The frog\'s calmness hides a predator\'s agility.'**
+  String get descriptionFrog;
+
+  /// No description provided for @descriptionRabbit.
+  ///
+  /// In en, this message translates to:
+  /// **'His cunning and speed help him overcome any obstacle.'**
+  String get descriptionRabbit;
+
+  /// No description provided for @descriptionCrab.
+  ///
+  /// In en, this message translates to:
+  /// **'His strength and resilience make him a warrior of the sea.'**
+  String get descriptionCrab;
+
+  /// No description provided for @descriptionGoose.
+  ///
+  /// In en, this message translates to:
+  /// **'With loyalty and bravery, he defends those he loves.'**
+  String get descriptionGoose;
+
+  /// No description provided for @descriptionRooster.
+  ///
+  /// In en, this message translates to:
+  /// **'His crow heralds the arrival of a new day, full of energy.'**
+  String get descriptionRooster;
+
+  /// No description provided for @descriptionMonkey.
+  ///
+  /// In en, this message translates to:
+  /// **'Intelligent and playful, he explores life with curiosity.'**
+  String get descriptionMonkey;
+
+  /// No description provided for @descriptionMantis.
+  ///
+  /// In en, this message translates to:
+  /// **'Patience and precision are his weapons in the forest.'**
+  String get descriptionMantis;
+
+  /// No description provided for @descriptionHorse.
+  ///
+  /// In en, this message translates to:
+  /// **'Freedom and strength guide his wild spirit.'**
+  String get descriptionHorse;
+
+  /// No description provided for @descriptionOx.
+  ///
+  /// In en, this message translates to:
+  /// **'A symbol of labor and persistence, he ensures sustenance.'**
+  String get descriptionOx;
+
+  /// No description provided for @descriptionCrane.
+  ///
+  /// In en, this message translates to:
+  /// **'His elegance and grace inspire harmony and longevity.'**
+  String get descriptionCrane;
+
+  /// No description provided for @descriptionBoar.
+  ///
+  /// In en, this message translates to:
+  /// **'Determined and fearless, he faces the challenges of the forest.'**
+  String get descriptionBoar;
+
+  /// No description provided for @descriptionEel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtle and agile, she navigates the depths with skill.'**
+  String get descriptionEel;
+
+  /// No description provided for @descriptionCobra.
+  ///
+  /// In en, this message translates to:
+  /// **'With its millenary wisdom, it observes the world in silence.'**
+  String get descriptionCobra;
 }
 
 class _AppLocalizationsDelegate

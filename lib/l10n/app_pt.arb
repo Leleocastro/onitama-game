@@ -117,7 +117,23 @@
   "profile": "Perfil",
   "email": "Email",
   "displayName": "Nome",
+  "descriptionElephant": "Nunca se esquecerá daqueles que mais lhe importam.",
   "currentGameHistory": "Histórico da Partida Atual",
+  "descriptionTiger": "Forte e corajoso, ele protege seu lar com fervor.",
+  "descriptionDragon": "Com sabedoria ancestral, ele guarda os segredos dos céus.",
+  "descriptionFrog": "A calma do sapo esconde a agilidade de um predador.",
+  "descriptionRabbit": "Sua astúcia e velocidade o ajudam a superar qualquer obstáculo.",
+  "descriptionCrab": "A sua força e resiliência o tornam um guerreiro do mar.",
+  "descriptionGoose": "Com lealdade e bravura, ele defende aqueles que ama.",
+  "descriptionRooster": "Seu canto anuncia a chegada de um novo dia, cheio de energia.",
+  "descriptionMonkey": "Inteligente e brincalhão, ele explora a vida com curiosidade.",
+  "descriptionMantis": "Paciência e precisão são suas armas na floresta.",
+  "descriptionHorse": "A liberdade e a força guiam seu espírito selvagem.",
+  "descriptionOx": "Símbolo de trabalho e persistência, ele garante o sustento.",
+  "descriptionCrane": "Sua elegância e graça inspiram a harmonia e a longevidade.",
+  "descriptionBoar": "Determinado e destemido, ele enfrenta os desafios da floresta.",
+  "descriptionEel": "Sutil e ágil, ela navega pelas profundezas com destreza.",
+  "descriptionCobra": "Com sua sabedoria milenar, ela observa o mundo em silêncio.",
 
   "@moveHistoryMove": {
     "placeholders": {

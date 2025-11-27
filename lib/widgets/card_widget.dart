@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:foil/foil.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/card_model.dart';
 import '../models/point.dart';
 import '../services/theme_manager.dart';
@@ -31,6 +32,46 @@ class CardWidget extends StatelessWidget {
     this.canTap = true,
   });
 
+  String _getLocalizedCardDescription(BuildContext context, String cardName) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (cardName) {
+      case 'Tiger':
+        return l10n.descriptionTiger;
+      case 'Dragon':
+        return l10n.descriptionDragon;
+      case 'Frog':
+        return l10n.descriptionFrog;
+      case 'Rabbit':
+        return l10n.descriptionRabbit;
+      case 'Crab':
+        return l10n.descriptionCrab;
+      case 'Elephant':
+        return l10n.descriptionElephant;
+      case 'Goose':
+        return l10n.descriptionGoose;
+      case 'Rooster':
+        return l10n.descriptionRooster;
+      case 'Monkey':
+        return l10n.descriptionMonkey;
+      case 'Mantis':
+        return l10n.descriptionMantis;
+      case 'Horse':
+        return l10n.descriptionHorse;
+      case 'Ox':
+        return l10n.descriptionOx;
+      case 'Crane':
+        return l10n.descriptionCrane;
+      case 'Boar':
+        return l10n.descriptionBoar;
+      case 'Eel':
+        return l10n.descriptionEel;
+      case 'Cobra':
+        return l10n.descriptionCobra;
+      default:
+        return cardName; // Fallback to original name if not found
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final moves = invert ? _invertMoves(card.moves) : card.moves;
@@ -53,6 +94,7 @@ class CardWidget extends StatelessWidget {
                     heroTag: heroTag,
                     color: color,
                     moves: _invertMoves(card.moves),
+                    description: _getLocalizedCardDescription(context, card.name),
                   ),
                 ),
               );
@@ -66,6 +108,7 @@ class CardWidget extends StatelessWidget {
               heroTag: heroTag,
               color: color,
               moves: _invertMoves(card.moves),
+              description: _getLocalizedCardDescription(context, card.name),
             ),
           ),
         );
@@ -211,12 +254,14 @@ class _CardOpened extends StatelessWidget {
     required this.heroTag,
     required this.color,
     required this.moves,
+    required this.description,
   });
   final String title;
   final CachedNetworkImageProvider? image;
   final String heroTag;
   final Color color;
   final List<Point> moves;
+  final String description;
 
   @override
   Widget build(BuildContext context) {
@@ -293,7 +338,7 @@ class _CardOpened extends StatelessWidget {
                                       children: [
                                         20.0.spaceY,
                                         Text(
-                                          'Inteligente e brincalhão, ele explora a vida com curiosidade.',
+                                          description,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontFamily: 'SpellOfAsia',

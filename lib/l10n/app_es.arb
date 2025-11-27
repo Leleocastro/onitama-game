@@ -101,7 +101,6 @@
   "lobbyGameIdLabel": "ID de la partida: {gameId}",
   "lobbyGameIdCopied": "ID de la partida copiado al portapapeles",
   "lobbyPlayersCount": "Jugadores: {count}/2",
-
   "leaderboardTitle": "Clasificación",
   "leaderboardInvite": "¡Juega partidas en línea para entrar en la clasificación!",
   "leaderboardPlayerSummary": "Tu clasificación: {rating} • {tier} • {winRate}% victorias",
@@ -118,7 +117,23 @@
   "profile": "Perfil",
   "email": "Email",
   "displayName": "Nombre",
+  "descriptionElephant": "Nunca olvidará a aquellos que más le importan.",
   "currentGameHistory": "Historial de la Partida Actual",
+  "descriptionTiger": "Fuerte y valiente, protege su hogar con fervor.",
+  "descriptionDragon": "Con sabiduría ancestral, guarda los secretos de los cielos.",
+  "descriptionFrog": "La calma del sapo esconde la agilidad de un depredador.",
+  "descriptionRabbit": "Su astucia y velocidad le ayudan a superar cualquier obstáculo.",
+  "descriptionCrab": "Su fuerza y resistencia lo convierten en un guerrero del mar.",
+  "descriptionGoose": "Con lealtad y bravura, defiende a quienes ama.",
+  "descriptionRooster": "Su canto anuncia la llegada de un nuevo día, lleno de energía.",
+  "descriptionMonkey": "Inteligente y juguetón, explora la vida con curiosidad.",
+  "descriptionMantis": "Paciencia y precisión son sus armas en el bosque.",
+  "descriptionHorse": "La libertad y la fuerza guían su espíritu salvaje.",
+  "descriptionOx": "Símbolo de trabajo y persistencia, garantiza el sustento.",
+  "descriptionCrane": "Su elegancia y gracia inspiran armonía y longevidad.",
+  "descriptionBoar": "Determinado y audaz, se enfrenta a los desafíos del bosque.",
+  "descriptionEel": "Sutil y ágil, navega por las profundidades con destreza.",
+  "descriptionCobra": "Con su sabiduría milenaria, observa el mundo en silencio.",
 
   "@moveHistoryMove": {
     "placeholders": {

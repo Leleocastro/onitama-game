@@ -118,6 +118,22 @@
   "email": "Email",
   "displayName": "Display Name",
   "currentGameHistory": "Current Game History",
+  "descriptionElephant": "He will never forget those who matter most to him.",
+  "descriptionTiger": "Strong and courageous, he fiercely protects his home.",
+  "descriptionDragon": "With ancient wisdom, he guards the secrets of the heavens.",
+  "descriptionFrog": "The frog's calmness hides a predator's agility.",
+  "descriptionRabbit": "His cunning and speed help him overcome any obstacle.",
+  "descriptionCrab": "His strength and resilience make him a warrior of the sea.",
+  "descriptionGoose": "With loyalty and bravery, he defends those he loves.",
+  "descriptionRooster": "His crow heralds the arrival of a new day, full of energy.",
+  "descriptionMonkey": "Intelligent and playful, he explores life with curiosity.",
+  "descriptionMantis": "Patience and precision are his weapons in the forest.",
+  "descriptionHorse": "Freedom and strength guide his wild spirit.",
+  "descriptionOx": "A symbol of labor and persistence, he ensures sustenance.",
+  "descriptionCrane": "His elegance and grace inspire harmony and longevity.",
+  "descriptionBoar": "Determined and fearless, he faces the challenges of the forest.",
+  "descriptionEel": "Subtle and agile, she navigates the depths with skill.",
+  "descriptionCobra": "With its millenary wisdom, it observes the world in silence.",
 
   "@moveHistoryMove": {
     "placeholders": {

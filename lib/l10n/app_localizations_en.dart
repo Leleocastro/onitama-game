@@ -400,4 +400,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currentGameHistory => 'Current Game History';
+
+  @override
+  String get descriptionElephant =>
+      'He will never forget those who matter most to him.';
+
+  @override
+  String get descriptionTiger =>
+      'Strong and courageous, he fiercely protects his home.';
+
+  @override
+  String get descriptionDragon =>
+      'With ancient wisdom, he guards the secrets of the heavens.';
+
+  @override
+  String get descriptionFrog =>
+      'The frog\'s calmness hides a predator\'s agility.';
+
+  @override
+  String get descriptionRabbit =>
+      'His cunning and speed help him overcome any obstacle.';
+
+  @override
+  String get descriptionCrab =>
+      'His strength and resilience make him a warrior of the sea.';
+
+  @override
+  String get descriptionGoose =>
+      'With loyalty and bravery, he defends those he loves.';
+
+  @override
+  String get descriptionRooster =>
+      'His crow heralds the arrival of a new day, full of energy.';
+
+  @override
+  String get descriptionMonkey =>
+      'Intelligent and playful, he explores life with curiosity.';
+
+  @override
+  String get descriptionMantis =>
+      'Patience and precision are his weapons in the forest.';
+
+  @override
+  String get descriptionHorse => 'Freedom and strength guide his wild spirit.';
+
+  @override
+  String get descriptionOx =>
+      'A symbol of labor and persistence, he ensures sustenance.';
+
+  @override
+  String get descriptionCrane =>
+      'His elegance and grace inspire harmony and longevity.';
+
+  @override
+  String get descriptionBoar =>
+      'Determined and fearless, he faces the challenges of the forest.';
+
+  @override
+  String get descriptionEel =>
+      'Subtle and agile, she navigates the depths with skill.';
+
+  @override
+  String get descriptionCobra =>
+      'With its millenary wisdom, it observes the world in silence.';
 }

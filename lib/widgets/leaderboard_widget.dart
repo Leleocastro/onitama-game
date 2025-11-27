@@ -36,83 +36,85 @@ class _LeaderboardWidgetState extends State<LeaderboardWidget> {
 
     final l10n = AppLocalizations.of(context)!;
 
-    return Card(
-      margin: const EdgeInsets.only(top: 24),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.leaderboardTitle,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            StreamBuilder<LeaderboardEntry?>(
-              stream: _rankingService.watchPlayerEntry(_playerUid!),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-                  return const LinearProgressIndicator();
-                }
-                final entry = snapshot.data;
-                if (entry == null) {
+    return SafeArea(
+      child: Card(
+        margin: const EdgeInsets.only(top: 24),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.leaderboardTitle,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              StreamBuilder<LeaderboardEntry?>(
+                stream: _rankingService.watchPlayerEntry(_playerUid!),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+                    return const LinearProgressIndicator();
+                  }
+                  final entry = snapshot.data;
+                  if (entry == null) {
+                    return Text(
+                      l10n.leaderboardInvite,
+                    );
+                  }
+                  final winRate = (entry.winRate * 100).toStringAsFixed(1);
+                  final tierLabel = _localizedTier(entry.tier, l10n);
                   return Text(
-                    l10n.leaderboardInvite,
+                    l10n.leaderboardPlayerSummary(entry.rating, tierLabel, winRate),
                   );
-                }
-                final winRate = (entry.winRate * 100).toStringAsFixed(1);
-                final tierLabel = _localizedTier(entry.tier, l10n);
-                return Text(
-                  l10n.leaderboardPlayerSummary(entry.rating, tierLabel, winRate),
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-            StreamBuilder<List<LeaderboardEntry>>(
-              stream: _rankingService.watchTopEntries(limit: 5),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final entries = snapshot.data;
-                if (entries == null || entries.isEmpty) {
-                  return Text(l10n.leaderboardEmpty);
-                }
+                },
+              ),
+              const SizedBox(height: 16),
+              StreamBuilder<List<LeaderboardEntry>>(
+                stream: _rankingService.watchTopEntries(limit: 5),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final entries = snapshot.data;
+                  if (entries == null || entries.isEmpty) {
+                    return Text(l10n.leaderboardEmpty);
+                  }
 
-                return Column(
-                  children: entries
-                      .map(
-                        (entry) => ListTile(
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                          leading: SizedBox(
-                            width: 80,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text('${entry.rank ?? '-'}', style: Theme.of(context).textTheme.titleSmall),
-                                const SizedBox(width: 8),
-                                UsernameAvatar(
-                                  username: entry.username,
-                                  size: 32,
-                                  tooltip: entry.username,
-                                ),
-                              ],
+                  return Column(
+                    children: entries
+                        .map(
+                          (entry) => ListTile(
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            leading: SizedBox(
+                              width: 80,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('${entry.rank ?? '-'}', style: Theme.of(context).textTheme.titleSmall),
+                                  const SizedBox(width: 8),
+                                  UsernameAvatar(
+                                    username: entry.username,
+                                    size: 32,
+                                    tooltip: entry.username,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            title: Text(entry.username),
+                            subtitle: Text(l10n.leaderboardPlayerSubtitle(entry.rating, _localizedTier(entry.tier, l10n))),
+                            trailing: Text(
+                              l10n.leaderboardWinRateShort((entry.winRate * 100).toStringAsFixed(0)),
                             ),
                           ),
-                          title: Text(entry.username),
-                          subtitle: Text(l10n.leaderboardPlayerSubtitle(entry.rating, _localizedTier(entry.tier, l10n))),
-                          trailing: Text(
-                            l10n.leaderboardWinRateShort((entry.winRate * 100).toStringAsFixed(0)),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                );
-              },
-            ),
-          ],
+                        )
+                        .toList(),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
