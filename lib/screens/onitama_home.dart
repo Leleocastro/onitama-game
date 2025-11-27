@@ -222,8 +222,19 @@ class OnitamaHomeState extends State<OnitamaHome> {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        title: Text(l10n.gameOver),
-        content: widget.gameMode == GameMode.online ? CircularProgressIndicator() : Text(text),
+        title: Text(
+          l10n.gameOver,
+          style: TextStyle(
+            fontFamily: 'SpellOfAsia',
+          ),
+        ),
+        content: widget.gameMode == GameMode.online
+            ? Container(
+                height: 40,
+                alignment: Alignment.center,
+                child: CircularProgressIndicator(),
+              )
+            : Text(text),
         actions: [
           if (widget.gameMode != GameMode.online)
             TextButton(
