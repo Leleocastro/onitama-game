@@ -32,6 +32,7 @@ dependencies:
   rive: ^0.14.0-dev.14
   google_fonts: ^6.3.2
   flutter_svg: ^2.2.3
+  sensors_plus: ^6.1.0
   foil:
     git:
       url: https://github.com/Leleocastro/foil.git
