@@ -151,6 +151,7 @@
   "descriptionBoar": "Determinado e destemido, ele enfrenta os desafios da floresta.",
   "descriptionEel": "Sutil e ágil, ela navega pelas profundezas com destreza.",
   "descriptionCobra": "Com sua sabedoria milenar, ela observa o mundo em silêncio.",
+  "startGame": "Iniciar Jogo",
   "@matchResultGainedPoints": {
     "placeholders": {
       "points": {}

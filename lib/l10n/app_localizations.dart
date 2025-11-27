@@ -1000,6 +1000,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'With its millenary wisdom, it observes the world in silence.'**
   String get descriptionCobra;
+
+  /// No description provided for @startGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Game'**
+  String get startGame;
 }
 
 class _AppLocalizationsDelegate

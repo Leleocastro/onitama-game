@@ -259,7 +259,12 @@ class _MenuScreenState extends State<MenuScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text(l10n.matchmaking),
+        title: Text(
+          l10n.matchmaking,
+          style: TextStyle(
+            fontFamily: 'SpellOfAsia',
+          ),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

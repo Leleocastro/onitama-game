@@ -519,4 +519,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get descriptionCobra =>
       'With its millenary wisdom, it observes the world in silence.';
+
+  @override
+  String get startGame => 'Start Game';
 }

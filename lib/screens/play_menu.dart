@@ -69,17 +69,6 @@ class _PlayMenuState extends State<PlayMenu> {
             Spacer(),
             Column(
               children: [
-                // InkWell(
-                //   onTap: () {},
-                //   child: Text(
-                //     'Start Game',
-                //     style: TextStyle(
-                //       fontFamily: 'SpellOfAsia',
-                //       color: Colors.white,
-                //       fontSize: 48,
-                //     ),
-                //   ),
-                // ),
                 StyledButton(
                   onPressed: _findOrCreateGame,
                   textStyle: TextStyle(
@@ -87,7 +76,7 @@ class _PlayMenuState extends State<PlayMenu> {
                     color: Colors.white,
                     fontSize: 32,
                   ),
-                  text: 'Start',
+                  text: l10n.startGame,
                 ),
                 10.0.spaceY,
                 Row(
@@ -383,7 +372,12 @@ class _PlayMenuState extends State<PlayMenu> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text(l10n.matchmaking),
+        title: Text(
+          l10n.matchmaking,
+          style: TextStyle(
+            fontFamily: 'SpellOfAsia',
+          ),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

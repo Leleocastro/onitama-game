@@ -522,4 +522,7 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get descriptionCobra =>
       'Com sua sabedoria milenar, ela observa o mundo em silêncio.';
+
+  @override
+  String get startGame => 'Iniciar Jogo';
 }
