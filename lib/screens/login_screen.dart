@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/firestore_service.dart';
+import '../services/push_notification_service.dart';
 import '../utils/extensions.dart';
 import '../widgets/input_text.dart';
 
@@ -115,6 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     final username = await _firestoreService.getUsername(_uid!);
     await _syncPhotoFromAuthUser();
+    await _syncFcmToken();
     setState(() {
       _isLoading = false;
     });
@@ -134,6 +136,19 @@ class _LoginScreenState extends State<LoginScreen> {
       await _firestoreService.ensureUserPhoto(user);
     } catch (error) {
       debugPrint('Failed to sync user photo: $error');
+    }
+  }
+
+  Future<void> _syncFcmToken() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    try {
+      final token = await PushNotificationService.getToken();
+      if (token != null && token.isNotEmpty) {
+        await _firestoreService.updateUserFcmToken(user.uid, token);
+      }
+    } catch (error) {
+      debugPrint('Failed to sync FCM token: $error');
     }
   }
 

@@ -73,6 +73,19 @@ class FirestoreService {
     }
   }
 
+  Future<void> updateUserFcmToken(String uid, String token) async {
+    if (token.isEmpty) return;
+    await _db.collection('users').doc(uid).set(
+      {
+        'id': uid,
+        'fcmToken': token,
+        'fcmTokens': FieldValue.arrayUnion(<String>[token]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+  }
+
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
