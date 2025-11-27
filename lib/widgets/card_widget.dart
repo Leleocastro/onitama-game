@@ -229,7 +229,7 @@ Color _darken(Color base, [double amount = 0.1]) {
   return hsl.withLightness(lightness).toColor();
 }
 
-const _foilAnimationSpeed = Duration(milliseconds: 30);
+const _foilAnimationSpeed = Duration(milliseconds: 240);
 
 LinearGradient _foilGradient(Color sparkleColor) {
   return LinearGradient(
@@ -337,14 +337,17 @@ class _CardOpened extends StatelessWidget {
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         20.0.spaceY,
-                                        Text(
-                                          description,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontFamily: 'SpellOfAsia',
-                                            color: detailsColor,
-                                            fontSize: 16,
-                                            letterSpacing: 1.5,
+                                        Material(
+                                          color: Colors.transparent,
+                                          child: Text(
+                                            description,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontFamily: 'SpellOfAsia',
+                                              color: detailsColor,
+                                              fontSize: 16,
+                                              letterSpacing: 1.5,
+                                            ),
                                           ),
                                         ),
                                         10.0.spaceY,
@@ -516,14 +519,17 @@ class _TitlePlaque extends StatelessWidget {
           BoxShadow(color: Colors.black45, blurRadius: 12, offset: Offset(0, 4)),
         ],
       ),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontFamily: 'SpellOfAsia',
-          color: detailsColor,
-          fontSize: 22,
-          letterSpacing: 2,
+      child: Material(
+        color: color,
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontFamily: 'SpellOfAsia',
+            color: detailsColor,
+            fontSize: 22,
+            letterSpacing: 2,
+          ),
         ),
       ),
     );
