@@ -8,9 +8,9 @@ import 'package:rive/rive.dart';
 import '../l10n/app_localizations.dart';
 import '../services/firestore_service.dart';
 import '../style/theme.dart';
-import '../widgets/leaderboard_widget.dart';
 import '../widgets/username_avatar.dart';
 import 'how_to_play_screen.dart';
+import 'leaderboard_screen.dart';
 import 'login_screen.dart';
 import 'play_menu.dart';
 import 'profile_modal.dart';
@@ -134,15 +134,10 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                       onPressed: () {
                         final playerUid = user?.uid ?? _playerUid;
                         if (playerUid == null) return;
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          barrierColor: Colors.black87,
-                          builder: (context) => Container(
-                            color: Colors.transparent,
-                            padding: EdgeInsets.all(20),
-                            child: LeaderboardWidget(playerUid: playerUid),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => LeaderboardScreen(playerUid: playerUid),
                           ),
                         );
                       },
