@@ -1,8 +1,6 @@
-import 'dart:async';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:sensors_plus/sensors_plus.dart';
+import 'package:foil/foil.dart';
 
 import '../models/card_model.dart';
 import '../models/point.dart';
@@ -73,16 +71,15 @@ class CardWidget extends StatelessWidget {
         );
       },
       child: Container(
-        width: isReserve ? 70 : 85,
+        width: isReserve ? 75 : 85,
         margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         decoration: BoxDecoration(
           color: Colors.black,
           border: Border.all(color: isSelected ? color : detailsColor),
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 4, offset: const Offset(2, 2)),
+          boxShadow: const [
+            BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(2, 2)),
           ],
-          // clipBehavior: Clip.antiAlias, // Removed unsupported clipBehavior
         ),
         child: Stack(
           children: [
@@ -93,7 +90,10 @@ class CardWidget extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: ColorFiltered(
-                      colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.45), BlendMode.srcATop),
+                      colorFilter: ColorFilter.mode(
+                        isSelected ? color.withOpacity(0.4) : Colors.black.withOpacity(0.45),
+                        BlendMode.srcATop,
+                      ),
                       child: Image(
                         image: image,
                         fit: BoxFit.cover,
@@ -108,9 +108,7 @@ class CardWidget extends StatelessWidget {
                 Container(
                   decoration: BoxDecoration(
                     color: headerColor,
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.circular(4),
-                    ),
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(4)),
                     border: Border(
                       bottom: const BorderSide(color: detailsColor),
                       left: const BorderSide(color: detailsColor),
@@ -140,15 +138,6 @@ class CardWidget extends StatelessWidget {
                 10.0.spaceY,
               ],
             ),
-            if (isSelected)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: _FoilOverlay(
-                    borderRadius: BorderRadius.circular(8),
-                    sparkleColor: color,
-                  ),
-                ),
-              ),
           ],
         ),
       ),
@@ -197,63 +186,22 @@ Color _darken(Color base, [double amount = 0.1]) {
   return hsl.withLightness(lightness).toColor();
 }
 
-class _FoilOverlay extends StatefulWidget {
-  const _FoilOverlay({required this.borderRadius, required this.sparkleColor});
+const _foilAnimationSpeed = Duration(milliseconds: 30);
 
-  final BorderRadius borderRadius;
-  final Color sparkleColor;
-
-  @override
-  State<_FoilOverlay> createState() => _FoilOverlayState();
-}
-
-class _FoilOverlayState extends State<_FoilOverlay> {
-  StreamSubscription<AccelerometerEvent>? _subscription;
-  Offset _tilt = const Offset(0.18, -0.12);
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _subscription = accelerometerEvents.listen((event) {
-        final normalized = Offset((event.y / 8).clamp(-1, 1), (event.x / 8).clamp(-1, 1));
-        if ((normalized - _tilt).distanceSquared < 0.0025) return;
-        setState(() => _tilt = normalized);
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _subscription?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final gradient = LinearGradient(
-      begin: Alignment(-_tilt.dx, -_tilt.dy),
-      end: Alignment(_tilt.dx, _tilt.dy),
-      colors: [
-        Colors.transparent,
-        Colors.white.withOpacity(0.05),
-        widget.sparkleColor.withOpacity(0.35),
-        const Color(0xFF7C4DFF).withOpacity(0.25),
-        Colors.white.withOpacity(0.1),
-        Colors.transparent,
-      ],
-      stops: const [0.0, 0.15, 0.35, 0.55, 0.75, 1.0],
-    );
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 120),
-      decoration: BoxDecoration(
-        borderRadius: widget.borderRadius,
-        gradient: gradient,
-        backgroundBlendMode: BlendMode.screen,
-      ),
-    );
-  }
+LinearGradient _foilGradient(Color sparkleColor) {
+  return LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Colors.transparent,
+      Colors.white.withOpacity(0.05),
+      sparkleColor.withOpacity(0.35),
+      const Color(0xFF7C4DFF).withOpacity(0.25),
+      Colors.white.withOpacity(0.1),
+      Colors.transparent,
+    ],
+    stops: const [0.0, 0.15, 0.35, 0.55, 0.75, 1.0],
+  );
 }
 
 class _CardOpened extends StatelessWidget {
@@ -287,84 +235,90 @@ class _CardOpened extends StatelessWidget {
                 children: [
                   Hero(
                     tag: heroTag,
-                    child: _OrnateFrame(
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          if (image != null)
-                            Image(
-                              image: image!,
-                              fit: BoxFit.cover,
-                            )
-                          else
-                            Container(color: Colors.white),
-                          Align(
-                            alignment: Alignment.topCenter,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 18),
-                              child: _TitlePlaque(
-                                text: title,
-                                color: _darken(color),
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Container(
-                              height: 180,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
-                                  colors: [
-                                    _darken(color),
-                                    _darken(color),
-                                    _darken(color).withOpacity(0.95),
-                                    _darken(color).withOpacity(0.9),
-                                    _darken(color).withOpacity(0.7),
-                                    _darken(color).withOpacity(0.4),
-                                    _darken(color).withOpacity(0.2),
-                                    Colors.transparent,
-                                  ],
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Foil(
+                        gradient: _foilGradient(color),
+                        blendMode: BlendMode.screen,
+                        speed: _foilAnimationSpeed,
+                        child: Foil(
+                          gradient: Foils.sitAndSpin,
+                          opacity: 0.05,
+                          isAgressive: true,
+                          scalar: Scalar(horizontal: 15, vertical: 15),
+                          child: _OrnateFrame(
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                if (image != null)
+                                  Image(
+                                    image: image!,
+                                    fit: BoxFit.cover,
+                                  )
+                                else
+                                  Container(color: Colors.white),
+                                Align(
+                                  alignment: Alignment.topCenter,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 18),
+                                    child: _TitlePlaque(
+                                      text: title,
+                                      color: _darken(color),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  20.0.spaceY,
-                                  Text(
-                                    'Inteligente e brincalhão, ele explora a vida com curiosidade.',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontFamily: 'SpellOfAsia',
-                                      color: detailsColor,
-                                      fontSize: 16,
-                                      letterSpacing: 1.5,
+                                Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Container(
+                                    height: 180,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.bottomCenter,
+                                        end: Alignment.topCenter,
+                                        colors: [
+                                          _darken(color),
+                                          _darken(color),
+                                          _darken(color).withOpacity(0.95),
+                                          _darken(color).withOpacity(0.9),
+                                          _darken(color).withOpacity(0.7),
+                                          _darken(color).withOpacity(0.4),
+                                          _darken(color).withOpacity(0.2),
+                                          Colors.transparent,
+                                        ],
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        20.0.spaceY,
+                                        Text(
+                                          'Inteligente e brincalhão, ele explora a vida com curiosidade.',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontFamily: 'SpellOfAsia',
+                                            color: detailsColor,
+                                            fontSize: 16,
+                                            letterSpacing: 1.5,
+                                          ),
+                                        ),
+                                        10.0.spaceY,
+                                        SizedBox(
+                                          width: 50,
+                                          child: _buildMovesMiniGrid(
+                                            moves,
+                                            color: color,
+                                            isReserve: true,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  10.0.spaceY,
-                                  SizedBox(
-                                    width: 50,
-                                    child: _buildMovesMiniGrid(
-                                      moves,
-                                      color: color,
-                                      isReserve: true,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: _FoilOverlay(
-                        borderRadius: BorderRadius.circular(8),
-                        sparkleColor: color,
+                        ),
                       ),
                     ),
                   ),
@@ -425,9 +379,6 @@ class _OrnateFrame extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        boxShadow: const [
-          BoxShadow(color: Colors.black54, blurRadius: 24, spreadRadius: 2, offset: Offset(0, 14)),
-        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(1),

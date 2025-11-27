@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rive/rive.dart';
-import 'package:sensors_plus/sensors_plus.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/firestore_service.dart';
@@ -28,12 +27,6 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
   late File file;
   late RiveWidgetController controller;
   bool isInitialized = false;
-  late StreamSubscription<AccelerometerEvent> _accelSub;
-  double _offsetX = 0;
-  double _offsetY = 0;
-
-  final double _maxOffset = 20;
-  final double _sensitivity = 1.8;
 
   StreamSubscription<User?>? _authStateChangesSubscription;
   String? _playerUid;
@@ -49,28 +42,6 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
       });
     });
     initRive();
-    // Inicia o listener do acelerômetro para mover o background
-    _accelSub = accelerometerEvents.listen((event) {
-      // event.x, event.y, event.z representam aceleração em m/s²
-      // Aqui mapeamos a inclinação para deslocamento do background.
-      // Ajustes: troca e sinais para melhor sensação conforme dispositivo.
-      final rawX = event.y; // usar eixo Y para movimento horizontal
-      final rawY = event.x; // usar eixo X para movimento vertical
-
-      var targetX = rawX * _sensitivity;
-      var targetY = rawY * _sensitivity;
-
-      // Clamp para limites visuais
-      if (targetX > _maxOffset) targetX = _maxOffset;
-      if (targetX < -_maxOffset) targetX = -_maxOffset;
-      if (targetY > _maxOffset) targetY = _maxOffset;
-      if (targetY < -_maxOffset) targetY = -_maxOffset;
-
-      setState(() {
-        _offsetX = targetX;
-        _offsetY = targetY;
-      });
-    });
   }
 
   Future<void> _initializeUser() async {
@@ -93,7 +64,6 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
   void dispose() {
     file.dispose();
     controller.dispose();
-    _accelSub.cancel();
     _authStateChangesSubscription?.cancel();
     super.dispose();
   }
@@ -108,12 +78,9 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
         children: [
           if (isInitialized)
             // Aplica deslocamento baseado no acelerômetro
-            Transform.translate(
-              offset: Offset(_offsetX, _offsetY),
-              child: RiveWidget(
-                controller: controller,
-                fit: Fit.cover,
-              ),
+            RiveWidget(
+              controller: controller,
+              fit: Fit.cover,
             ),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -154,51 +121,53 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
               SizedBox(height: 150),
             ],
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // if (user != null && !user.isAnonymous)
-                  IconButton(
-                    onPressed: () {
-                      final playerUid = user?.uid ?? _playerUid;
-                      if (playerUid == null) return;
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        barrierColor: Colors.black87,
-                        builder: (context) => Container(
-                          color: Colors.transparent,
-                          padding: EdgeInsets.all(20),
-                          child: LeaderboardWidget(playerUid: playerUid),
-                        ),
-                      );
-                    },
-                    icon: Image.asset(
-                      'assets/icons/podium.png',
-                      width: 36,
+          SafeArea(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // if (user != null && !user.isAnonymous)
+                    IconButton(
+                      onPressed: () {
+                        final playerUid = user?.uid ?? _playerUid;
+                        if (playerUid == null) return;
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          barrierColor: Colors.black87,
+                          builder: (context) => Container(
+                            color: Colors.transparent,
+                            padding: EdgeInsets.all(20),
+                            child: LeaderboardWidget(playerUid: playerUid),
+                          ),
+                        );
+                      },
+                      icon: Image.asset(
+                        'assets/icons/podium.png',
+                        width: 36,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 5),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const HowToPlayScreen(),
-                        ),
-                      );
-                    },
-                    icon: Image.asset(
-                      'assets/icons/tutorials.png',
-                      width: 36,
+                    SizedBox(width: 5),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HowToPlayScreen(),
+                          ),
+                        );
+                      },
+                      icon: Image.asset(
+                        'assets/icons/tutorials.png',
+                        width: 36,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:app_links/app_links.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uni_links/uni_links.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/firestore_service.dart';
@@ -22,12 +22,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  AppLinks? _appLinks;
   bool _showUsernameInput = false;
   String? _uid;
   String? _usernameError;
   String? _emailStatus;
   bool _isLoading = false;
-  StreamSubscription? _sub;
+  StreamSubscription<Uri?>? _sub;
 
   Future<void> _signInWithGoogle() async {
     setState(() {
@@ -129,34 +130,30 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     // Inicializa escuta de deep links para completar o sign-in por email
-    _initUniLinks();
+    _initAppLinks();
   }
 
-  Future<void> _initUniLinks() async {
-    // trata o caso em que o app foi aberto a partir do link
+  Future<void> _initAppLinks() async {
     try {
-      final initialUri = await getInitialUri();
-      if (initialUri != null) {
-        await _handleIncomingLink(initialUri.toString());
-      }
-    } catch (e) {
-      debugPrint('Erro ao obter initialUri: $e');
-    }
+      _appLinks = AppLinks();
+      final initialUri = await _appLinks!.getInitialLink();
+      await _handleIncomingLink(initialUri!);
 
-    // escuta links subsequentes
-    _sub = uriLinkStream.listen(
-      (uri) {
-        if (uri != null) {
-          _handleIncomingLink(uri.toString());
-        }
-      },
-      onError: (err) {
-        debugPrint('Erro no uriLinkStream: $err');
-      },
-    );
+      _sub = _appLinks!.uriLinkStream.listen(
+        (uri) {
+          _handleIncomingLink(uri);
+        },
+        onError: (err) {
+          debugPrint('Erro no uriLinkStream: $err');
+        },
+      );
+    } catch (e) {
+      debugPrint('Erro ao inicializar AppLinks: $e');
+    }
   }
 
-  Future<void> _handleIncomingLink(String link) async {
+  Future<void> _handleIncomingLink(Uri uri) async {
+    final link = uri.toString();
     debugPrint('Incoming link: $link');
     try {
       final auth = FirebaseAuth.instance;
