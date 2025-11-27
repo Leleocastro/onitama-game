@@ -580,6 +580,60 @@ abstract class AppLocalizations {
   /// **'Game History'**
   String get historyTitle;
 
+  /// No description provided for @matchResultVictoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Victory!'**
+  String get matchResultVictoryTitle;
+
+  /// No description provided for @matchResultDefeatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Defeat'**
+  String get matchResultDefeatTitle;
+
+  /// No description provided for @matchResultGainedPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'You gained {points} rating points.'**
+  String matchResultGainedPoints(Object points);
+
+  /// No description provided for @matchResultLostPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'You lost {points} rating points.'**
+  String matchResultLostPoints(Object points);
+
+  /// No description provided for @matchResultNoChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rating remains unchanged.'**
+  String get matchResultNoChange;
+
+  /// No description provided for @matchResultPreviousRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous rating'**
+  String get matchResultPreviousRating;
+
+  /// No description provided for @matchResultNewRating.
+  ///
+  /// In en, this message translates to:
+  /// **'New rating'**
+  String get matchResultNewRating;
+
+  /// No description provided for @matchResultTierLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tier'**
+  String get matchResultTierLabel;
+
+  /// No description provided for @matchResultSeasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Season'**
+  String get matchResultSeasonLabel;
+
   /// No description provided for @login.
   ///
   /// In en, this message translates to:

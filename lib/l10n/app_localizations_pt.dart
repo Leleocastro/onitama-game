@@ -264,6 +264,37 @@ class AppLocalizationsPt extends AppLocalizations {
   String get historyTitle => 'Histórico de Jogos';
 
   @override
+  String get matchResultVictoryTitle => 'Vitória!';
+
+  @override
+  String get matchResultDefeatTitle => 'Derrota';
+
+  @override
+  String matchResultGainedPoints(Object points) {
+    return 'Você ganhou $points pontos de rating.';
+  }
+
+  @override
+  String matchResultLostPoints(Object points) {
+    return 'Você perdeu $points pontos de rating.';
+  }
+
+  @override
+  String get matchResultNoChange => 'Seu rating não mudou.';
+
+  @override
+  String get matchResultPreviousRating => 'Rating anterior';
+
+  @override
+  String get matchResultNewRating => 'Rating atual';
+
+  @override
+  String get matchResultTierLabel => 'Nível';
+
+  @override
+  String get matchResultSeasonLabel => 'Temporada';
+
+  @override
   String get login => 'Login';
 
   @override

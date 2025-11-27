@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/leaderboard_entry.dart';
+import '../models/match_result.dart';
 
 class RankingService {
   RankingService({
@@ -48,7 +49,7 @@ class RankingService {
     return LeaderboardEntry.fromSnapshot(doc);
   }
 
-  Future<void> submitMatchResult(String gameId) async {
+  Future<MatchResult> submitMatchResult(String gameId) async {
     final projectId = _app.options.projectId;
     if (projectId.isEmpty) {
       throw Exception('Firebase projectId não encontrado para enviar ranking.');
@@ -87,7 +88,7 @@ class RankingService {
     }
 
     if (response.body.isEmpty) {
-      return;
+      throw Exception('Resposta vazia do serviço de ranking.');
     }
 
     final body = jsonDecode(response.body) as Map<String, dynamic>;
@@ -95,14 +96,11 @@ class RankingService {
       throw Exception('Erro ao atualizar ranking: ${body['error']}');
     }
 
-    final result = body['result'];
-    if (result is Map<String, dynamic>) {
-      if (result['alreadyProcessed'] == true) {
-        return;
-      }
-      if (result['error'] != null) {
-        throw Exception('Erro ao atualizar ranking: ${result['error']}');
-      }
+    final rawResult = (body['result'] as Map<String, dynamic>?) ?? body;
+    if (rawResult['error'] != null) {
+      throw Exception('Erro ao atualizar ranking: ${rawResult['error']}');
     }
+
+    return MatchResult.fromJson(rawResult);
   }
 }

@@ -80,6 +80,15 @@
   "historyErrorLoading": "Error al cargar partidas.",
   "historyNoFinished": "No se encontraron partidas finalizadas.",
   "historyTitle": "Historial de Partidas",
+  "matchResultVictoryTitle": "¡Victoria!",
+  "matchResultDefeatTitle": "Derrota",
+  "matchResultGainedPoints": "Ganaste {points} puntos de rating.",
+  "matchResultLostPoints": "Perdiste {points} puntos de rating.",
+  "matchResultNoChange": "Tu rating no cambió.",
+  "matchResultPreviousRating": "Rating anterior",
+  "matchResultNewRating": "Rating actual",
+  "matchResultTierLabel": "Rango",
+  "matchResultSeasonLabel": "Temporada",
   "login": "Login",
   "chooseUsername": "Elige un nombre de usuario para continuar:",
   "username": "Nombre de usuario",
@@ -134,6 +143,16 @@
   "descriptionBoar": "Determinado y audaz, se enfrenta a los desafíos del bosque.",
   "descriptionEel": "Sutil y ágil, navega por las profundidades con destreza.",
   "descriptionCobra": "Con su sabiduría milenaria, observa el mundo en silencio.",
+  "@matchResultGainedPoints": {
+    "placeholders": {
+      "points": {}
+    }
+  },
+  "@matchResultLostPoints": {
+    "placeholders": {
+      "points": {}
+    }
+  },
 
   "@moveHistoryMove": {
     "placeholders": {

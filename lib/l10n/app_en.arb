@@ -80,6 +80,15 @@
   "historyErrorLoading": "Error loading games.",
   "historyNoFinished": "No finished games found.",
   "historyTitle": "Game History",
+  "matchResultVictoryTitle": "Victory!",
+  "matchResultDefeatTitle": "Defeat",
+  "matchResultGainedPoints": "You gained {points} rating points.",
+  "matchResultLostPoints": "You lost {points} rating points.",
+  "matchResultNoChange": "Your rating remains unchanged.",
+  "matchResultPreviousRating": "Previous rating",
+  "matchResultNewRating": "New rating",
+  "matchResultTierLabel": "Tier",
+  "matchResultSeasonLabel": "Season",
   "login": "Login",
   "chooseUsername": "Choose a username to continue:",
   "username": "Username",
@@ -134,6 +143,16 @@
   "descriptionBoar": "Determined and fearless, he faces the challenges of the forest.",
   "descriptionEel": "Subtle and agile, she navigates the depths with skill.",
   "descriptionCobra": "With its millenary wisdom, it observes the world in silence.",
+  "@matchResultGainedPoints": {
+    "placeholders": {
+      "points": {}
+    }
+  },
+  "@matchResultLostPoints": {
+    "placeholders": {
+      "points": {}
+    }
+  },
 
   "@moveHistoryMove": {
     "placeholders": {

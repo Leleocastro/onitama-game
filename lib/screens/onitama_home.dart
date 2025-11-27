@@ -9,6 +9,7 @@ import '../models/ai_difficulty.dart';
 import '../models/card_model.dart';
 import '../models/firestore_game.dart';
 import '../models/game_mode.dart';
+import '../models/match_result.dart';
 import '../models/player.dart';
 import '../models/win_condition.dart';
 import '../services/firestore_service.dart';
@@ -20,6 +21,7 @@ import '../widgets/card_widget.dart';
 import '../widgets/username_avatar.dart';
 import 'historic_game_detail_screen.dart';
 import 'interstitial_ad_screen.dart';
+import 'match_result_screen.dart';
 import 'rewarded_ad_screen.dart';
 
 class OnitamaHome extends StatefulWidget {
@@ -53,6 +55,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
   StreamSubscription? _gameSubscription;
   FirestoreGame? _firestoreGame;
   bool _rankingSubmitted = false;
+  bool _isEndDialogVisible = false;
   final Map<String, String> _usernameCache = <String, String>{};
   final Set<String> _loadingUsernameUids = <String>{};
   final Map<String, int?> _ratingCache = <String, int?>{};
@@ -213,20 +216,22 @@ class OnitamaHomeState extends State<OnitamaHome> {
     final conditionText = condition == WinCondition.capture ? l10n.wonByCapture : l10n.wonByTemple;
     final text = '$winnerName $conditionText';
 
+    _isEndDialogVisible = true;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
         title: Text(l10n.gameOver),
-        content: Text(text),
+        content: widget.gameMode == GameMode.online ? CircularProgressIndicator() : Text(text),
         actions: [
-          TextButton(
-            child: Text(l10n.exit),
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pop(); // Navigate back to menu
-            },
-          ),
+          if (widget.gameMode != GameMode.online)
+            TextButton(
+              child: Text(l10n.exit),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Navigate back to menu
+              },
+            ),
           if (widget.gameMode == GameMode.pvai && winner == PlayerColor.red)
             TextButton(
               child: Text(l10n.undoWithAd),
@@ -266,7 +271,9 @@ class OnitamaHomeState extends State<OnitamaHome> {
             ),
         ],
       ),
-    );
+    ).then((_) {
+      _isEndDialogVisible = false;
+    });
   }
 
   Future<void> _submitRankingIfNeeded(FirestoreGame game) async {
@@ -279,11 +286,56 @@ class OnitamaHomeState extends State<OnitamaHome> {
 
     _rankingSubmitted = true;
     try {
-      await _rankingService.submitMatchResult(widget.gameId!);
+      final result = await _rankingService.submitMatchResult(widget.gameId!);
+      final participant = _participantForCurrentUser(result);
+      if (participant == null || !mounted) {
+        return;
+      }
+      await _dismissEndDialogIfNeeded();
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 350),
+          pageBuilder: (_, animation, __) => FadeTransition(
+            opacity: animation,
+            child: MatchResultScreen(
+              result: result,
+              participant: participant,
+              onExitToMenu: _exitToMenuAfterResult,
+            ),
+          ),
+        ),
+      );
     } catch (error) {
       debugPrint('Failed to submit ranking for game ${widget.gameId}: $error');
       _rankingSubmitted = false;
     }
+  }
+
+  MatchParticipantResult? _participantForCurrentUser(MatchResult result) {
+    final uid = widget.playerUid;
+    if (uid == null) {
+      return null;
+    }
+    for (final participant in result.participants) {
+      if (participant.userId == uid) {
+        return participant;
+      }
+    }
+    return null;
+  }
+
+  Future<void> _dismissEndDialogIfNeeded() async {
+    if (!_isEndDialogVisible || !mounted) {
+      return;
+    }
+    _isEndDialogVisible = false;
+    await Navigator.of(context, rootNavigator: true).maybePop();
+  }
+
+  void _exitToMenuAfterResult() {
+    if (!mounted) return;
+    Navigator.of(context).pop();
   }
 
   Future<void> _undoLastTwoAndPersist() async {
@@ -577,7 +629,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
                                 );
                                 if (shouldRestart == true) {
                                   Navigator.of(context).pop(); // Close the drawer
-                                  Navigator.of(context).pushReplacement(
+                                  await Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(
                                       builder: (context) => InterstitialAdScreen(
                                         navigateTo: OnitamaHome(
@@ -732,7 +784,11 @@ class OnitamaHomeState extends State<OnitamaHome> {
                                     ),
                                     Row(
                                       children: [
-                                        Icon(Icons.star_border, size: 12, color: Colors.grey),
+                                        Icon(
+                                          Icons.star_border,
+                                          size: 12,
+                                          color: Colors.grey,
+                                        ),
                                         4.0.spaceX,
                                         Text(
                                           playerRating != null ? '$playerRating' : '1200',
@@ -774,7 +830,11 @@ class OnitamaHomeState extends State<OnitamaHome> {
                                           ),
                                         ),
                                         4.0.spaceX,
-                                        const Icon(Icons.star_border, size: 12, color: Colors.grey),
+                                        const Icon(
+                                          Icons.star_border,
+                                          size: 12,
+                                          color: Colors.grey,
+                                        ),
                                       ],
                                     ),
                                   ],
