@@ -85,12 +85,25 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
   }
 
   @override
+  void didUpdateWidget(covariant MenuScreen2 oldWidget) {
+    _startMenuMusic();
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void didPush() {
     _startMenuMusic();
   }
 
   @override
   void didPopNext() {
+    super.didPopNext();
+    _startMenuMusic();
+  }
+
+  @override
+  void didPop() {
+    super.didPop();
     _startMenuMusic();
   }
 

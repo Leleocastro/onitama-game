@@ -285,7 +285,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
     final conditionText = condition == WinCondition.capture ? l10n.wonByCapture : l10n.wonByTemple;
     final text = '$winnerName $conditionText';
 
-    unawaited(AudioService.instance.playSpecialWinSound());
+    if (widget.gameMode != GameMode.online) unawaited(AudioService.instance.playSpecialWinSound());
     _isEndDialogVisible = true;
     showDialog(
       context: context,

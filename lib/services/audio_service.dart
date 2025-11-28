@@ -11,6 +11,8 @@ double globalMusicVolume = 0.6;
 /// Global sound-effect volume that other widgets can read synchronously.
 double globalSfxVolume = 0.8;
 
+double globalWinVolume = 1;
+
 /// Notifiers to allow UI widgets (like sliders) to react to live volume changes.
 final ValueNotifier<double> musicVolumeNotifier = ValueNotifier<double>(globalMusicVolume);
 final ValueNotifier<double> sfxVolumeNotifier = ValueNotifier<double>(globalSfxVolume);
@@ -117,14 +119,14 @@ class AudioService {
     _currentAmbienceAsset = asset;
     await _ambiencePlayer.stop();
     await _ambiencePlayer.play(AssetSource(asset), volume: globalMusicVolume);
-    await _ambiencePlayer.setReleaseMode(ReleaseMode.loop);
+    if (_ambiencePlayer.releaseMode != ReleaseMode.loop) {
+      await _ambiencePlayer.setReleaseMode(ReleaseMode.loop);
+    }
   }
 
   Future<void> stopBackground() async {
     await _musicPlayer.stop();
-    await _ambiencePlayer.stop();
     _currentMusicAsset = null;
-    _currentAmbienceAsset = null;
   }
 
   Future<void> playRandomMoveSound() async => _playSfxAsset(_moveAssets[_random.nextInt(_moveAssets.length)], usualTime: false);
@@ -143,9 +145,9 @@ class AudioService {
 
   Future<void> playUiCardSound() => _playSfxAsset(_uiCardAsset);
 
-  Future<void> playSpecialMasterMoveSound() => _playSfxAsset(_specialMasterAsset);
+  Future<void> playSpecialMasterMoveSound() => _playSfxAsset(_specialMasterAsset, usualTime: false);
 
-  Future<void> playSpecialWinSound() => _playSfxAsset(_specialWinAsset, usualTime: false);
+  Future<void> playSpecialWinSound() => _playWinSound();
 
   Future<void> playInteractionSound() => playUiSelectSound();
 
@@ -163,6 +165,24 @@ class AudioService {
       if (seekPosition != null && usualTime) {
         await player.seek(seekPosition);
       }
+      await player.resume();
+      unawaited(
+        player.onPlayerComplete.first.then((_) => _busyPlayers.remove(player)),
+      );
+    } catch (_) {
+      _busyPlayers.remove(player);
+      rethrow;
+    }
+  }
+
+  Future<void> _playWinSound() async {
+    await initialize();
+    final player = await _acquirePlayer();
+    _busyPlayers.add(player);
+    try {
+      await player.stop();
+      await player.setVolume(globalWinVolume);
+      await player.setSource(AssetSource(_specialWinAsset));
       await player.resume();
       unawaited(
         player.onPlayerComplete.first.then((_) => _busyPlayers.remove(player)),
