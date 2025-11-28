@@ -10,11 +10,14 @@ import '../models/card_model.dart';
 import '../models/firestore_game.dart';
 import '../models/game_mode.dart';
 import '../models/match_result.dart';
+import '../models/piece_type.dart';
 import '../models/player.dart';
 import '../models/user_profile.dart';
 import '../models/win_condition.dart';
+import '../services/audio_service.dart';
 import '../services/firestore_service.dart';
 import '../services/ranking_service.dart';
+import '../services/route_observer.dart';
 import '../services/theme_manager.dart';
 import '../utils/extensions.dart';
 import '../widgets/board_widget.dart';
@@ -47,7 +50,7 @@ class OnitamaHome extends StatefulWidget {
   OnitamaHomeState createState() => OnitamaHomeState();
 }
 
-class OnitamaHomeState extends State<OnitamaHome> {
+class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   GameState? _gameState;
   final FirestoreService _firestoreService = FirestoreService();
@@ -63,6 +66,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
   final Set<String> _loadingRatingUids = <String>{};
   final Map<PlayerColor, String> _fallbackUsernames = <PlayerColor, String>{};
   final Random _random = Random();
+  PageRoute<dynamic>? _route;
 
   static const List<String> _fakeFirstNames = <String>[
     'Aiko',
@@ -93,6 +97,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
   @override
   void initState() {
     super.initState();
+    _startHomeMusic();
     if (widget.gameId != null) {
       _gameStream = _firestoreService.streamGame(widget.gameId!);
       _loadGameState();
@@ -104,6 +109,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
         _maybeLoadPlayerProfiles(firestoreGame.players);
         final oldSelectedCell = _gameState?.selectedCell;
         final oldSelectedCard = _gameState?.selectedCardForMove;
+        final previousHistoryLength = _gameState?.gameHistory.length ?? 0;
 
         setState(() {
           _gameState = GameState.fromFirestore(
@@ -119,6 +125,11 @@ class OnitamaHomeState extends State<OnitamaHome> {
 
           _gameState?.verifyWin(_showEndDialog);
         });
+
+        final newHistoryLength = _gameState?.gameHistory.length ?? 0;
+        if (newHistoryLength > previousHistoryLength) {
+          _triggerMoveSound();
+        }
 
         _submitRankingIfNeeded(firestoreGame);
       });
@@ -150,7 +161,33 @@ class OnitamaHomeState extends State<OnitamaHome> {
   @override
   void dispose() {
     _gameSubscription?.cancel();
+    appRouteObserver.unsubscribe(this);
+    unawaited(AudioService.instance.stopBackground());
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute && route != _route) {
+      _route = route;
+      appRouteObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void didPush() {
+    _startHomeMusic();
+  }
+
+  @override
+  void didPopNext() {
+    _startHomeMusic();
+  }
+
+  void _startHomeMusic() {
+    unawaited(AudioService.instance.playHomeMusic());
   }
 
   void _onCellTap(int r, int c) {
@@ -160,8 +197,14 @@ class OnitamaHomeState extends State<OnitamaHome> {
       }
     }
 
+    final previousHistoryLength = _gameState!.gameHistory.length;
     final isAiTurn = _gameState!.onCellTap(r, c, _showEndDialog);
+    final moveExecuted = _gameState!.gameHistory.length > previousHistoryLength;
     setState(() {});
+
+    if (moveExecuted) {
+      _triggerMoveSound();
+    }
 
     if (isAiTurn) {
       _handleAIMove();
@@ -175,9 +218,14 @@ class OnitamaHomeState extends State<OnitamaHome> {
       _gameState!.lastMove!.to.c,
       PlayerColor.blue,
     );
+    final previousHistoryLength = _gameState!.gameHistory.length;
     if (_gameState!.gameMode == GameMode.pvai && !isWinByCapture && !isWinByTemple) {
       await _gameState!.makeAIMove(_showEndDialog, widget.hasDelay);
       setState(() {});
+    }
+    final aiMoved = _gameState!.gameHistory.length > previousHistoryLength;
+    if (aiMoved) {
+      _triggerMoveSound();
     }
     if (_firestoreGame != null && widget.gameMode == GameMode.online) {
       final updatedGame = _firestoreGame!.copyWith(
@@ -195,6 +243,21 @@ class OnitamaHomeState extends State<OnitamaHome> {
     }
   }
 
+  void _triggerMoveSound() {
+    final move = _gameState?.lastMove;
+    if (move == null) return;
+    final piece = _gameState?.board[move.to.r][move.to.c];
+    if (piece == null) {
+      unawaited(AudioService.instance.playRandomMoveSound());
+      return;
+    }
+    if (piece.type == PieceType.master) {
+      unawaited(AudioService.instance.playSpecialMasterMoveSound());
+    } else {
+      unawaited(AudioService.instance.playRandomMoveSound());
+    }
+  }
+
   void _onCardTap(CardModel card) {
     if (widget.gameMode == GameMode.online) {
       if ((_gameState!.currentPlayer == PlayerColor.red && widget.isHost!) || (_gameState!.currentPlayer == PlayerColor.blue && !widget.isHost!)) {
@@ -202,9 +265,14 @@ class OnitamaHomeState extends State<OnitamaHome> {
       }
     }
 
+    final wasSelected = _gameState!.selectedCardForMove == card;
     setState(() {
       _gameState!.onCardTap(card);
     });
+    final isSelectedNow = _gameState!.selectedCardForMove == card;
+    if (!wasSelected && isSelectedNow) {
+      unawaited(AudioService.instance.playUiSelectSound());
+    }
   }
 
   void _showEndDialog(PlayerColor winner, WinCondition condition) {
@@ -217,6 +285,7 @@ class OnitamaHomeState extends State<OnitamaHome> {
     final conditionText = condition == WinCondition.capture ? l10n.wonByCapture : l10n.wonByTemple;
     final text = '$winnerName $conditionText';
 
+    unawaited(AudioService.instance.playSpecialWinSound());
     _isEndDialogVisible = true;
     showDialog(
       context: context,

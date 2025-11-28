@@ -12,7 +12,9 @@ import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'screens/preload_screen.dart';
 import 'services/analytics_service.dart';
+import 'services/audio_service.dart';
 import 'services/push_notification_service.dart';
+import 'services/route_observer.dart';
 import 'style/theme.dart';
 
 Future<void> main() async {
@@ -44,10 +46,9 @@ Future<void> main() async {
       final analyticsObserver = AnalyticsService.observer;
 
       await RiveNative.init();
+      await AudioService.instance.initialize();
 
-      runApp(
-        OnitamaApp(analyticsObserver: analyticsObserver),
-      );
+      runApp(OnitamaApp(analyticsObserver: analyticsObserver));
     },
     (error, stack) => (crashlytics ?? FirebaseCrashlytics.instance).recordError(error, stack, fatal: true),
   );
@@ -67,7 +68,7 @@ class OnitamaApp extends StatelessWidget {
       title: 'Onitama - Flutter',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
-      navigatorObservers: [analyticsObserver],
+      navigatorObservers: [analyticsObserver, appRouteObserver],
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

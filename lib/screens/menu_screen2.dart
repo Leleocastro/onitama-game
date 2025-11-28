@@ -7,9 +7,12 @@ import 'package:rive/rive.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/user_profile.dart';
+import '../services/audio_service.dart';
 import '../services/firestore_service.dart';
+import '../services/route_observer.dart';
 import '../style/theme.dart';
 import '../widgets/username_avatar.dart';
+import '../widgets/volume_settings_sheet.dart';
 import 'how_to_play_screen.dart';
 import 'leaderboard_screen.dart';
 import 'login_screen.dart';
@@ -23,11 +26,12 @@ class MenuScreen2 extends StatefulWidget {
   State<MenuScreen2> createState() => _MenuScreen2State();
 }
 
-class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin {
+class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin, RouteAware {
   final FirestoreService _firestoreService = FirestoreService();
   late File file;
   late RiveWidgetController controller;
   bool isInitialized = false;
+  PageRoute<dynamic>? _route;
 
   StreamSubscription<User?>? _authStateChangesSubscription;
   String? _playerUid;
@@ -35,6 +39,7 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
   @override
   void initState() {
     super.initState();
+    _startMenuMusic();
     _initializeUser();
     _authStateChangesSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
       setState(() {
@@ -65,7 +70,41 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
     file.dispose();
     controller.dispose();
     _authStateChangesSubscription?.cancel();
+    appRouteObserver.unsubscribe(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute && route != _route) {
+      _route = route;
+      appRouteObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void didPush() {
+    _startMenuMusic();
+  }
+
+  @override
+  void didPopNext() {
+    _startMenuMusic();
+  }
+
+  void _startMenuMusic() {
+    unawaited(AudioService.instance.playMenuMusic());
+  }
+
+  void _openVolumeSettings() {
+    unawaited(AudioService.instance.playUiConfirmSound());
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const VolumeSettingsSheet(),
+    );
   }
 
   @override
@@ -100,6 +139,7 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
               Center(
                 child: InkWell(
                   onTap: () {
+                    unawaited(AudioService.instance.playUiConfirmSound());
                     showModalBottomSheet(
                       context: context,
                       backgroundColor: Colors.transparent,
@@ -132,6 +172,8 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                     // if (user != null && !user.isAnonymous)
                     IconButton(
                       onPressed: () {
+                        unawaited(AudioService.instance.playUiConfirmSound());
+                        unawaited(AudioService.instance.playNavigationSound());
                         final playerUid = user?.uid ?? _playerUid;
                         if (playerUid == null) return;
                         Navigator.push(
@@ -149,6 +191,8 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                     SizedBox(width: 5),
                     IconButton(
                       onPressed: () {
+                        unawaited(AudioService.instance.playUiConfirmSound());
+                        unawaited(AudioService.instance.playNavigationSound());
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -187,6 +231,7 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                           padding: const EdgeInsets.all(8),
                           child: GestureDetector(
                             onTap: () {
+                              unawaited(AudioService.instance.playUiConfirmSound());
                               showDialog(
                                 context: context,
                                 builder: (context) => ProfileModal(
@@ -210,6 +255,8 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                       padding: const EdgeInsets.all(8),
                       child: TextButton(
                         onPressed: () {
+                          unawaited(AudioService.instance.playUiConfirmSound());
+                          unawaited(AudioService.instance.playNavigationSound());
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -225,6 +272,18 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                     );
                   }
                 },
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: IconButton(
+                  icon: const Icon(Icons.volume_up, color: Colors.black),
+                  onPressed: _openVolumeSettings,
+                ),
               ),
             ),
           ),

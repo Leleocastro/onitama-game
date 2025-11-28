@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:foil/foil.dart';
@@ -5,6 +7,7 @@ import 'package:foil/foil.dart';
 import '../l10n/app_localizations.dart';
 import '../models/card_model.dart';
 import '../models/point.dart';
+import '../services/audio_service.dart';
 import '../services/theme_manager.dart';
 import '../utils/extensions.dart';
 
@@ -86,6 +89,7 @@ class CardWidget extends StatelessWidget {
               ? () => onTap?.call(card)
               : null
           : () {
+              _playCardPreviewSound();
               Navigator.of(context).push(
                 _HeroDialogRoute(
                   builder: (ctx) => _CardOpened(
@@ -100,6 +104,7 @@ class CardWidget extends StatelessWidget {
               );
             },
       onLongPress: () {
+        _playCardPreviewSound();
         Navigator.of(context).push(
           _HeroDialogRoute(
             builder: (ctx) => _CardOpened(
@@ -190,6 +195,10 @@ class CardWidget extends StatelessWidget {
   List<Point> _invertMoves(List<Point> moves) {
     return moves.map((m) => Point((m.r * -1), (m.c * -1))).toList();
   }
+
+  void _playCardPreviewSound() {
+    unawaited(AudioService.instance.playUiCardSound());
+  }
 }
 
 Widget _buildMovesMiniGrid(
@@ -247,7 +256,7 @@ LinearGradient _foilGradient(Color sparkleColor) {
   );
 }
 
-class _CardOpened extends StatelessWidget {
+class _CardOpened extends StatefulWidget {
   const _CardOpened({
     required this.title,
     required this.image,
@@ -256,12 +265,46 @@ class _CardOpened extends StatelessWidget {
     required this.moves,
     required this.description,
   });
+
   final String title;
   final CachedNetworkImageProvider? image;
   final String heroTag;
   final Color color;
   final List<Point> moves;
   final String description;
+
+  @override
+  State<_CardOpened> createState() => _CardOpenedState();
+}
+
+class _CardOpenedState extends State<_CardOpened> with SingleTickerProviderStateMixin {
+  late final AnimationController _fadeController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 300),
+  );
+  Timer? _revealTimer;
+  bool _showOverlay = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _revealTimer = Timer(const Duration(milliseconds: 700), _startOverlayFade);
+  }
+
+  void _startOverlayFade() {
+    if (!mounted) return;
+    setState(() {
+      _showOverlay = true;
+    });
+    _fadeController.forward();
+  }
+
+  @override
+  void dispose() {
+    _revealTimer?.cancel();
+    _fadeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -279,11 +322,11 @@ class _CardOpened extends StatelessWidget {
               child: Stack(
                 children: [
                   Hero(
-                    tag: heroTag,
+                    tag: widget.heroTag,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: Foil(
-                        gradient: _foilGradient(color),
+                        gradient: _foilGradient(widget.color),
                         blendMode: BlendMode.screen,
                         speed: _foilAnimationSpeed,
                         child: Foil(
@@ -295,73 +338,83 @@ class _CardOpened extends StatelessWidget {
                             child: Stack(
                               fit: StackFit.expand,
                               children: [
-                                if (image != null)
+                                if (widget.image != null)
                                   Image(
-                                    image: image!,
+                                    image: widget.image!,
                                     fit: BoxFit.cover,
                                   )
                                 else
                                   Container(color: Colors.white),
-                                Align(
-                                  alignment: Alignment.topCenter,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 18),
-                                    child: _TitlePlaque(
-                                      text: title,
-                                      color: _darken(color),
-                                    ),
-                                  ),
-                                ),
-                                Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Container(
-                                    height: 180,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.bottomCenter,
-                                        end: Alignment.topCenter,
-                                        colors: [
-                                          _darken(color),
-                                          _darken(color),
-                                          _darken(color).withOpacity(0.95),
-                                          _darken(color).withOpacity(0.9),
-                                          _darken(color).withOpacity(0.7),
-                                          _darken(color).withOpacity(0.4),
-                                          _darken(color).withOpacity(0.2),
-                                          Colors.transparent,
-                                        ],
+                                Stack(
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.topCenter,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 18),
+                                        child: _TitlePlaque(
+                                          text: widget.title,
+                                          color: _darken(widget.color),
+                                        ),
                                       ),
                                     ),
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        20.0.spaceY,
-                                        Material(
-                                          color: Colors.transparent,
-                                          child: Text(
-                                            description,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontFamily: 'SpellOfAsia',
-                                              color: detailsColor,
-                                              fontSize: 16,
-                                              letterSpacing: 1.5,
-                                            ),
+                                    Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Container(
+                                        height: 180,
+                                        width: double.maxFinite,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.bottomCenter,
+                                            end: Alignment.topCenter,
+                                            colors: [
+                                              _darken(widget.color),
+                                              _darken(widget.color),
+                                              _darken(widget.color).withOpacity(0.95),
+                                              _darken(widget.color).withOpacity(0.9),
+                                              _darken(widget.color).withOpacity(0.7),
+                                              _darken(widget.color).withOpacity(0.4),
+                                              _darken(widget.color).withOpacity(0.2),
+                                              Colors.transparent,
+                                            ],
                                           ),
                                         ),
-                                        10.0.spaceY,
-                                        SizedBox(
-                                          width: 50,
-                                          child: _buildMovesMiniGrid(
-                                            moves,
-                                            color: color,
-                                            isReserve: true,
+                                        padding: const EdgeInsets.all(16),
+                                        child: FadeTransition(
+                                          opacity: _fadeController,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              if (_showOverlay) ...[
+                                                20.0.spaceY,
+                                                Material(
+                                                  color: Colors.transparent,
+                                                  child: Text(
+                                                    widget.description,
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                      fontFamily: 'SpellOfAsia',
+                                                      color: detailsColor,
+                                                      fontSize: 16,
+                                                      letterSpacing: 1.5,
+                                                    ),
+                                                  ),
+                                                ),
+                                                10.0.spaceY,
+                                                SizedBox(
+                                                  width: 50,
+                                                  child: _buildMovesMiniGrid(
+                                                    widget.moves,
+                                                    color: widget.color,
+                                                    isReserve: true,
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
                                           ),
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ],
                             ),

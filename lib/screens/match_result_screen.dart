@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/match_result.dart';
+import '../services/audio_service.dart';
 import '../utils/extensions.dart';
 import '../widgets/counter_points.dart';
 import '../widgets/move_down_widget.dart';
@@ -39,6 +42,8 @@ class _MatchResultScreenState extends State<MatchResultScreen> with SingleTicker
       if (!mounted) return;
       _delayElapsed = true;
       _tryPlayAnimation();
+
+      AudioService.instance.playSpecialWinSound();
     });
   }
 

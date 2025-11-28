@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 import '../l10n/app_localizations.dart';
+import '../services/audio_service.dart';
 import '../services/theme_manager.dart';
 import 'menu_screen2.dart';
 
@@ -58,6 +61,8 @@ class _PreloadScreenState extends State<PreloadScreen> with SingleTickerProvider
     });
     _syncAnimationWithProgress(_total, _total);
     await Future.delayed(const Duration(milliseconds: 500));
+
+    unawaited(AudioService.instance.playNavigationSound());
 
     await Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const MenuScreen2()),
