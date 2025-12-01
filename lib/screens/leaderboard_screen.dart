@@ -7,6 +7,7 @@ import '../services/ranking_service.dart';
 import '../style/theme.dart';
 import '../utils/extensions.dart';
 import '../widgets/username_avatar.dart';
+import 'history_game_screen.dart';
 
 class LeaderboardScreen extends StatefulWidget {
   const LeaderboardScreen({required this.playerUid, super.key});
@@ -160,7 +161,18 @@ class _Header extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 48),
+          IconButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HistoryGameScreen(),
+              ),
+            ),
+            icon: Image.asset(
+              'assets/icons/history.png',
+              width: 28,
+            ),
+          ),
         ],
       ),
     );

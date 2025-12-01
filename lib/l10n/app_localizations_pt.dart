@@ -252,6 +252,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get historyNA => 'N/A';
 
   @override
+  String get historyCanceled => 'Cancelado';
+
+  @override
   String get historyGameOn => 'Jogo em';
 
   @override

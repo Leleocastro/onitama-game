@@ -252,7 +252,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get historyNA => 'N/A';
 
   @override
-  String get historyGameOn => 'Partida em';
+  String get historyCanceled => 'Cancelado';
+
+  @override
+  String get historyGameOn => 'Partida el';
 
   @override
   String get historyErrorLoading => 'Error al cargar partidas.';
@@ -261,7 +264,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get historyNoFinished => 'No se encontraron partidas finalizadas.';
 
   @override
-  String get historyTitle => 'Historial de Partidas';
+  String get historyTitle => 'Game History';
 
   @override
   String get matchResultVictoryTitle => '¡Victoria!';

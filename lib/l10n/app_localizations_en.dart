@@ -252,6 +252,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyNA => 'N/A';
 
   @override
+  String get historyCanceled => 'Canceled';
+
+  @override
   String get historyGameOn => 'Game on';
 
   @override

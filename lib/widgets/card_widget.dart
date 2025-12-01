@@ -21,6 +21,7 @@ class CardWidget extends StatelessWidget {
   final Color color;
   final bool isReserve;
   final bool canTap;
+  final String move;
 
   const CardWidget({
     required this.card,
@@ -33,6 +34,7 @@ class CardWidget extends StatelessWidget {
     this.invert = false,
     this.isReserve = false,
     this.canTap = true,
+    this.move = '',
   });
 
   String _getLocalizedCardDescription(BuildContext context, String cardName) {
@@ -81,7 +83,7 @@ class CardWidget extends StatelessWidget {
     final headerColor = _darken(color, 0.2);
     const detailsColor = Color(0xFFd2be8f);
     final image = ThemeManager.cachedImage('default-card${card.name}');
-    final heroTag = 'cardTexture-${card.name}-${isReserve ? 'reserve' : 'board'}';
+    final heroTag = 'cardTexture-${card.name}-${isReserve ? 'reserve' : 'board'}$move';
 
     return GestureDetector(
       onTap: selectable

@@ -556,6 +556,12 @@ abstract class AppLocalizations {
   /// **'N/A'**
   String get historyNA;
 
+  /// No description provided for @historyCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Canceled'**
+  String get historyCanceled;
+
   /// No description provided for @historyGameOn.
   ///
   /// In en, this message translates to:

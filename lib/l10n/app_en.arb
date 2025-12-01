@@ -76,6 +76,7 @@
   "historyWon": "Won",
   "historyLost": "Lost",
   "historyNA": "N/A",
+  "historyCanceled": "Canceled",
   "historyGameOn": "Game on",
   "historyErrorLoading": "Error loading games.",
   "historyNoFinished": "No finished games found.",
