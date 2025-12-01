@@ -24,8 +24,8 @@
 		<string>????</string>
 		<key>com.apple.developer.associated-domains</key>
 		<array>
-			<string>applinks:onitama-game.firebaseapp.com</string>
 			<string>applinks:onitama-game.web.app</string>
+			<string>applinks:auth-onitama.ltag.com.br</string>
 		</array>
 		<key>CFBundleURLTypes</key>
 		<array>

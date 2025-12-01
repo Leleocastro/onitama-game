@@ -36,12 +36,10 @@
 
                 <data
                     android:scheme="https"
-                    android:host="onitama-game.firebaseapp.com"
-                    android:pathPrefix="/__/auth/links" />
-
+                    android:host="onitama-game.web.app" />
                 <data
                     android:scheme="https"
-                    android:host="onitama-game.web.app" />
+                    android:host="auth-onitama.ltag.com.br" />
             </intent-filter>
 
         </activity>

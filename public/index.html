@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Redirecionando para o login</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #0f1318;
+        color: #e0e6ee;
+      }
+      .card {
+        width: min(400px, calc(100% - 32px));
+        padding: 32px;
+        border-radius: 20px;
+        background: rgba(15, 19, 24, 0.9);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+        text-align: center;
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 22px;
+        letter-spacing: 0.4px;
+      }
+      p {
+        margin: 0 0 24px;
+        font-size: 15px;
+        line-height: 1.6;
+        color: rgba(224, 230, 238, 0.86);
+      }
+      button,
+      a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        border: none;
+        padding: 12px 22px;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      button {
+        background: linear-gradient(135deg, #ff4e50, #f9d423);
+        color: #111;
+      }
+      a {
+        margin-top: 18px;
+        color: #7fc4ff;
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        border-top-color: #fff;
+        margin: 0 auto 24px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="spinner" aria-hidden="true"></div>
+      <h1>Abrindo seu login…</h1>
+      <p>
+        Se o aplicativo não abrir automaticamente em alguns segundos, toque no botão
+        abaixo para tentar novamente ou use o link alternativo.
+      </p>
+      <button id="open-app" type="button">Abrir o app</button>
+      <a id="fallback-link" href="https://play.google.com/store">Ver opções de download</a>
+    </main>
+    <script>
+      (function () {
+        function getDeepLink() {
+          const params = new URLSearchParams(window.location.search);
+          const rawLink =
+            params.get('deep_link_id') ||
+            params.get('link') ||
+            params.get('continueUrl') ||
+            params.get('continue');
+          return rawLink ? decodeURIComponent(rawLink) : null;
+        }
+
+        function openApp() {
+          const link = getDeepLink();
+          if (link) {
+            window.location.href = link;
+          }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          const openButton = document.getElementById('open-app');
+          const fallbackLink = document.getElementById('fallback-link');
+          openButton.addEventListener('click', openApp);
+          fallbackLink.href =
+            navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')
+              ? 'https://apps.apple.com/app/id0000000000'
+              : 'https://play.google.com/store/apps/details?id=com.ltag.onitama';
+          // tenta abrir imediatamente
+          openApp();
+        });
+      })();
+    </script>
+  </body>
+</html>

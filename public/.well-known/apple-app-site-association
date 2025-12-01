@@ -1,0 +1,9 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [{
+      "appID": "2MXGW65K3W.com.ltag.onitama",
+      "paths": ["NOT /__/auth/action/", "NOT /__/auth/handler/", "NOT /_/*", "/*"]
+    }]
+  }
+}
