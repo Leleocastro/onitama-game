@@ -82,7 +82,7 @@ class CardWidget extends StatelessWidget {
     final moves = invert ? _invertMoves(card.moves) : card.moves;
     final headerColor = _darken(color, 0.2);
     const detailsColor = Color(0xFFd2be8f);
-    final image = ThemeManager.cachedImage('default-card${card.name}');
+    final image = ThemeManager.themedImage('card${card.name}');
     final heroTag = 'cardTexture-${card.name}-${isReserve ? 'reserve' : 'board'}$move';
 
     return GestureDetector(

@@ -107,7 +107,7 @@
   "preloadLoadingTheme": "Carregando tema...",
   "preloadFetchingThemes": "Buscando temas disponíveis...",
   "preloadPreloadingImages": "Pré-carregando imagens...",
-  "preloadDownloadingImages": "Baixando imagens ({done}/{total})...",
+  "preloadDownloadingImages": "Fazendo download de imagens ({done}/{total})...",
   "preloadDone": "Concluído!",
   "preloadImagesCount": "{count, plural, =0{Nenhuma imagem} =1{1 imagem} other{{count} imagens}}",
   "lobbyGameIdLabel": "ID do jogo: {gameId}",

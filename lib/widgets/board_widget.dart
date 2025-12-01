@@ -24,9 +24,9 @@ class BoardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRed = playerColor == PlayerColor.red;
-    final board = ThemeManager.cachedImage('default-board');
-    final board0 = ThemeManager.cachedImage('default-board0');
-    final board1 = ThemeManager.cachedImage('default-board1');
+    final board = ThemeManager.themedImage('board');
+    final board0 = ThemeManager.themedImage('board0');
+    final board1 = ThemeManager.themedImage('board1');
 
     return AspectRatio(
       aspectRatio: 1,

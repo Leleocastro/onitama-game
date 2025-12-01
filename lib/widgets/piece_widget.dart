@@ -15,10 +15,11 @@ class PieceWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     CachedNetworkImageProvider? image;
     if (piece.type == PieceType.master) {
-      image = ThemeManager.cachedImage(piece.owner == PlayerColor.red ? 'default-master_red' : 'default-master_blue');
+      image = ThemeManager.themedImage(piece.owner == PlayerColor.red ? 'master_red' : 'master_blue');
     } else {
       // Estudante: cada peça tem id única
-      image = ThemeManager.cachedImage(piece.id != null ? 'default-${piece.id}' : (piece.owner == PlayerColor.red ? 'default-r0' : 'default-b0'));
+      final assetId = piece.id ?? (piece.owner == PlayerColor.red ? 'r0' : 'b0');
+      image = ThemeManager.themedImage(assetId);
     }
     if (image != null) {
       final img = Image(

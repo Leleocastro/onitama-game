@@ -280,7 +280,7 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final background = ThemeManager.cachedImage('default-background');
+    final background = ThemeManager.themedImage('background');
     return Container(
       decoration: background != null
           ? BoxDecoration(

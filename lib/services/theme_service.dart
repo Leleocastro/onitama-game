@@ -16,4 +16,19 @@ class ThemeService {
     final q = await _db.collection('themes').where('enabled', isEqualTo: true).get();
     return q.docs.map((d) => ThemeModel.fromMap(d.data(), d.id)).toList();
   }
+
+  Future<String?> fetchCurrentThemeId() async {
+    try {
+      final doc = await _db.collection('settings').doc('theme').get();
+      if (!doc.exists) return null;
+      final data = doc.data();
+      final value = data?['current'];
+      if (value is String && value.isNotEmpty) {
+        return value;
+      }
+    } catch (_) {
+      // Intentionally swallow errors here; caller can fall back to default theme
+    }
+    return null;
+  }
 }

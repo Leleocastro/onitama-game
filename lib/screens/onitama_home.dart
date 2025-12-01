@@ -766,7 +766,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    final bgImage = ThemeManager.cachedImage('default-background');
+    final bgImage = ThemeManager.themedImage('background');
     final background = bgImage != null
         ? Image(
             image: bgImage,
