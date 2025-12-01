@@ -60,6 +60,7 @@ class HistoricGameDetailScreen extends StatelessWidget {
                           invert: playerColor == PlayerColor.blue,
                           selectable: false,
                           move: (index + 1).toString(),
+                          owner: playerColor,
                         ),
                       ),
                     ],

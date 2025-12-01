@@ -6,6 +6,7 @@ import 'package:foil/foil.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/card_model.dart';
+import '../models/player.dart';
 import '../models/point.dart';
 import '../services/audio_service.dart';
 import '../services/theme_manager.dart';
@@ -22,6 +23,7 @@ class CardWidget extends StatelessWidget {
   final bool isReserve;
   final bool canTap;
   final String move;
+  final PlayerColor? owner;
 
   const CardWidget({
     required this.card,
@@ -35,6 +37,7 @@ class CardWidget extends StatelessWidget {
     this.isReserve = false,
     this.canTap = true,
     this.move = '',
+    this.owner,
   });
 
   String _getLocalizedCardDescription(BuildContext context, String cardName) {
@@ -82,7 +85,7 @@ class CardWidget extends StatelessWidget {
     final moves = invert ? _invertMoves(card.moves) : card.moves;
     final headerColor = _darken(color, 0.2);
     const detailsColor = Color(0xFFd2be8f);
-    final image = ThemeManager.themedImage('card${card.name}');
+    final image = ThemeManager.themedImage('card${card.name}', owner: owner);
     final heroTag = 'cardTexture-${card.name}-${isReserve ? 'reserve' : 'board'}$move';
 
     return GestureDetector(

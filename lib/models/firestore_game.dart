@@ -59,7 +59,11 @@ class FirestoreGame {
         if ((pieceData['owner'] as String).isEmpty) {
           return null;
         }
-        return Piece(PlayerColor.values.firstWhere((e) => e.name == pieceData['owner']), PieceType.values.firstWhere((e) => e.name == pieceData['type']));
+        return Piece(
+          PlayerColor.values.firstWhere((e) => e.name == pieceData['owner']),
+          PieceType.values.firstWhere((e) => e.name == pieceData['type']),
+          id: pieceData['id'] as String?,
+        );
       });
     });
 
@@ -101,7 +105,15 @@ class FirestoreGame {
     for (var r = 0; r < board.length; r++) {
       for (var c = 0; c < board[r].length; c++) {
         final piece = board[r][c];
-        flatBoard.add({'row': r, 'col': c, 'owner': piece?.owner.name ?? '', 'type': piece?.type.name ?? ''});
+        flatBoard.add(
+          {
+            'row': r,
+            'col': c,
+            'owner': piece?.owner.name ?? '',
+            'type': piece?.type.name ?? '',
+            'id': piece?.id,
+          },
+        );
       }
     }
 

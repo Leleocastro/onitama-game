@@ -106,6 +106,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
   @override
   void initState() {
     super.initState();
+    ThemeManager.clearPlayerThemes();
     _startHomeMusic();
     if (widget.gameId != null) {
       _gameStream = _firestoreService.streamGame(widget.gameId!);
@@ -116,6 +117,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
       _gameSubscription = _gameStream?.listen((firestoreGame) {
         _firestoreGame = firestoreGame;
         _maybeLoadPlayerProfiles(firestoreGame.players);
+        _applyPlayerThemesFromProfiles();
         final oldSelectedCell = _gameState?.selectedCell;
         final oldSelectedCard = _gameState?.selectedCardForMove;
         final previousHistoryLength = _gameState?.gameHistory.length ?? 0;
@@ -165,6 +167,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
           );
         });
         _maybeLoadPlayerProfiles(firestoreGame.players);
+        _applyPlayerThemesFromProfiles();
         _maybeShowGameplayTutorial();
       }
     }
@@ -175,6 +178,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
     _gameSubscription?.cancel();
     appRouteObserver.unsubscribe(this);
     unawaited(AudioService.instance.stopBackground());
+    ThemeManager.clearPlayerThemes();
     super.dispose();
   }
 
@@ -455,6 +459,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
       setState(() {
         _profileCache[uid] = profile ?? UserProfile(id: uid, username: '');
         _loadingProfileUids.remove(uid);
+        _applyPlayerThemesFromProfiles();
       });
     }).catchError((error) {
       debugPrint('Failed to load profile for $uid: $error');
@@ -462,8 +467,18 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
       setState(() {
         _profileCache[uid] = UserProfile(id: uid, username: '');
         _loadingProfileUids.remove(uid);
+        _applyPlayerThemesFromProfiles();
       });
     });
+  }
+
+  void _applyPlayerThemesFromProfiles() {
+    final players = _firestoreGame?.players;
+    if (players == null) return;
+    final blueUid = players['blue'];
+    final redUid = players['red'];
+    ThemeManager.setPlayerTheme(PlayerColor.blue, blueUid != null ? _profileCache[blueUid]?.theme : null);
+    ThemeManager.setPlayerTheme(PlayerColor.red, redUid != null ? _profileCache[redUid]?.theme : null);
   }
 
   void _loadRatingIfNeeded(String uid) {
@@ -755,6 +770,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                     onTap: _onCardTap,
                     invert: player == (widget.isHost! ? PlayerColor.blue : PlayerColor.red),
                     canTap: isPlayerTurn,
+                    owner: player,
                   ),
                 )
                 .toList(),
@@ -766,7 +782,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    final bgImage = ThemeManager.themedImage('background');
+    final bgImage = ThemeManager.themedImage('background', owner: PlayerColor.blue);
     final background = bgImage != null
         ? Image(
             image: bgImage,
@@ -1118,6 +1134,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                             invert: true,
                             color: Colors.green,
                             isReserve: true,
+                            owner: PlayerColor.blue,
                           ),
                         ),
                       ),

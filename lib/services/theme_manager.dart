@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/widgets.dart';
 
+import '../models/player.dart';
 import '../models/theme_model.dart';
 import 'theme_service.dart';
 
@@ -13,6 +14,7 @@ class ThemeManager {
   static final Map<String, CachedNetworkImageProvider> _imageCache = {};
   static final ThemeService _service = ThemeService();
   static String _currentThemeId = _fallbackThemeId;
+  static final Map<PlayerColor, Map<String, String>> _playerThemeOverrides = {};
 
   /// Carrega todos os temas disponíveis do Firestore
   static Future<void> loadAllThemes() async {
@@ -72,18 +74,88 @@ class ThemeManager {
     return _imageCache[themeKey];
   }
 
+  /// Registra um mapa de overrides de tema por jogador
+  static void setPlayerTheme(PlayerColor color, Map<String, String>? overrides) {
+    if (overrides == null || overrides.isEmpty) {
+      _playerThemeOverrides.remove(color);
+      return;
+    }
+    _playerThemeOverrides[color] = Map<String, String>.from(overrides);
+  }
+
+  /// Remove todos os overrides de jogador ativos
+  static void clearPlayerThemes() {
+    _playerThemeOverrides.clear();
+  }
+
   /// Retorna a chave completa (ex: '<tema>-background') para um asset
-  static String themedKey(String assetId) {
-    return '$currentThemeId-$assetId';
+  static String themedKey(String assetId, {PlayerColor? owner}) {
+    final themeId = _themeIdForAsset(assetId, owner: owner);
+    return '$themeId-$assetId';
   }
 
-  /// Atalho para recuperar uma imagem já levando em conta o tema atual
-  static CachedNetworkImageProvider? themedImage(String assetId) {
-    return cachedImage(themedKey(assetId));
+  /// Atalho para recuperar uma imagem considerando overrides de jogador
+  static CachedNetworkImageProvider? themedImage(String assetId, {PlayerColor? owner}) {
+    return cachedImage(themedKey(assetId, owner: owner));
   }
 
-  /// Recupera a URL do asset considerando o tema atual
-  static String? themedAssetUrl(String assetId) {
-    return assetUrl(themedKey(assetId));
+  /// Recupera a URL do asset considerando overrides de jogador
+  static String? themedAssetUrl(String assetId, {PlayerColor? owner}) {
+    return assetUrl(themedKey(assetId, owner: owner));
+  }
+
+  static String _themeIdForAsset(String assetId, {PlayerColor? owner}) {
+    final wantsRedOverride = owner == PlayerColor.red && _isRedExclusiveAsset(assetId);
+    if (wantsRedOverride) {
+      final redOverride = _themeIdFromOverrides(_playerThemeOverrides[PlayerColor.red], assetId);
+      if (redOverride != null) return redOverride;
+      return _currentThemeId;
+    }
+
+    final hostOverride = _themeIdFromOverrides(_playerThemeOverrides[PlayerColor.blue], assetId);
+    if (hostOverride != null) return hostOverride;
+
+    return _currentThemeId;
+  }
+
+  static String? _themeIdFromOverrides(Map<String, String>? overrides, String assetId) {
+    if (overrides == null || overrides.isEmpty) return null;
+    for (final key in _candidateKeys(assetId)) {
+      final value = overrides[key];
+      if (value != null && value.isNotEmpty && _themes.containsKey(value)) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  static Iterable<String> _candidateKeys(String assetId) {
+    final keys = <String>{assetId};
+    if (assetId.startsWith('card')) {
+      keys.add('cards');
+    }
+    if (_isPieceAsset(assetId)) {
+      keys.add('pieces');
+    }
+    if (assetId.startsWith('board')) {
+      keys.add('board');
+    }
+    keys.add('default');
+    return keys;
+  }
+
+  static bool _isPieceAsset(String assetId) {
+    return assetId.startsWith('master_') || _isStudentAsset(assetId);
+  }
+
+  static bool _isStudentAsset(String assetId) {
+    if (assetId.length < 2) return false;
+    final prefix = assetId[0];
+    if (prefix != 'r' && prefix != 'b') return false;
+    return assetId.substring(1).codeUnits.every((unit) => unit >= 48 && unit <= 57);
+  }
+
+  static bool _isRedExclusiveAsset(String assetId) {
+    return assetId.startsWith('card') || _isPieceAsset(assetId);
   }
 }

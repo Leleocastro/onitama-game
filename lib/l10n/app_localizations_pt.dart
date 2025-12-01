@@ -356,7 +356,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String preloadDownloadingImages(Object done, Object total) {
-    return 'Baixando imagens ($done/$total)...';
+    return 'Fazendo download de imagens ($done/$total)...';
   }
 
   @override
