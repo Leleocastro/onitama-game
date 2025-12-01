@@ -37,6 +37,7 @@ dependencies:
   image_picker: ^1.1.2
   flutter_image_compress: ^2.1.0
   audioplayers: ^6.0.0
+  tutorial_coach_mark: ^1.2.12
   foil:
     git:
       url: https://github.com/Leleocastro/foil.git

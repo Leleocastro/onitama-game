@@ -528,4 +528,98 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get startGame => 'Iniciar Jogo';
+
+  @override
+  String get tutorialSkip => 'Pular';
+
+  @override
+  String get tutorialMenuPlayTitle => 'Comece uma partida';
+
+  @override
+  String get tutorialMenuPlayDescription =>
+      'Abra o menu de jogo para buscar partidas online, bots ou salas privadas.';
+
+  @override
+  String get tutorialMenuLeaderboardTitle => 'Ranking';
+
+  @override
+  String get tutorialMenuLeaderboardDescription =>
+      'Veja os mestres e a sua posição.';
+
+  @override
+  String get tutorialMenuHowToPlayTitle => 'Aprenda as regras';
+
+  @override
+  String get tutorialMenuHowToPlayDescription =>
+      'Abra o guia sempre que precisar relembrar alguma coisa.';
+
+  @override
+  String get tutorialMenuProfileTitle => 'Perfil e login';
+
+  @override
+  String get tutorialMenuProfileDescription =>
+      'Entre na conta, edite seu avatar ou acesse opções da conta aqui.';
+
+  @override
+  String get tutorialMenuVolumeTitle => 'Som';
+
+  @override
+  String get tutorialMenuVolumeDescription =>
+      'Ajuste músicas, efeitos ou silencie o jogo.';
+
+  @override
+  String get tutorialPlayMenuStartTitle => 'Partida rápida';
+
+  @override
+  String get tutorialPlayMenuStartDescription =>
+      'Encontre um adversário online automaticamente.';
+
+  @override
+  String get tutorialPlayMenuPvpTitle => 'PvP local';
+
+  @override
+  String get tutorialPlayMenuPvpDescription =>
+      'Desafie um amigo no mesmo dispositivo.';
+
+  @override
+  String get tutorialPlayMenuAiTitle => 'Treinar vs IA';
+
+  @override
+  String get tutorialPlayMenuAiDescription =>
+      'Enfrente dificuldades diferentes para praticar.';
+
+  @override
+  String get tutorialPlayMenuPrivateTitle => 'Salas privadas';
+
+  @override
+  String get tutorialPlayMenuPrivateDescription =>
+      'Crie ou entre em partidas usando um código compartilhado.';
+
+  @override
+  String get tutorialGameplayPlayerCardsTitle => 'Suas cartas';
+
+  @override
+  String get tutorialGameplayPlayerCardsDescription =>
+      'Cada duelo usa cinco das 16 cartas de movimento. Estas duas mostram os movimentos disponíveis agora.';
+
+  @override
+  String get tutorialGameplayOpponentCardsTitle => 'Cartas do oponente';
+
+  @override
+  String get tutorialGameplayOpponentCardsDescription =>
+      'Observe os movimentos que seu rival poderá escolher a seguir.';
+
+  @override
+  String get tutorialGameplayBoardTitle => 'Tabuleiro e peças';
+
+  @override
+  String get tutorialGameplayBoardDescription =>
+      'Movimente estudantes ou o mestre. Capture o mestre inimigo ou alcance o templo dele para vencer.';
+
+  @override
+  String get tutorialGameplayReserveTitle => 'Carta reserva';
+
+  @override
+  String get tutorialGameplayReserveDescription =>
+      'Ao usar uma carta ela vem para cá e você pega esta, mantendo a rotação dos movimentos.';
 }

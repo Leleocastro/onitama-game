@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 import '../l10n/app_localizations.dart';
 import '../logic/game_state.dart';
@@ -19,9 +20,11 @@ import '../services/firestore_service.dart';
 import '../services/ranking_service.dart';
 import '../services/route_observer.dart';
 import '../services/theme_manager.dart';
+import '../services/tutorial_service.dart';
 import '../utils/extensions.dart';
 import '../widgets/board_widget.dart';
 import '../widgets/card_widget.dart';
+import '../widgets/tutorial_card.dart';
 import '../widgets/username_avatar.dart';
 import 'historic_game_detail_screen.dart';
 import 'interstitial_ad_screen.dart';
@@ -67,6 +70,12 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
   final Map<PlayerColor, String> _fallbackUsernames = <PlayerColor, String>{};
   final Random _random = Random();
   PageRoute<dynamic>? _route;
+  final GlobalKey _opponentCardsKey = GlobalKey();
+  final GlobalKey _boardKey = GlobalKey();
+  final GlobalKey _playerCardsKey = GlobalKey();
+  final GlobalKey _reserveCardKey = GlobalKey();
+  bool? _shouldShowGameplayTutorial;
+  bool _gameplayTutorialShowing = false;
 
   static const List<String> _fakeFirstNames = <String>[
     'Aiko',
@@ -132,6 +141,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
         }
 
         _submitRankingIfNeeded(firestoreGame);
+        _maybeShowGameplayTutorial();
       });
     } else {
       _gameState = GameState(
@@ -139,6 +149,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
         aiDifficulty: widget.aiDifficulty,
       );
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowGameplayTutorial());
   }
 
   Future<void> _loadGameState() async {
@@ -154,6 +165,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
           );
         });
         _maybeLoadPlayerProfiles(firestoreGame.players);
+        _maybeShowGameplayTutorial();
       }
     }
   }
@@ -606,6 +618,110 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
     }
   }
 
+  Future<void> _maybeShowGameplayTutorial() async {
+    if (!mounted || _gameplayTutorialShowing) {
+      return;
+    }
+    _shouldShowGameplayTutorial ??= await TutorialService.shouldShow(TutorialFlow.gameplay);
+    if (_shouldShowGameplayTutorial != true) {
+      return;
+    }
+    if (_gameState == null) {
+      Future.delayed(const Duration(milliseconds: 200), _maybeShowGameplayTutorial);
+      return;
+    }
+    const attempts = 8;
+    var ready = _areGameplayTargetsReady();
+    var tries = 0;
+    while (!ready && tries < attempts && mounted) {
+      await Future.delayed(const Duration(milliseconds: 150));
+      ready = _areGameplayTargetsReady();
+      tries++;
+    }
+    if (!ready || !mounted) {
+      return;
+    }
+    _gameplayTutorialShowing = true;
+    final l10n = AppLocalizations.of(context)!;
+    TutorialCoachMark(
+      targets: _buildGameplayTargets(l10n),
+      colorShadow: Colors.black.withOpacity(0.75),
+      textSkip: l10n.tutorialSkip,
+      paddingFocus: 12,
+      onFinish: () => unawaited(TutorialService.markCompleted(TutorialFlow.gameplay)),
+      onSkip: () {
+        unawaited(TutorialService.markCompleted(TutorialFlow.gameplay));
+        return true;
+      },
+    ).show(context: context);
+  }
+
+  bool _areGameplayTargetsReady() {
+    return _playerCardsKey.currentContext != null &&
+        _opponentCardsKey.currentContext != null &&
+        _reserveCardKey.currentContext != null &&
+        _boardKey.currentContext != null;
+  }
+
+  List<TargetFocus> _buildGameplayTargets(AppLocalizations l10n) {
+    return [
+      TargetFocus(
+        identify: 'player-cards',
+        keyTarget: _playerCardsKey,
+        shape: ShapeLightFocus.RRect,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: TutorialCard(
+              title: l10n.tutorialGameplayPlayerCardsTitle,
+              description: l10n.tutorialGameplayPlayerCardsDescription,
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'reserve-card',
+        keyTarget: _reserveCardKey,
+        shape: ShapeLightFocus.RRect,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: TutorialCard(
+              title: l10n.tutorialGameplayReserveTitle,
+              description: l10n.tutorialGameplayReserveDescription,
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'board',
+        keyTarget: _boardKey,
+        shape: ShapeLightFocus.RRect,
+        contents: [
+          TargetContent(
+            child: TutorialCard(
+              title: l10n.tutorialGameplayBoardTitle,
+              description: l10n.tutorialGameplayBoardDescription,
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'opponent-cards',
+        keyTarget: _opponentCardsKey,
+        shape: ShapeLightFocus.RRect,
+        contents: [
+          TargetContent(
+            child: TutorialCard(
+              title: l10n.tutorialGameplayOpponentCardsTitle,
+              description: l10n.tutorialGameplayOpponentCardsDescription,
+            ),
+          ),
+        ],
+      ),
+    ];
+  }
+
   Widget _buildHands(PlayerColor player) {
     final hand = player == PlayerColor.red ? _gameState!.redHand : _gameState!.blueHand;
     final isPlayerTurn = _gameState!.currentPlayer == player;
@@ -963,34 +1079,46 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                         ),
                         10.0.spaceY,
                       ],
-                      _buildHands(
-                        widget.isHost! ? PlayerColor.red : PlayerColor.blue,
+                      KeyedSubtree(
+                        key: _opponentCardsKey,
+                        child: _buildHands(
+                          widget.isHost! ? PlayerColor.red : PlayerColor.blue,
+                        ),
                       ),
                       Expanded(
                         child: Center(
-                          child: BoardWidget(
-                            gameState: _gameState!,
-                            onCellTap: _onCellTap,
-                            playerColor: widget.isHost! ? PlayerColor.blue : PlayerColor.red,
+                          child: KeyedSubtree(
+                            key: _boardKey,
+                            child: BoardWidget(
+                              gameState: _gameState!,
+                              onCellTap: _onCellTap,
+                              playerColor: widget.isHost! ? PlayerColor.blue : PlayerColor.red,
+                            ),
                           ),
                         ),
                       ),
-                      _buildHands(
-                        widget.isHost! ? PlayerColor.blue : PlayerColor.red,
+                      KeyedSubtree(
+                        key: _playerCardsKey,
+                        child: _buildHands(
+                          widget.isHost! ? PlayerColor.blue : PlayerColor.red,
+                        ),
                       ),
                       const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: CardWidget(
-                          card: _gameState!.reserveCard,
-                          localizedName: _getLocalizedCardName(
-                            context,
-                            _gameState!.reserveCard.name,
+                      KeyedSubtree(
+                        key: _reserveCardKey,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: CardWidget(
+                            card: _gameState!.reserveCard,
+                            localizedName: _getLocalizedCardName(
+                              context,
+                              _gameState!.reserveCard.name,
+                            ),
+                            selectable: false,
+                            invert: true,
+                            color: Colors.green,
+                            isReserve: true,
                           ),
-                          selectable: false,
-                          invert: true,
-                          color: Colors.green,
-                          isReserve: true,
                         ),
                       ),
                     ],

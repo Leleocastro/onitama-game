@@ -2,14 +2,17 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/ai_difficulty.dart';
 import '../models/game_mode.dart';
 import '../services/firestore_service.dart';
+import '../services/tutorial_service.dart';
 import '../utils/extensions.dart';
 import '../widgets/input_text.dart';
 import '../widgets/styled_button.dart';
+import '../widgets/tutorial_card.dart';
 import 'game_lobby_screen.dart';
 import 'interstitial_ad_screen.dart';
 import 'login_screen.dart';
@@ -33,11 +36,19 @@ class _PlayMenuState extends State<PlayMenu> {
   StreamSubscription? _gameSubscription;
   Timer? _gameCreationTimer;
   String? _playerUid;
+  final GlobalKey _startGameKey = GlobalKey();
+  final GlobalKey _pvpKey = GlobalKey();
+  final GlobalKey _aiKey = GlobalKey();
+  final GlobalKey _privateKey = GlobalKey();
+  bool _playMenuTutorialScheduled = false;
 
   @override
   void initState() {
     _playerUid = widget.playerUid;
     super.initState();
+    Future.delayed(Duration(milliseconds: 500)).then((_) {
+      _maybeShowPlayMenuTutorial();
+    });
   }
 
   @override
@@ -70,6 +81,7 @@ class _PlayMenuState extends State<PlayMenu> {
             Column(
               children: [
                 StyledButton(
+                  key: _startGameKey,
                   onPressed: _findOrCreateGame,
                   textStyle: TextStyle(
                     fontFamily: 'SpellOfAsia',
@@ -83,6 +95,7 @@ class _PlayMenuState extends State<PlayMenu> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     IconButton(
+                      key: _pvpKey,
                       onPressed: () {
                         Navigator.pop(context);
                         Navigator.push(
@@ -105,6 +118,7 @@ class _PlayMenuState extends State<PlayMenu> {
                     ),
                     8.0.spaceX,
                     IconButton(
+                      key: _aiKey,
                       onPressed: () => _showDifficultyDialog(context),
                       icon: Image.asset(
                         'assets/icons/robot.png',
@@ -114,6 +128,7 @@ class _PlayMenuState extends State<PlayMenu> {
                     ),
                     8.0.spaceX,
                     IconButton(
+                      key: _privateKey,
                       onPressed: () => _showMultiPrivateDialog(context),
                       icon: Image.asset(
                         'assets/icons/multi-private.png',
@@ -420,5 +435,101 @@ class _PlayMenuState extends State<PlayMenu> {
       );
     }
     return false;
+  }
+
+  Future<void> _maybeShowPlayMenuTutorial() async {
+    if (!mounted || _playMenuTutorialScheduled) {
+      return;
+    }
+    final shouldShow = await TutorialService.shouldShow(TutorialFlow.playMenu);
+    if (!shouldShow || !mounted) {
+      return;
+    }
+    _playMenuTutorialScheduled = true;
+    const attempts = 6;
+    var ready = _areTargetsReady();
+    var tries = 0;
+    while (!ready && tries < attempts && mounted) {
+      await Future.delayed(const Duration(milliseconds: 150));
+      ready = _areTargetsReady();
+      tries++;
+    }
+    if (!ready || !mounted) {
+      _playMenuTutorialScheduled = false;
+      return;
+    }
+    final l10n = AppLocalizations.of(context)!;
+    TutorialCoachMark(
+      targets: _buildTargets(l10n),
+      colorShadow: Colors.black.withOpacity(0.8),
+      textSkip: l10n.tutorialSkip,
+      paddingFocus: 12,
+      onFinish: () => unawaited(TutorialService.markCompleted(TutorialFlow.playMenu)),
+      onSkip: () {
+        unawaited(TutorialService.markCompleted(TutorialFlow.playMenu));
+        return true;
+      },
+    ).show(context: context);
+  }
+
+  bool _areTargetsReady() {
+    return _startGameKey.currentContext != null && _pvpKey.currentContext != null && _aiKey.currentContext != null && _privateKey.currentContext != null;
+  }
+
+  List<TargetFocus> _buildTargets(AppLocalizations l10n) {
+    return [
+      TargetFocus(
+        identify: 'start-game',
+        keyTarget: _startGameKey,
+        shape: ShapeLightFocus.RRect,
+        contents: [
+          TargetContent(
+            child: TutorialCard(
+              title: l10n.tutorialPlayMenuStartTitle,
+              description: l10n.tutorialPlayMenuStartDescription,
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'pvp',
+        keyTarget: _pvpKey,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: TutorialCard(
+              title: l10n.tutorialPlayMenuPvpTitle,
+              description: l10n.tutorialPlayMenuPvpDescription,
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'ai',
+        keyTarget: _aiKey,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: TutorialCard(
+              title: l10n.tutorialPlayMenuAiTitle,
+              description: l10n.tutorialPlayMenuAiDescription,
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'private',
+        keyTarget: _privateKey,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: TutorialCard(
+              title: l10n.tutorialPlayMenuPrivateTitle,
+              description: l10n.tutorialPlayMenuPrivateDescription,
+            ),
+          ),
+        ],
+      ),
+    ];
   }
 }

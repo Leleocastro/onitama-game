@@ -4,13 +4,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rive/rive.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/user_profile.dart';
 import '../services/audio_service.dart';
 import '../services/firestore_service.dart';
 import '../services/route_observer.dart';
+import '../services/tutorial_service.dart';
 import '../style/theme.dart';
+import '../widgets/tutorial_card.dart';
 import '../widgets/username_avatar.dart';
 import '../widgets/volume_settings_sheet.dart';
 import 'how_to_play_screen.dart';
@@ -35,6 +38,12 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
 
   StreamSubscription<User?>? _authStateChangesSubscription;
   String? _playerUid;
+  final GlobalKey _playButtonKey = GlobalKey();
+  final GlobalKey _leaderboardButtonKey = GlobalKey();
+  final GlobalKey _howToPlayButtonKey = GlobalKey();
+  final GlobalKey _profileButtonKey = GlobalKey();
+  final GlobalKey _volumeButtonKey = GlobalKey();
+  bool _menuTutorialScheduled = false;
 
   @override
   void initState() {
@@ -47,6 +56,7 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
       });
     });
     initRive();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowMenuTutorial());
   }
 
   Future<void> _initializeUser() async {
@@ -120,6 +130,116 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
     );
   }
 
+  Future<void> _maybeShowMenuTutorial() async {
+    if (!mounted || _menuTutorialScheduled) {
+      return;
+    }
+    final shouldShow = await TutorialService.shouldShow(TutorialFlow.menu);
+    if (!shouldShow || !mounted) {
+      return;
+    }
+    _menuTutorialScheduled = true;
+    const attempts = 6;
+    var ready = _areMenuTargetsReady();
+    var tries = 0;
+    while (!ready && tries < attempts && mounted) {
+      await Future.delayed(const Duration(milliseconds: 150));
+      ready = _areMenuTargetsReady();
+      tries++;
+    }
+    if (!ready || !mounted) {
+      _menuTutorialScheduled = false;
+      return;
+    }
+    final l10n = AppLocalizations.of(context)!;
+    TutorialCoachMark(
+      targets: _buildMenuTargets(l10n),
+      colorShadow: Colors.black.withOpacity(0.8),
+      textSkip: l10n.tutorialSkip,
+      paddingFocus: 12,
+      onFinish: () => unawaited(TutorialService.markCompleted(TutorialFlow.menu)),
+      onSkip: () {
+        unawaited(TutorialService.markCompleted(TutorialFlow.menu));
+        return true;
+      },
+    ).show(context: context);
+  }
+
+  bool _areMenuTargetsReady() {
+    return _playButtonKey.currentContext != null &&
+        _leaderboardButtonKey.currentContext != null &&
+        _howToPlayButtonKey.currentContext != null &&
+        _profileButtonKey.currentContext != null &&
+        _volumeButtonKey.currentContext != null;
+  }
+
+  List<TargetFocus> _buildMenuTargets(AppLocalizations l10n) {
+    return [
+      TargetFocus(
+        identify: 'play-button',
+        keyTarget: _playButtonKey,
+        contents: [
+          TargetContent(
+            child: TutorialCard(
+              title: l10n.tutorialMenuPlayTitle,
+              description: l10n.tutorialMenuPlayDescription,
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'leaderboard-button',
+        keyTarget: _leaderboardButtonKey,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: TutorialCard(
+              title: l10n.tutorialMenuLeaderboardTitle,
+              description: l10n.tutorialMenuLeaderboardDescription,
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'how-to-play-button',
+        keyTarget: _howToPlayButtonKey,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: TutorialCard(
+              title: l10n.tutorialMenuHowToPlayTitle,
+              description: l10n.tutorialMenuHowToPlayDescription,
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'profile-button',
+        keyTarget: _profileButtonKey,
+        contents: [
+          TargetContent(
+            child: TutorialCard(
+              title: l10n.tutorialMenuProfileTitle,
+              description: l10n.tutorialMenuProfileDescription,
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'volume-button',
+        keyTarget: _volumeButtonKey,
+        contents: [
+          TargetContent(
+            child: TutorialCard(
+              title: l10n.tutorialMenuVolumeTitle,
+              description: l10n.tutorialMenuVolumeDescription,
+            ),
+          ),
+        ],
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -150,23 +270,26 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
               ),
               SizedBox(height: 20),
               Center(
-                child: InkWell(
-                  onTap: () {
-                    unawaited(AudioService.instance.playUiConfirmSound());
-                    showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      transitionAnimationController: AnimationController(vsync: this, duration: Duration(milliseconds: 500)),
-                      isScrollControlled: true,
-                      builder: (_) => PlayMenu(playerUid: _playerUid ?? ''),
-                    );
-                  },
-                  child: Text(
-                    l10n.play,
-                    style: TextStyle(
-                      fontFamily: 'HIROMISAKE',
-                      color: AppTheme.primary,
-                      fontSize: 62,
+                child: KeyedSubtree(
+                  key: _playButtonKey,
+                  child: InkWell(
+                    onTap: () {
+                      unawaited(AudioService.instance.playUiConfirmSound());
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: Colors.transparent,
+                        transitionAnimationController: AnimationController(vsync: this, duration: Duration(milliseconds: 500)),
+                        isScrollControlled: true,
+                        builder: (_) => PlayMenu(playerUid: _playerUid ?? ''),
+                      );
+                    },
+                    child: Text(
+                      l10n.play,
+                      style: TextStyle(
+                        fontFamily: 'HIROMISAKE',
+                        color: AppTheme.primary,
+                        fontSize: 62,
+                      ),
                     ),
                   ),
                 ),
@@ -184,6 +307,7 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                   children: [
                     // if (user != null && !user.isAnonymous)
                     IconButton(
+                      key: _leaderboardButtonKey,
                       onPressed: () {
                         unawaited(AudioService.instance.playUiConfirmSound());
                         unawaited(AudioService.instance.playNavigationSound());
@@ -203,6 +327,7 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                     ),
                     SizedBox(width: 5),
                     IconButton(
+                      key: _howToPlayButtonKey,
                       onPressed: () {
                         unawaited(AudioService.instance.playUiConfirmSound());
                         unawaited(AudioService.instance.playNavigationSound());
@@ -240,46 +365,52 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                         final profile = profileSnapshot.data;
                         final username = profile?.username ?? user.displayName ?? user.email ?? 'player';
                         final photoUrl = profile?.photoUrl ?? user.photoURL;
-                        return Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: GestureDetector(
-                            onTap: () {
-                              unawaited(AudioService.instance.playUiConfirmSound());
-                              showDialog(
-                                context: context,
-                                builder: (context) => ProfileModal(
-                                  user: user,
-                                  username: username,
-                                  photoUrl: photoUrl,
-                                ),
-                              );
-                            },
-                            child: UsernameAvatar(
-                              username: username,
-                              tooltip: username,
-                              imageUrl: photoUrl,
+                        return KeyedSubtree(
+                          key: _profileButtonKey,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: GestureDetector(
+                              onTap: () {
+                                unawaited(AudioService.instance.playUiConfirmSound());
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => ProfileModal(
+                                    user: user,
+                                    username: username,
+                                    photoUrl: photoUrl,
+                                  ),
+                                );
+                              },
+                              child: UsernameAvatar(
+                                username: username,
+                                tooltip: username,
+                                imageUrl: photoUrl,
+                              ),
                             ),
                           ),
                         );
                       },
                     );
                   } else {
-                    return Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: TextButton(
-                        onPressed: () {
-                          unawaited(AudioService.instance.playUiConfirmSound());
-                          unawaited(AudioService.instance.playNavigationSound());
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LoginScreen(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          l10n.login,
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black),
+                    return KeyedSubtree(
+                      key: _profileButtonKey,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: TextButton(
+                          onPressed: () {
+                            unawaited(AudioService.instance.playUiConfirmSound());
+                            unawaited(AudioService.instance.playNavigationSound());
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            l10n.login,
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black),
+                          ),
                         ),
                       ),
                     );
@@ -294,6 +425,7 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: IconButton(
+                  key: _volumeButtonKey,
                   icon: const Icon(Icons.volume_up, color: Colors.black),
                   onPressed: _openVolumeSettings,
                 ),

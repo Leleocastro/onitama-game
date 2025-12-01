@@ -1012,6 +1012,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start Game'**
   String get startGame;
+
+  /// No description provided for @tutorialSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get tutorialSkip;
+
+  /// No description provided for @tutorialMenuPlayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a match'**
+  String get tutorialMenuPlayTitle;
+
+  /// No description provided for @tutorialMenuPlayDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the play menu to find online games, bots, or private rooms.'**
+  String get tutorialMenuPlayDescription;
+
+  /// No description provided for @tutorialMenuLeaderboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get tutorialMenuLeaderboardTitle;
+
+  /// No description provided for @tutorialMenuLeaderboardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the masters and see where you stand.'**
+  String get tutorialMenuLeaderboardDescription;
+
+  /// No description provided for @tutorialMenuHowToPlayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn the rules'**
+  String get tutorialMenuHowToPlayTitle;
+
+  /// No description provided for @tutorialMenuHowToPlayDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the guide whenever you need a refresher.'**
+  String get tutorialMenuHowToPlayDescription;
+
+  /// No description provided for @tutorialMenuProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile & login'**
+  String get tutorialMenuProfileTitle;
+
+  /// No description provided for @tutorialMenuProfileDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in, edit your avatar, or access account options here.'**
+  String get tutorialMenuProfileDescription;
+
+  /// No description provided for @tutorialMenuVolumeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound'**
+  String get tutorialMenuVolumeTitle;
+
+  /// No description provided for @tutorialMenuVolumeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust music, sound effects, or mute the game.'**
+  String get tutorialMenuVolumeDescription;
+
+  /// No description provided for @tutorialPlayMenuStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Instant matchmaking'**
+  String get tutorialPlayMenuStartTitle;
+
+  /// No description provided for @tutorialPlayMenuStartDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Find an online opponent automatically.'**
+  String get tutorialPlayMenuStartDescription;
+
+  /// No description provided for @tutorialPlayMenuPvpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Local PvP'**
+  String get tutorialPlayMenuPvpTitle;
+
+  /// No description provided for @tutorialPlayMenuPvpDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge a friend on the same device.'**
+  String get tutorialPlayMenuPvpDescription;
+
+  /// No description provided for @tutorialPlayMenuAiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice vs AI'**
+  String get tutorialPlayMenuAiTitle;
+
+  /// No description provided for @tutorialPlayMenuAiDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Battle different difficulties to sharpen your skills.'**
+  String get tutorialPlayMenuAiDescription;
+
+  /// No description provided for @tutorialPlayMenuPrivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Private rooms'**
+  String get tutorialPlayMenuPrivateTitle;
+
+  /// No description provided for @tutorialPlayMenuPrivateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create or join a match with a shareable code.'**
+  String get tutorialPlayMenuPrivateDescription;
+
+  /// No description provided for @tutorialGameplayPlayerCardsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cards'**
+  String get tutorialGameplayPlayerCardsTitle;
+
+  /// No description provided for @tutorialGameplayPlayerCardsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Each duel uses five of the 16 movement cards. These two show the moves you can play now.'**
+  String get tutorialGameplayPlayerCardsDescription;
+
+  /// No description provided for @tutorialGameplayOpponentCardsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Opponent cards'**
+  String get tutorialGameplayOpponentCardsTitle;
+
+  /// No description provided for @tutorialGameplayOpponentCardsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep track of the moves your rival can choose next.'**
+  String get tutorialGameplayOpponentCardsDescription;
+
+  /// No description provided for @tutorialGameplayBoardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board & pieces'**
+  String get tutorialGameplayBoardTitle;
+
+  /// No description provided for @tutorialGameplayBoardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Move students or your master. Capture the enemy master or reach their temple to win.'**
+  String get tutorialGameplayBoardDescription;
+
+  /// No description provided for @tutorialGameplayReserveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve card'**
+  String get tutorialGameplayReserveTitle;
+
+  /// No description provided for @tutorialGameplayReserveDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'When you play a card it enters the reserve and you take this one, so cards constantly rotate.'**
+  String get tutorialGameplayReserveDescription;
 }
 
 class _AppLocalizationsDelegate

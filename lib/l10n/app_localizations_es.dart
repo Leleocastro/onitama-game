@@ -264,7 +264,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get historyNoFinished => 'No se encontraron partidas finalizadas.';
 
   @override
-  String get historyTitle => 'Game History';
+  String get historyTitle => 'Historial de Partidas';
 
   @override
   String get matchResultVictoryTitle => '¡Victoria!';
@@ -527,4 +527,98 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get startGame => 'Iniciar Juego';
+
+  @override
+  String get tutorialSkip => 'Omitir';
+
+  @override
+  String get tutorialMenuPlayTitle => 'Inicia una partida';
+
+  @override
+  String get tutorialMenuPlayDescription =>
+      'Abre el menú de juego para buscar partidas en línea, bots o salas privadas.';
+
+  @override
+  String get tutorialMenuLeaderboardTitle => 'Clasificación';
+
+  @override
+  String get tutorialMenuLeaderboardDescription =>
+      'Consulta a los maestros y tu posición.';
+
+  @override
+  String get tutorialMenuHowToPlayTitle => 'Aprende las reglas';
+
+  @override
+  String get tutorialMenuHowToPlayDescription =>
+      'Abre la guía cuando necesites recordarlas.';
+
+  @override
+  String get tutorialMenuProfileTitle => 'Perfil y acceso';
+
+  @override
+  String get tutorialMenuProfileDescription =>
+      'Inicia sesión, edita tu avatar o ajusta tu cuenta aquí.';
+
+  @override
+  String get tutorialMenuVolumeTitle => 'Sonido';
+
+  @override
+  String get tutorialMenuVolumeDescription =>
+      'Controla música y efectos o silencia el juego.';
+
+  @override
+  String get tutorialPlayMenuStartTitle => 'Emparejamiento rápido';
+
+  @override
+  String get tutorialPlayMenuStartDescription =>
+      'Encuentra un oponente en línea automáticamente.';
+
+  @override
+  String get tutorialPlayMenuPvpTitle => 'PvP local';
+
+  @override
+  String get tutorialPlayMenuPvpDescription =>
+      'Reta a un amigo en el mismo dispositivo.';
+
+  @override
+  String get tutorialPlayMenuAiTitle => 'Practica vs IA';
+
+  @override
+  String get tutorialPlayMenuAiDescription =>
+      'Enfrenta distintas dificultades para entrenar.';
+
+  @override
+  String get tutorialPlayMenuPrivateTitle => 'Salas privadas';
+
+  @override
+  String get tutorialPlayMenuPrivateDescription =>
+      'Crea o únete a partidas con un código compartido.';
+
+  @override
+  String get tutorialGameplayPlayerCardsTitle => 'Tus cartas';
+
+  @override
+  String get tutorialGameplayPlayerCardsDescription =>
+      'Cada duelo usa cinco de las 16 cartas de movimiento. Estas dos muestran los movimientos disponibles ahora.';
+
+  @override
+  String get tutorialGameplayOpponentCardsTitle => 'Cartas del rival';
+
+  @override
+  String get tutorialGameplayOpponentCardsDescription =>
+      'Anticipa los movimientos que tu oponente podría usar.';
+
+  @override
+  String get tutorialGameplayBoardTitle => 'Tablero y piezas';
+
+  @override
+  String get tutorialGameplayBoardDescription =>
+      'Mueve estudiantes o al maestro. Captura al maestro enemigo o llega a su templo para ganar.';
+
+  @override
+  String get tutorialGameplayReserveTitle => 'Carta de reserva';
+
+  @override
+  String get tutorialGameplayReserveDescription =>
+      'Cuando juegas una carta viene aquí y tomas esta, manteniendo el intercambio constante.';
 }
