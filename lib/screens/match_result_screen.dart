@@ -357,57 +357,37 @@ class _GoldRewardChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.white24),
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0x33FFD54F),
-            ),
-            padding: const EdgeInsets.all(8),
-            child: const Icon(
-              Icons.monetization_on,
-              color: highlightColor,
+          Text(
+            label,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                CounterPoints(
-                  value: amount,
-                  color: highlightColor,
-                  fontSize: 36,
-                  durationToStart: const Duration(milliseconds: 400),
-                  centerValue: false,
-                  leftWidget: Text(
-                    '+',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      color: highlightColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (balanceText != null)
-                  Text(
-                    balanceText!,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-              ],
+          CounterPoints(
+            value: amount,
+            color: highlightColor,
+            fontSize: 36,
+            durationToStart: const Duration(milliseconds: 400),
+            centerValue: false,
+            leftWidget: LottieBuilder.asset(
+              'assets/lotties/coins.json',
+              width: 32,
+              height: 32,
+              repeat: true,
             ),
           ),
+          if (balanceText != null)
+            Text(
+              balanceText!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white70,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
         ],
       ),
     );

@@ -7,6 +7,7 @@ import 'package:rive/rive.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 import '../l10n/app_localizations.dart';
+import '../models/match_result.dart';
 import '../models/user_profile.dart';
 import '../services/audio_service.dart';
 import '../services/firestore_service.dart';
@@ -17,9 +18,9 @@ import '../widgets/gold_statement_sheet.dart';
 import '../widgets/tutorial_card.dart';
 import '../widgets/username_avatar.dart';
 import '../widgets/volume_settings_sheet.dart';
-import 'how_to_play_screen.dart';
 import 'leaderboard_screen.dart';
 import 'login_screen.dart';
+import 'match_result_screen.dart';
 import 'play_menu.dart';
 import 'profile_modal.dart';
 
@@ -343,12 +344,68 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                       onPressed: () {
                         unawaited(AudioService.instance.playUiConfirmSound());
                         unawaited(AudioService.instance.playNavigationSound());
+
+                        final participant = MatchParticipantResult(
+                          userId: 'user1',
+                          username: 'Player1',
+                          color: 'blue',
+                          score: 10,
+                          expectedScore: 8,
+                          previousRating: 1500,
+                          newRating: 1515,
+                          ratingDelta: 15,
+                          gamesPlayed: 100,
+                          wins: 60,
+                          losses: 40,
+                          kFactor: 32,
+                          tier: 'Gold',
+                          season: '2024',
+                          goldBalance: 500,
+                          goldReward: 10,
+                        );
+
+                        final result = MatchResult(
+                          gameId: 'gameId',
+                          winnerColor: 'blue',
+                          participants: [
+                            participant,
+                            MatchParticipantResult(
+                              userId: 'user2',
+                              username: 'Player2',
+                              color: 'red',
+                              score: 5,
+                              expectedScore: 7,
+                              previousRating: 1500,
+                              newRating: 1485,
+                              ratingDelta: -15,
+                              gamesPlayed: 100,
+                              wins: 55,
+                              losses: 45,
+                              kFactor: 32,
+                              tier: 'Gold',
+                              season: '2024',
+                            ),
+                          ],
+                          processedAt: DateTime.now(),
+                        );
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const HowToPlayScreen(),
+                            builder: (context) => MatchResultScreen(
+                              result: result,
+                              participant: participant,
+                              onExitToMenu: () {},
+                            ),
                           ),
                         );
+
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => const HowToPlayScreen(),
+                        //   ),
+                        // );
                       },
                       icon: Image.asset(
                         'assets/icons/tutorials.png',
@@ -386,7 +443,6 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 _GoldBalanceBadge(
-                                  label: l10n.goldBalanceLabel,
                                   amount: goldBalance,
                                   onTap: () => _openGoldStatement(user.uid),
                                 ),
@@ -463,9 +519,8 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
 }
 
 class _GoldBalanceBadge extends StatelessWidget {
-  const _GoldBalanceBadge({required this.label, required this.amount, required this.onTap});
+  const _GoldBalanceBadge({required this.amount, required this.onTap});
 
-  final String label;
   final int amount;
   final VoidCallback onTap;
 
@@ -473,7 +528,6 @@ class _GoldBalanceBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    final iconColor = Colors.amber.shade700;
     return Material(
       color: Colors.white.withOpacity(0.8),
       borderRadius: BorderRadius.circular(999),
@@ -485,14 +539,13 @@ class _GoldBalanceBadge extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.monetization_on,
-                color: iconColor,
-                size: 20,
+              Image.asset(
+                'assets/icons/coins.png',
+                width: 22,
               ),
               const SizedBox(width: 6),
               Text(
-                '$label: $amount',
+                '$amount',
                 style: textTheme.labelLarge?.copyWith(
                   color: Colors.black87,
                   fontWeight: FontWeight.w700,
