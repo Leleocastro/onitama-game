@@ -640,6 +640,18 @@ abstract class AppLocalizations {
   /// **'Season'**
   String get matchResultSeasonLabel;
 
+  /// No description provided for @matchResultGoldRewardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold reward'**
+  String get matchResultGoldRewardLabel;
+
+  /// No description provided for @matchResultGoldBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Current gold: {amount}'**
+  String matchResultGoldBalance(Object amount);
+
   /// No description provided for @login.
   ///
   /// In en, this message translates to:
@@ -1174,6 +1186,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'When you play a card it enters the reserve and you take this one, so cards constantly rotate.'**
   String get tutorialGameplayReserveDescription;
+
+  /// No description provided for @goldBalanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold'**
+  String get goldBalanceLabel;
+
+  /// No description provided for @goldStatementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold statement'**
+  String get goldStatementTitle;
+
+  /// No description provided for @goldStatementEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have any gold transactions yet.'**
+  String get goldStatementEmpty;
+
+  /// No description provided for @goldStatementMatchReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Match reward'**
+  String get goldStatementMatchReward;
+
+  /// No description provided for @goldStatementBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance: {amount}'**
+  String goldStatementBalance(Object amount);
 }
 
 class _AppLocalizationsDelegate

@@ -169,7 +169,12 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final token = await PushNotificationService.getToken();
       if (token != null && token.isNotEmpty) {
-        await _firestoreService.updateUserFcmToken(user.uid, token);
+        final locale = Localizations.maybeLocaleOf(context);
+        await _firestoreService.updateUserFcmToken(
+          user.uid,
+          token,
+          locale: locale,
+        );
       }
     } catch (error) {
       debugPrint('Failed to sync FCM token: $error');

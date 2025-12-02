@@ -6,12 +6,14 @@ class UserProfile {
     required this.username,
     this.photoUrl,
     this.theme = const <String, String>{},
+    this.goldBalance = 0,
   });
 
   final String id;
   final String username;
   final String? photoUrl;
   final Map<String, String> theme;
+  final int goldBalance;
 
   factory UserProfile.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snapshot) {
     final data = snapshot.data() ?? <String, dynamic>{};
@@ -30,6 +32,7 @@ class UserProfile {
       username: (data['username'] as String?) ?? 'player',
       photoUrl: data['photoUrl'] as String?,
       theme: theme,
+      goldBalance: (data['goldBalance'] as num?)?.round() ?? 0,
     );
   }
 }

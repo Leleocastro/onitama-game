@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 import '../logic/game_state.dart';
 import '../models/ai_difficulty.dart';
 import '../models/firestore_game.dart';
 import '../models/game_mode.dart';
+import '../models/gold_transaction.dart';
 import '../models/player.dart';
 import '../models/user_profile.dart';
 
@@ -33,6 +35,12 @@ class FirestoreService {
       if (!snapshot.exists) return null;
       return UserProfile.fromSnapshot(snapshot);
     });
+  }
+
+  Stream<List<GoldTransaction>> watchGoldTransactions(String uid, {int limit = 50}) {
+    return _db.collection('users').doc(uid).collection('gold_transactions').orderBy('createdAt', descending: true).limit(limit).snapshots().map(
+          (snapshot) => snapshot.docs.map(GoldTransaction.fromSnapshot).toList(),
+        );
   }
 
   Future<void> setUsername(String uid, String username) async {
@@ -73,13 +81,14 @@ class FirestoreService {
     }
   }
 
-  Future<void> updateUserFcmToken(String uid, String token) async {
+  Future<void> updateUserFcmToken(String uid, String token, {Locale? locale}) async {
     if (token.isEmpty) return;
     await _db.collection('users').doc(uid).set(
       {
         'id': uid,
         'fcmToken': token,
         'fcmTokens': FieldValue.arrayUnion(<String>[token]),
+        if (locale != null && locale.languageCode.isNotEmpty) 'preferredLocale': locale.languageCode,
         'updatedAt': FieldValue.serverTimestamp(),
       },
       SetOptions(merge: true),

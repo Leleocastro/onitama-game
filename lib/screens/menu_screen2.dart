@@ -13,6 +13,7 @@ import '../services/firestore_service.dart';
 import '../services/route_observer.dart';
 import '../services/tutorial_service.dart';
 import '../style/theme.dart';
+import '../widgets/gold_statement_sheet.dart';
 import '../widgets/tutorial_card.dart';
 import '../widgets/username_avatar.dart';
 import '../widgets/volume_settings_sheet.dart';
@@ -127,6 +128,17 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => const VolumeSettingsSheet(),
+    );
+  }
+
+  void _openGoldStatement(String userId) {
+    if (userId.isEmpty) return;
+    unawaited(AudioService.instance.playUiConfirmSound());
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => GoldStatementSheet(userId: userId),
     );
   }
 
@@ -365,27 +377,39 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                         final profile = profileSnapshot.data;
                         final username = profile?.username ?? user.displayName ?? user.email ?? 'player';
                         final photoUrl = profile?.photoUrl ?? user.photoURL;
+                        final goldBalance = profile?.goldBalance ?? 0;
                         return KeyedSubtree(
                           key: _profileButtonKey,
                           child: Padding(
                             padding: const EdgeInsets.all(8),
-                            child: GestureDetector(
-                              onTap: () {
-                                unawaited(AudioService.instance.playUiConfirmSound());
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => ProfileModal(
-                                    user: user,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _GoldBalanceBadge(
+                                  label: l10n.goldBalanceLabel,
+                                  amount: goldBalance,
+                                  onTap: () => _openGoldStatement(user.uid),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () {
+                                    unawaited(AudioService.instance.playUiConfirmSound());
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => ProfileModal(
+                                        user: user,
+                                        username: username,
+                                        photoUrl: photoUrl,
+                                      ),
+                                    );
+                                  },
+                                  child: UsernameAvatar(
                                     username: username,
-                                    photoUrl: photoUrl,
+                                    tooltip: username,
+                                    imageUrl: photoUrl,
                                   ),
-                                );
-                              },
-                              child: UsernameAvatar(
-                                username: username,
-                                tooltip: username,
-                                imageUrl: photoUrl,
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         );
@@ -433,6 +457,50 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _GoldBalanceBadge extends StatelessWidget {
+  const _GoldBalanceBadge({required this.label, required this.amount, required this.onTap});
+
+  final String label;
+  final int amount;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final iconColor = Colors.amber.shade700;
+    return Material(
+      color: Colors.white.withOpacity(0.8),
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.monetization_on,
+                color: iconColor,
+                size: 20,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '$label: $amount',
+                style: textTheme.labelLarge?.copyWith(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

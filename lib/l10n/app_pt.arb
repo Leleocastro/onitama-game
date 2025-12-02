@@ -90,6 +90,8 @@
   "matchResultNewRating": "Rating atual",
   "matchResultTierLabel": "Nível",
   "matchResultSeasonLabel": "Temporada",
+  "matchResultGoldRewardLabel": "Recompensa de gold",
+  "matchResultGoldBalance": "Gold atual: {amount}",
   "login": "Login",
   "loginRequiredTitle": "Login necessário",
   "loginRequiredMessage": "Você precisa estar logado para jogar online.",
@@ -180,6 +182,11 @@
   "tutorialGameplayBoardDescription": "Movimente estudantes ou o mestre. Capture o mestre inimigo ou alcance o templo dele para vencer.",
   "tutorialGameplayReserveTitle": "Carta reserva",
   "tutorialGameplayReserveDescription": "Ao usar uma carta ela vem para cá e você pega esta, mantendo a rotação dos movimentos.",
+  "goldBalanceLabel": "Gold",
+  "goldStatementTitle": "Extrato de gold",
+  "goldStatementEmpty": "Você ainda não possui transações de gold.",
+  "goldStatementMatchReward": "Recompensa de partida",
+  "goldStatementBalance": "Saldo: {amount}",
   "@matchResultGainedPoints": {
     "placeholders": {
       "points": {}
@@ -188,6 +195,16 @@
   "@matchResultLostPoints": {
     "placeholders": {
       "points": {}
+    }
+  },
+  "@matchResultGoldBalance": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "@goldStatementBalance": {
+    "placeholders": {
+      "amount": {}
     }
   },
 

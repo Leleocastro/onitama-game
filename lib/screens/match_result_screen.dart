@@ -82,6 +82,9 @@ class _MatchResultScreenState extends State<MatchResultScreen> with SingleTicker
     final displayDelta = ratingDelta.abs();
     final theme = Theme.of(context);
     final accentColor = ratingDelta >= 0 ? theme.colorScheme.secondary : theme.colorScheme.error;
+    final goldReward = widget.participant.goldReward;
+    final hasGoldReward = goldReward > 0;
+    final newGoldBalance = widget.participant.goldBalance;
 
     return WillPopScope(
       onWillPop: () async {
@@ -213,6 +216,14 @@ class _MatchResultScreenState extends State<MatchResultScreen> with SingleTicker
                                   widget.participant.tier,
                                 ),
                               ),
+                              if (hasGoldReward) ...[
+                                const SizedBox(height: 16),
+                                _GoldRewardChip(
+                                  label: l10n.matchResultGoldRewardLabel,
+                                  amount: goldReward,
+                                  balanceText: newGoldBalance != null ? l10n.matchResultGoldBalance(newGoldBalance) : null,
+                                ),
+                              ],
                               // Wrap(
                               //   spacing: 12,
                               //   runSpacing: 12,
@@ -323,6 +334,81 @@ class _InfoChip extends StatelessWidget {
           color: Colors.white,
           fontWeight: FontWeight.w600,
         ),
+      ),
+    );
+  }
+}
+
+class _GoldRewardChip extends StatelessWidget {
+  const _GoldRewardChip({required this.label, required this.amount, this.balanceText});
+
+  final String label;
+  final int amount;
+  final String? balanceText;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    const highlightColor = Colors.amberAccent;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: Row(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(0x33FFD54F),
+            ),
+            padding: const EdgeInsets.all(8),
+            child: const Icon(
+              Icons.monetization_on,
+              color: highlightColor,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                CounterPoints(
+                  value: amount,
+                  color: highlightColor,
+                  fontSize: 36,
+                  durationToStart: const Duration(milliseconds: 400),
+                  centerValue: false,
+                  leftWidget: Text(
+                    '+',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      color: highlightColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                if (balanceText != null)
+                  Text(
+                    balanceText!,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -59,6 +59,8 @@ class MatchParticipantResult {
     required this.tier,
     required this.season,
     this.decay,
+    this.goldReward = 0,
+    this.goldBalance,
   });
 
   final String userId;
@@ -76,11 +78,19 @@ class MatchParticipantResult {
   final String tier;
   final String season;
   final RatingDecay? decay;
+  final int goldReward;
+  final int? goldBalance;
 
   bool get gainedRating => ratingDelta > 0;
   bool get lostRating => ratingDelta < 0;
+  bool get earnedGold => goldReward > 0;
 
   factory MatchParticipantResult.fromJson(Map<String, dynamic> json) {
+    final goldBalanceValue = json['goldBalance'];
+    int? goldBalance;
+    if (goldBalanceValue is num) {
+      goldBalance = goldBalanceValue.round();
+    }
     return MatchParticipantResult(
       userId: json['userId'] as String? ?? '',
       username: json['username'] as String?,
@@ -97,6 +107,8 @@ class MatchParticipantResult {
       tier: json['tier'] as String? ?? '',
       season: json['season'] as String? ?? '',
       decay: json['decay'] is Map<String, dynamic> ? RatingDecay.fromJson(json['decay'] as Map<String, dynamic>) : null,
+      goldReward: (json['goldReward'] as num?)?.round() ?? 0,
+      goldBalance: goldBalance,
     );
   }
 }

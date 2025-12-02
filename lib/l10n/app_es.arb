@@ -89,6 +89,8 @@
   "matchResultNewRating": "Rating actual",
   "matchResultTierLabel": "Rango",
   "matchResultSeasonLabel": "Temporada",
+  "matchResultGoldRewardLabel": "Recompensa de oro",
+  "matchResultGoldBalance": "Oro actual: {amount}",
   "login": "Login",
   "loginRequiredTitle": "Inicio de sesión requerido",
   "loginRequiredMessage": "Necesitas iniciar sesión para jugar en línea.",
@@ -180,6 +182,11 @@
   "tutorialGameplayBoardDescription": "Mueve estudiantes o al maestro. Captura al maestro enemigo o llega a su templo para ganar.",
   "tutorialGameplayReserveTitle": "Carta de reserva",
   "tutorialGameplayReserveDescription": "Cuando juegas una carta viene aquí y tomas esta, manteniendo el intercambio constante.",
+  "goldBalanceLabel": "Oro",
+  "goldStatementTitle": "Estado de oro",
+  "goldStatementEmpty": "Aún no tienes transacciones de oro.",
+  "goldStatementMatchReward": "Recompensa de partida",
+  "goldStatementBalance": "Saldo: {amount}",
   "@matchResultGainedPoints": {
     "placeholders": {
       "points": {}
@@ -188,6 +195,16 @@
   "@matchResultLostPoints": {
     "placeholders": {
       "points": {}
+    }
+  },
+  "@matchResultGoldBalance": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "@goldStatementBalance": {
+    "placeholders": {
+      "amount": {}
     }
   },
 

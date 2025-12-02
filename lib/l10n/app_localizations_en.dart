@@ -298,6 +298,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get matchResultSeasonLabel => 'Season';
 
   @override
+  String get matchResultGoldRewardLabel => 'Gold reward';
+
+  @override
+  String matchResultGoldBalance(Object amount) {
+    return 'Current gold: $amount';
+  }
+
+  @override
   String get login => 'Login';
 
   @override
@@ -619,4 +627,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tutorialGameplayReserveDescription =>
       'When you play a card it enters the reserve and you take this one, so cards constantly rotate.';
+
+  @override
+  String get goldBalanceLabel => 'Gold';
+
+  @override
+  String get goldStatementTitle => 'Gold statement';
+
+  @override
+  String get goldStatementEmpty => 'You don\'t have any gold transactions yet.';
+
+  @override
+  String get goldStatementMatchReward => 'Match reward';
+
+  @override
+  String goldStatementBalance(Object amount) {
+    return 'Balance: $amount';
+  }
 }

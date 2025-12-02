@@ -298,6 +298,14 @@ class AppLocalizationsPt extends AppLocalizations {
   String get matchResultSeasonLabel => 'Temporada';
 
   @override
+  String get matchResultGoldRewardLabel => 'Recompensa de gold';
+
+  @override
+  String matchResultGoldBalance(Object amount) {
+    return 'Gold atual: $amount';
+  }
+
+  @override
   String get login => 'Login';
 
   @override
@@ -622,4 +630,21 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get tutorialGameplayReserveDescription =>
       'Ao usar uma carta ela vem para cá e você pega esta, mantendo a rotação dos movimentos.';
+
+  @override
+  String get goldBalanceLabel => 'Gold';
+
+  @override
+  String get goldStatementTitle => 'Extrato de gold';
+
+  @override
+  String get goldStatementEmpty => 'Você ainda não possui transações de gold.';
+
+  @override
+  String get goldStatementMatchReward => 'Recompensa de partida';
+
+  @override
+  String goldStatementBalance(Object amount) {
+    return 'Saldo: $amount';
+  }
 }

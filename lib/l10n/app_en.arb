@@ -90,6 +90,8 @@
   "matchResultNewRating": "New rating",
   "matchResultTierLabel": "Tier",
   "matchResultSeasonLabel": "Season",
+  "matchResultGoldRewardLabel": "Gold reward",
+  "matchResultGoldBalance": "Current gold: {amount}",
   "login": "Login",
   "loginRequiredTitle": "Login required",
   "loginRequiredMessage": "You need to be logged in to play online.",
@@ -180,6 +182,11 @@
   "tutorialGameplayBoardDescription": "Move students or your master. Capture the enemy master or reach their temple to win.",
   "tutorialGameplayReserveTitle": "Reserve card",
   "tutorialGameplayReserveDescription": "When you play a card it enters the reserve and you take this one, so cards constantly rotate.",
+  "goldBalanceLabel": "Gold",
+  "goldStatementTitle": "Gold statement",
+  "goldStatementEmpty": "You don't have any gold transactions yet.",
+  "goldStatementMatchReward": "Match reward",
+  "goldStatementBalance": "Balance: {amount}",
   "@matchResultGainedPoints": {
     "placeholders": {
       "points": {}
@@ -188,6 +195,16 @@
   "@matchResultLostPoints": {
     "placeholders": {
       "points": {}
+    }
+  },
+  "@matchResultGoldBalance": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "@goldStatementBalance": {
+    "placeholders": {
+      "amount": {}
     }
   },
 

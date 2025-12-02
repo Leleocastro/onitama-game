@@ -48,11 +48,109 @@ type ParticipantSummary = {
     weeks: number;
     amount: number;
   };
+  goldReward?: number;
+  goldBalance?: number | null;
 };
 
 type UserProfileRecord = {
   username: string | null;
   photoUrl: string | null;
+  goldBalance: number;
+};
+
+type PlayerColor = "blue" | "red";
+
+type GameDocument = {
+  status?: string;
+  gameMode?: string;
+  currentPlayer?: PlayerColor;
+  players?: Record<string, string>;
+  currentTurnStartedAt?: FirebaseFirestore.Timestamp;
+  currentTurnReminderSentAt?: FirebaseFirestore.Timestamp | null;
+};
+
+const INACTIVITY_THRESHOLD_MS = 60 * 1000;
+const INACTIVITY_BATCH_LIMIT = 25;
+const SUPPORTED_LOCALES = ["en", "es", "pt"] as const;
+type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
+const FALLBACK_LOCALE: SupportedLocale = "pt";
+
+const REMINDER_TITLES: Record<SupportedLocale, string> = {
+  en: "Your turn",
+  es: "Tu turno",
+  pt: "Sua vez",
+};
+
+const REMINDER_FALLBACK_NAMES: Record<SupportedLocale, string> = {
+  en: "Your opponent",
+  es: "Tu oponente",
+  pt: "Seu oponente",
+};
+
+const REMINDER_BODIES: Record<SupportedLocale, (username: string) => string> = {
+  en: (username: string) => `${username} is waiting for you to play.`,
+  es: (username: string) => `${username} está esperando que juegues.`,
+  pt: (username: string) => `${username} está aguardando você jogar.`,
+};
+
+const resolveLocale = (value: unknown): SupportedLocale => {
+  if (typeof value === "string") {
+    const normalized = value.toLowerCase();
+    if ((SUPPORTED_LOCALES as readonly string[]).includes(normalized)) {
+      return normalized as SupportedLocale;
+    }
+  }
+  return FALLBACK_LOCALE;
+};
+
+const ensureOpponentName = (
+  locale: SupportedLocale,
+  username?: unknown
+): string => {
+  if (typeof username === "string" && username.trim().length > 0) {
+    return username;
+  }
+  return REMINDER_FALLBACK_NAMES[locale];
+};
+
+const extractTokens = (
+  data: admin.firestore.DocumentData | undefined | null
+): string[] => {
+  if (!data) {
+    return [];
+  }
+  const tokens = new Set<string>();
+  const latestToken = data.fcmToken;
+  if (typeof latestToken === "string" && latestToken.trim().length > 0) {
+    tokens.add(latestToken.trim());
+  }
+  const legacyTokens = data.fcmTokens;
+  if (Array.isArray(legacyTokens)) {
+    for (const token of legacyTokens) {
+      if (typeof token === "string" && token.trim().length > 0) {
+        tokens.add(token.trim());
+      }
+    }
+  }
+  return Array.from(tokens);
+};
+
+const removeInvalidTokens = async (userId: string, tokens: string[]) => {
+  if (!tokens.length) {
+    return;
+  }
+  await db
+    .collection("users")
+    .doc(userId)
+    .update({
+      fcmTokens: admin.firestore.FieldValue.arrayRemove(...tokens),
+    })
+    .catch((error) => {
+      console.error(
+        `Erro ao remover tokens inválidos do usuário ${userId}`,
+        error
+      );
+    });
 };
 
 const clampRating = (rating: number) =>
@@ -143,12 +241,17 @@ const fetchUserProfile = async (
   const userRef = db.collection("users").doc(userId);
   const userSnap = await txn.get(userRef);
   if (!userSnap.exists) {
-    return { username: null, photoUrl: null };
+    return { username: null, photoUrl: null, goldBalance: 0 };
   }
-  const data = userSnap.data() as { username?: string; photoUrl?: string };
+  const data = userSnap.data() as {
+    username?: string;
+    photoUrl?: string;
+    goldBalance?: number;
+  };
   return {
     username: typeof data?.username === "string" ? data.username : null,
     photoUrl: typeof data?.photoUrl === "string" ? data.photoUrl : null,
+    goldBalance: typeof data?.goldBalance === "number" ? data.goldBalance : 0,
   };
 };
 
@@ -333,6 +436,53 @@ export const updateRanking = functions.https.onCall(
         const isBlueWinner = winnerColor === "blue";
         const participantsSummaries: ParticipantSummary[] = [];
 
+        const settingsRef = db.collection("settings").doc("configs");
+        const settingsSnap = await txn.get(settingsRef);
+        const settingsData =
+          (settingsSnap.exists ? settingsSnap.data() : undefined) ?? {};
+        const rawGoldValue = settingsData.goldValue;
+        const goldRewardAmount =
+          typeof rawGoldValue === "number" && Number.isFinite(rawGoldValue)
+            ? Math.max(0, Math.round(rawGoldValue))
+            : 0;
+
+        const rewardGoldForParticipant = async (
+          userId: string,
+          currentBalance: number | null
+        ) => {
+          const safeBalance =
+            typeof currentBalance === "number" &&
+            Number.isFinite(currentBalance)
+              ? currentBalance
+              : 0;
+          const updatedBalance = safeBalance + goldRewardAmount;
+
+          const userRef = db.collection("users").doc(userId);
+          txn.set(
+            userRef,
+            {
+              goldBalance: updatedBalance,
+              updatedAt: now,
+            },
+            { merge: true }
+          );
+
+          const transactionRef = userRef.collection("gold_transactions").doc();
+          txn.set(transactionRef, {
+            amount: goldRewardAmount,
+            type: "credit",
+            reason: "online_match_reward",
+            gameId,
+            createdAt: now,
+            balanceAfter: updatedBalance,
+          });
+
+          return {
+            reward: goldRewardAmount,
+            balance: updatedBalance,
+          };
+        };
+
         const leaderboardRef = db.collection("leaderboard");
 
         const loadHumanParticipant = async (
@@ -385,6 +535,10 @@ export const updateRanking = functions.https.onCall(
           txn.set(participantRef, participantData, { merge: true });
 
           const previousRounded = Math.round(decayedRating);
+          const goldData = await rewardGoldForParticipant(
+            userId,
+            profile.goldBalance
+          );
           participantsSummaries.push({
             userId,
             username,
@@ -405,6 +559,8 @@ export const updateRanking = functions.https.onCall(
               decayData.weeks > 0
                 ? { weeks: decayData.weeks, amount: decayData.amount }
                 : undefined,
+            goldReward: goldData?.reward ?? 0,
+            goldBalance: goldData?.balance ?? null,
           });
         };
 
@@ -505,6 +661,15 @@ export const updateRanking = functions.https.onCall(
           txn.set(blueRef, blueUpdate, { merge: true });
           txn.set(redRef, redUpdate, { merge: true });
 
+          const blueGoldData = await rewardGoldForParticipant(
+            blueId,
+            blueProfile.goldBalance
+          );
+          const redGoldData = await rewardGoldForParticipant(
+            redId,
+            redProfile.goldBalance
+          );
+
           participantsSummaries.push({
             userId: blueId,
             username: blueUsername,
@@ -525,6 +690,8 @@ export const updateRanking = functions.https.onCall(
               blueDecay.weeks > 0
                 ? { weeks: blueDecay.weeks, amount: blueDecay.amount }
                 : undefined,
+            goldReward: blueGoldData?.reward ?? 0,
+            goldBalance: blueGoldData?.balance ?? null,
           });
 
           participantsSummaries.push({
@@ -547,6 +714,8 @@ export const updateRanking = functions.https.onCall(
               redDecay.weeks > 0
                 ? { weeks: redDecay.weeks, amount: redDecay.amount }
                 : undefined,
+            goldReward: redGoldData?.reward ?? 0,
+            goldBalance: redGoldData?.balance ?? null,
           });
         } else if (!isBlueAI && typeof blueId === "string") {
           await loadHumanParticipant(blueId, "blue", aiRating);
@@ -585,6 +754,8 @@ export const updateRanking = functions.https.onCall(
                   amount: Number(participant.decay.amount.toFixed(2)),
                 }
               : null,
+            goldReward: participant.goldReward ?? 0,
+            goldBalance: participant.goldBalance ?? null,
           })),
           gameMode: gameData?.gameMode ?? "online",
         };
@@ -672,3 +843,149 @@ export const adjustPvaiDifficulty = functions.firestore
 
     return null;
   });
+
+export const resetTurnMetadata = functions.firestore
+  .document("games/{gameId}")
+  .onUpdate(async (change) => {
+    const beforeData = change.before.data() as GameDocument | undefined;
+    const afterData = change.after.data() as GameDocument | undefined;
+
+    if (!afterData) {
+      return null;
+    }
+
+    if (afterData.status !== "inprogress") {
+      return null;
+    }
+
+    const beforePlayer = beforeData?.currentPlayer;
+    const afterPlayer = afterData.currentPlayer;
+    const statusChanged = beforeData?.status !== afterData.status;
+    const playerChanged = beforePlayer !== afterPlayer;
+
+    if (!statusChanged && !playerChanged) {
+      return null;
+    }
+
+    await change.after.ref.update({
+      currentTurnStartedAt: admin.firestore.FieldValue.serverTimestamp(),
+      currentTurnReminderSentAt: null,
+    });
+
+    return null;
+  });
+
+export const sendTurnInactivityReminders = functions.pubsub
+  .schedule("every 1 minutes")
+  .onRun(async () => {
+    const threshold = admin.firestore.Timestamp.fromMillis(
+      Date.now() - INACTIVITY_THRESHOLD_MS
+    );
+
+    const snapshot = await db
+      .collection("games")
+      .where("status", "==", "inprogress")
+      .where("gameMode", "==", "online")
+      .where("currentTurnStartedAt", "<=", threshold)
+      .where("currentTurnReminderSentAt", "==", null)
+      .limit(INACTIVITY_BATCH_LIMIT)
+      .get();
+
+    if (snapshot.empty) {
+      return null;
+    }
+
+    for (const doc of snapshot.docs) {
+      await processReminder(doc).catch((error) => {
+        console.error(`Erro ao enviar lembrete para o jogo ${doc.id}`, error);
+      });
+    }
+
+    return null;
+  });
+
+const processReminder = async (
+  doc: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+) => {
+  const data = doc.data() as GameDocument;
+  const players = data.players ?? {};
+  const currentPlayer = data.currentPlayer;
+
+  if (currentPlayer !== "blue" && currentPlayer !== "red") {
+    return;
+  }
+
+  const targetUid = players[currentPlayer];
+  if (!targetUid || targetUid === "ai") {
+    await doc.ref.update({
+      currentTurnReminderSentAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    return;
+  }
+
+  const waitingColor: PlayerColor = currentPlayer === "blue" ? "red" : "blue";
+  const waitingUid = players[waitingColor];
+
+  const [targetSnap, waitingSnap] = await Promise.all([
+    db.collection("users").doc(targetUid).get(),
+    waitingUid
+      ? db.collection("users").doc(waitingUid).get()
+      : Promise.resolve(null),
+  ]);
+
+  const targetData = targetSnap.data();
+  const tokens = extractTokens(targetData);
+
+  const locale = resolveLocale(targetData?.preferredLocale);
+  const opponentName = ensureOpponentName(
+    locale,
+    waitingSnap?.data()?.username
+  );
+
+  const title = REMINDER_TITLES[locale];
+  const body = REMINDER_BODIES[locale](opponentName);
+
+  if (!tokens.length) {
+    await doc.ref.update({
+      currentTurnReminderSentAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    return;
+  }
+
+  const message: admin.messaging.MulticastMessage = {
+    tokens,
+    notification: {
+      title,
+      body,
+    },
+    data: {
+      type: "opponent_waiting",
+      opponentUsername: opponentName,
+      gameId: doc.id,
+      waitingColor,
+    },
+  };
+
+  const response = await admin.messaging().sendEachForMulticast(message);
+
+  const invalidTokens = response.responses
+    .map((res, index) => {
+      if (res.success) {
+        return null;
+      }
+      const errorCode = res.error?.code ?? "";
+      if (errorCode === "messaging/registration-token-not-registered") {
+        return tokens[index];
+      }
+      return null;
+    })
+    .filter((token): token is string => Boolean(token));
+
+  if (invalidTokens.length) {
+    await removeInvalidTokens(targetUid, invalidTokens);
+  }
+
+  await doc.ref.update({
+    currentTurnReminderSentAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+};
