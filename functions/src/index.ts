@@ -448,14 +448,26 @@ export const updateRanking = functions.https.onCall(
 
         const rewardGoldForParticipant = async (
           userId: string,
-          currentBalance: number | null
+          currentBalance: number | null,
+          isWinner: boolean
         ) => {
           const safeBalance =
             typeof currentBalance === "number" &&
             Number.isFinite(currentBalance)
               ? currentBalance
               : 0;
-          const updatedBalance = safeBalance + goldRewardAmount;
+          const rewardAmount = isWinner
+            ? goldRewardAmount
+            : Math.floor(goldRewardAmount / 2);
+
+          if (rewardAmount <= 0) {
+            return {
+              reward: 0,
+              balance: safeBalance,
+            };
+          }
+
+          const updatedBalance = safeBalance + rewardAmount;
 
           const userRef = db.collection("users").doc(userId);
           txn.set(
@@ -469,7 +481,7 @@ export const updateRanking = functions.https.onCall(
 
           const transactionRef = userRef.collection("gold_transactions").doc();
           txn.set(transactionRef, {
-            amount: goldRewardAmount,
+            amount: rewardAmount,
             type: "credit",
             reason: "online_match_reward",
             gameId,
@@ -478,7 +490,7 @@ export const updateRanking = functions.https.onCall(
           });
 
           return {
-            reward: goldRewardAmount,
+            reward: rewardAmount,
             balance: updatedBalance,
           };
         };
@@ -535,9 +547,11 @@ export const updateRanking = functions.https.onCall(
           txn.set(participantRef, participantData, { merge: true });
 
           const previousRounded = Math.round(decayedRating);
+          const isWinner = score === 1;
           const goldData = await rewardGoldForParticipant(
             userId,
-            profile.goldBalance
+            profile.goldBalance,
+            isWinner
           );
           participantsSummaries.push({
             userId,
@@ -663,11 +677,13 @@ export const updateRanking = functions.https.onCall(
 
           const blueGoldData = await rewardGoldForParticipant(
             blueId,
-            blueProfile.goldBalance
+            blueProfile.goldBalance,
+            isBlueWinner
           );
           const redGoldData = await rewardGoldForParticipant(
             redId,
-            redProfile.goldBalance
+            redProfile.goldBalance,
+            !isBlueWinner
           );
 
           participantsSummaries.push({
