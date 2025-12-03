@@ -1,8 +1,11 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import '../models/player.dart';
 import '../models/theme_model.dart';
+import 'theme_image_preload_worker.dart';
 import 'theme_service.dart';
 
 class ThemeManager {
@@ -11,7 +14,7 @@ class ThemeManager {
 
   static const String _fallbackThemeId = 'default';
   static final Map<String, ThemeModel> _themes = {};
-  static final Map<String, CachedNetworkImageProvider> _imageCache = {};
+  static final Map<String, ImageProvider<Object>> _imageCache = {};
   static final ThemeService _service = ThemeService();
   static String _currentThemeId = _fallbackThemeId;
   static final Map<PlayerColor, Map<String, String>> _playerThemeOverrides = {};
@@ -47,18 +50,75 @@ class ThemeManager {
       }
     }
     final total = entries.length;
+    if (total == 0) {
+      if (onProgress != null) onProgress(0, 0);
+      return;
+    }
+
     var done = 0;
+    final worker = ThemeImagePreloadWorker();
+    final cacheManager = DefaultCacheManager();
+    final urlByKey = {for (final entry in entries) entry.key: entry.value};
+    _imageCache
+      ..clear()
+      ..addEntries(
+        entries.map(
+          (entry) => MapEntry(entry.key, NetworkImage(entry.value)),
+        ),
+      );
+    final entriesToDownload = <MapEntry<String, String>>[];
     for (final entry in entries) {
+      final cached = await cacheManager.getFileFromCache(entry.value);
+      if (cached == null) {
+        entriesToDownload.add(entry);
+        continue;
+      }
       try {
-        final img = CachedNetworkImageProvider(entry.value);
-        _imageCache[entry.key] = img;
-        await precacheImage(img, context);
-      } catch (e) {
-        debugPrint('Failed to precache ${entry.value}: $e');
+        final bytes = await cached.file.readAsBytes();
+        final image = MemoryImage(bytes);
+        _imageCache[entry.key] = image;
+        await precacheImage(image, context);
+      } catch (error) {
+        entriesToDownload.add(entry);
+        continue;
       }
       done++;
-      if (onProgress != null) onProgress(done, total);
+      onProgress?.call(done, total);
     }
+
+    if (entriesToDownload.isEmpty) return;
+
+    await worker.download(
+      entriesToDownload,
+      onImage: (key, bytes) async {
+        final image = MemoryImage(bytes);
+        _imageCache[key] = image;
+        await precacheImage(image, context);
+        final url = urlByKey[key];
+        if (url != null) {
+          final ext = _extensionFromUrl(url) ?? 'img';
+          unawaited(cacheManager.putFile(url, bytes, fileExtension: ext));
+        }
+        done++;
+        onProgress?.call(done, total);
+      },
+      onError: (key, error) {
+        done++;
+        onProgress?.call(done, total);
+        final url = urlByKey[key];
+        debugPrint('Failed to download $key (${url ?? 'unknown url'}): $error');
+      },
+    );
+  }
+
+  static String? _extensionFromUrl(String url) {
+    final uri = Uri.tryParse(url);
+    final segments = uri?.pathSegments;
+    if (segments == null || segments.isEmpty) return null;
+    final last = segments.last;
+    final dotIndex = last.lastIndexOf('.');
+    if (dotIndex == -1 || dotIndex == last.length - 1) return null;
+    return last.substring(dotIndex + 1);
   }
 
   /// Retorna a URL da imagem para uma chave composta (ex: 'default-background')
@@ -69,8 +129,8 @@ class ThemeManager {
     return theme?.assets[parts[1]];
   }
 
-  /// Retorna o CachedNetworkImageProvider para uma chave composta
-  static CachedNetworkImageProvider? cachedImage(String themeKey) {
+  /// Retorna o ImageProvider para uma chave composta
+  static ImageProvider<Object>? cachedImage(String themeKey) {
     return _imageCache[themeKey];
   }
 
@@ -95,7 +155,7 @@ class ThemeManager {
   }
 
   /// Atalho para recuperar uma imagem considerando overrides de jogador
-  static CachedNetworkImageProvider? themedImage(String assetId, {PlayerColor? owner}) {
+  static ImageProvider<Object>? themedImage(String assetId, {PlayerColor? owner}) {
     return cachedImage(themedKey(assetId, owner: owner));
   }
 

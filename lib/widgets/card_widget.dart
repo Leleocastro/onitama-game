@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:foil/foil.dart';
 
@@ -272,7 +271,7 @@ class _CardOpened extends StatefulWidget {
   });
 
   final String title;
-  final CachedNetworkImageProvider? image;
+  final ImageProvider<Object>? image;
   final String heroTag;
   final Color color;
   final List<Point> moves;

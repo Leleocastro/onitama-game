@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../models/piece.dart';
@@ -13,7 +12,7 @@ class PieceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    CachedNetworkImageProvider? image;
+    ImageProvider<Object>? image;
     if (piece.type == PieceType.master) {
       image = ThemeManager.themedImage(
         piece.owner == PlayerColor.red ? 'master_red' : 'master_blue',
