@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -5,9 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class InterstitialAdScreen extends StatefulWidget {
-  final Widget navigateTo;
+  const InterstitialAdScreen({this.navigateTo, this.onFinished, super.key}) : assert(navigateTo != null || onFinished != null);
 
-  const InterstitialAdScreen({required this.navigateTo, super.key});
+  final Widget? navigateTo;
+  final FutureOr<void> Function()? onFinished;
 
   @override
   State<InterstitialAdScreen> createState() => _InterstitialAdScreenState();
@@ -59,9 +61,23 @@ class _InterstitialAdScreenState extends State<InterstitialAdScreen> {
   }
 
   void _navigateToNextScreen() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => widget.navigateTo),
-    );
+    if (!mounted) return;
+
+    if (widget.onFinished != null) {
+      final callback = widget.onFinished!;
+      Navigator.of(context).pop();
+      Future.microtask(() => callback());
+      return;
+    }
+
+    final destination = widget.navigateTo;
+    if (destination != null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => destination),
+      );
+    } else {
+      Navigator.of(context).pop();
+    }
   }
 
   @override

@@ -206,6 +206,22 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
     unawaited(AudioService.instance.playHomeMusic());
   }
 
+  Future<void> _returnToMenuWithAd() async {
+    if (!mounted) return;
+    final navigator = Navigator.of(context);
+    await navigator.push(
+      MaterialPageRoute(
+        builder: (_) => InterstitialAdScreen(
+          onFinished: () {
+            if (navigator.canPop()) {
+              navigator.pop();
+            }
+          },
+        ),
+      ),
+    );
+  }
+
   void _onCellTap(int r, int c) {
     if (widget.gameMode == GameMode.online) {
       if ((_gameState!.currentPlayer == PlayerColor.red && widget.isHost!) || (_gameState!.currentPlayer == PlayerColor.blue && !widget.isHost!)) {
@@ -326,7 +342,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
               child: Text(l10n.exit),
               onPressed: () {
                 Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Navigate back to menu
+                unawaited(_returnToMenuWithAd());
               },
             ),
           if (widget.gameMode == GameMode.pvai && winner == PlayerColor.red)
@@ -352,15 +368,13 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                 Navigator.of(context).pop();
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
-                    builder: (context) => InterstitialAdScreen(
-                      navigateTo: OnitamaHome(
-                        gameMode: widget.gameMode,
-                        aiDifficulty: widget.aiDifficulty,
-                        gameId: widget.gameId,
-                        playerUid: widget.playerUid,
-                        isHost: widget.isHost,
-                        hasDelay: widget.hasDelay,
-                      ),
+                    builder: (context) => OnitamaHome(
+                      gameMode: widget.gameMode,
+                      aiDifficulty: widget.aiDifficulty,
+                      gameId: widget.gameId,
+                      playerUid: widget.playerUid,
+                      isHost: widget.isHost,
+                      hasDelay: widget.hasDelay,
                     ),
                   ),
                 );
@@ -432,7 +446,11 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
 
   void _exitToMenuAfterResult() {
     if (!mounted) return;
-    Navigator.of(context).pop();
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+    }
+    unawaited(_returnToMenuWithAd());
   }
 
   Future<void> _undoLastTwoAndPersist() async {
@@ -861,15 +879,13 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                                   Navigator.of(context).pop(); // Close the drawer
                                   await Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(
-                                      builder: (context) => InterstitialAdScreen(
-                                        navigateTo: OnitamaHome(
-                                          gameMode: widget.gameMode,
-                                          aiDifficulty: widget.aiDifficulty,
-                                          gameId: widget.gameId,
-                                          playerUid: widget.playerUid,
-                                          isHost: widget.isHost,
-                                          hasDelay: widget.hasDelay,
-                                        ),
+                                      builder: (context) => OnitamaHome(
+                                        gameMode: widget.gameMode,
+                                        aiDifficulty: widget.aiDifficulty,
+                                        gameId: widget.gameId,
+                                        playerUid: widget.playerUid,
+                                        isHost: widget.isHost,
+                                        hasDelay: widget.hasDelay,
                                       ),
                                     ),
                                   );
@@ -915,7 +931,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                                     );
                                   }
                                   Navigator.of(context).pop();
-                                  Navigator.of(context).pop(); // Volta ao menu
+                                  unawaited(_returnToMenuWithAd());
                                 }
                               },
                             ),
@@ -962,7 +978,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                             );
                             if (shouldExit == true) {
                               Navigator.of(context).pop(); // Close the drawer
-                              Navigator.of(context).pop(); // Navigate back to menu
+                              unawaited(_returnToMenuWithAd());
                             }
                           },
                         ),

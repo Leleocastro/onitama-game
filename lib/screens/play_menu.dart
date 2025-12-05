@@ -15,7 +15,6 @@ import '../widgets/input_text.dart';
 import '../widgets/styled_button.dart';
 import '../widgets/tutorial_card.dart';
 import 'game_lobby_screen.dart';
-import 'interstitial_ad_screen.dart';
 import 'login_screen.dart';
 import 'onitama_home.dart';
 
@@ -112,11 +111,9 @@ class _PlayMenuState extends State<PlayMenu> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const InterstitialAdScreen(
-                              navigateTo: OnitamaHome(
-                                gameMode: GameMode.pvp,
-                                isHost: true,
-                              ),
+                            builder: (context) => const OnitamaHome(
+                              gameMode: GameMode.pvp,
+                              isHost: true,
                             ),
                           ),
                         );
@@ -208,12 +205,10 @@ class _PlayMenuState extends State<PlayMenu> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const InterstitialAdScreen(
-                      navigateTo: OnitamaHome(
-                        gameMode: GameMode.pvai,
-                        aiDifficulty: AIDifficulty.easy,
-                        isHost: true,
-                      ),
+                    builder: (context) => const OnitamaHome(
+                      gameMode: GameMode.pvai,
+                      aiDifficulty: AIDifficulty.easy,
+                      isHost: true,
                     ),
                   ),
                 );
@@ -228,12 +223,10 @@ class _PlayMenuState extends State<PlayMenu> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const InterstitialAdScreen(
-                      navigateTo: OnitamaHome(
-                        gameMode: GameMode.pvai,
-                        aiDifficulty: AIDifficulty.medium,
-                        isHost: true,
-                      ),
+                    builder: (context) => const OnitamaHome(
+                      gameMode: GameMode.pvai,
+                      aiDifficulty: AIDifficulty.medium,
+                      isHost: true,
                     ),
                   ),
                 );
@@ -248,12 +241,10 @@ class _PlayMenuState extends State<PlayMenu> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const InterstitialAdScreen(
-                      navigateTo: OnitamaHome(
-                        gameMode: GameMode.pvai,
-                        aiDifficulty: AIDifficulty.hard,
-                        isHost: true,
-                      ),
+                    builder: (context) => const OnitamaHome(
+                      gameMode: GameMode.pvai,
+                      aiDifficulty: AIDifficulty.hard,
+                      isHost: true,
                     ),
                   ),
                 );

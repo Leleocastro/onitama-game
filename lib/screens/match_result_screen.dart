@@ -89,7 +89,7 @@ class _MatchResultScreenState extends State<MatchResultScreen> with SingleTicker
     return WillPopScope(
       onWillPop: () async {
         widget.onExitToMenu();
-        return true;
+        return false;
       },
       child: Scaffold(
         body: Container(
@@ -109,10 +109,7 @@ class _MatchResultScreenState extends State<MatchResultScreen> with SingleTicker
                   Align(
                     alignment: Alignment.topRight,
                     child: IconButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        widget.onExitToMenu();
-                      },
+                      onPressed: widget.onExitToMenu,
                       icon: const Icon(
                         Icons.close,
                         color: Colors.white70,
