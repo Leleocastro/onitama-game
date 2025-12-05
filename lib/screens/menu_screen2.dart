@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ import 'package:rive/rive.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 import '../l10n/app_localizations.dart';
+import '../models/firestore_game.dart';
+import '../models/game_mode.dart';
 import '../models/user_profile.dart';
 import '../services/audio_service.dart';
 import '../services/firestore_service.dart';
@@ -20,6 +23,7 @@ import '../widgets/volume_settings_sheet.dart';
 import 'how_to_play_screen.dart';
 import 'leaderboard_screen.dart';
 import 'login_screen.dart';
+import 'onitama_home.dart';
 import 'play_menu.dart';
 import 'profile_modal.dart';
 
@@ -45,6 +49,12 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
   final GlobalKey _profileButtonKey = GlobalKey();
   final GlobalKey _volumeButtonKey = GlobalKey();
   bool _menuTutorialScheduled = false;
+  StreamSubscription<FirestoreGame>? _matchmakingGameSubscription;
+  Timer? _matchmakingFallbackTimer;
+  Timer? _matchmakingTicker;
+  bool _isMatchmakingActive = false;
+  int _matchmakingSecondsElapsed = 0;
+  final Random _matchmakingRandom = Random();
 
   @override
   void initState() {
@@ -81,6 +91,9 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
     file.dispose();
     controller.dispose();
     _authStateChangesSubscription?.cancel();
+    _matchmakingGameSubscription?.cancel();
+    _matchmakingFallbackTimer?.cancel();
+    _matchmakingTicker?.cancel();
     appRouteObserver.unsubscribe(this);
     super.dispose();
   }
@@ -139,6 +152,226 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => GoldStatementSheet(userId: userId),
+    );
+  }
+
+  Future<void> _startQuickMatch() async {
+    if (_isMatchmakingActive) return;
+    if (!await _ensureAuthenticated()) return;
+    final user = FirebaseAuth.instance.currentUser;
+    final currentUid = user?.uid ?? _playerUid;
+    if (currentUid == null) return;
+
+    _activateMatchmakingUI();
+
+    try {
+      final result = await _firestoreService.findOrCreateGame(currentUid);
+      final gameId = result['gameId'] as String?;
+      final isHost = (result['isHost'] as bool?) ?? false;
+      final inProgress = (result['inProgress'] as bool?) ?? false;
+
+      if (gameId == null) {
+        throw StateError('Matchmaking result missing gameId');
+      }
+
+      if (inProgress) {
+        await _openOnlineMatch(gameId: gameId, playerUid: currentUid, isHost: isHost);
+        return;
+      }
+
+      if (isHost) {
+        _startHostMatchmaking(gameId: gameId, playerUid: currentUid);
+      } else {
+        await _openOnlineMatch(gameId: gameId, playerUid: currentUid, isHost: false);
+      }
+    } catch (error, stackTrace) {
+      debugPrint('Matchmaking failed: $error\n$stackTrace');
+      _cancelMatchmakingWatchers();
+      _deactivateMatchmakingUI();
+    }
+  }
+
+  void _openPlayMenu() {
+    if (_isMatchmakingActive) return;
+    unawaited(AudioService.instance.playUiConfirmSound());
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      transitionAnimationController: AnimationController(vsync: this, duration: const Duration(milliseconds: 500)),
+      isScrollControlled: true,
+      builder: (_) => PlayMenu(
+        playerUid: _playerUid ?? '',
+        onQuickMatchRequested: _startQuickMatch,
+      ),
+    );
+  }
+
+  void _startHostMatchmaking({required String gameId, required String playerUid}) {
+    _cancelMatchmakingWatchers();
+
+    _matchmakingFallbackTimer = Timer(_randomMatchmakingDuration(), () {
+      _matchmakingGameSubscription?.cancel();
+      unawaited(_firestoreService.convertToPvAI(gameId));
+      unawaited(_openOnlineMatch(gameId: gameId, playerUid: playerUid, isHost: true, hasDelay: true));
+    });
+
+    _matchmakingGameSubscription = _firestoreService.streamGame(gameId).listen((game) {
+      if (game.players.length > 1) {
+        _matchmakingFallbackTimer?.cancel();
+        unawaited(_openOnlineMatch(gameId: gameId, playerUid: playerUid, isHost: true));
+      }
+    });
+  }
+
+  Future<void> _openOnlineMatch({
+    required String gameId,
+    required String playerUid,
+    required bool isHost,
+    bool hasDelay = false,
+  }) async {
+    _cancelMatchmakingWatchers();
+    _deactivateMatchmakingUI();
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OnitamaHome(
+          gameMode: GameMode.online,
+          gameId: gameId,
+          playerUid: playerUid,
+          isHost: isHost,
+          hasDelay: hasDelay,
+        ),
+      ),
+    );
+  }
+
+  void _activateMatchmakingUI() {
+    if (_isMatchmakingActive) return;
+    setState(() {
+      _isMatchmakingActive = true;
+      _matchmakingSecondsElapsed = 0;
+    });
+    _startMatchmakingTicker();
+  }
+
+  void _deactivateMatchmakingUI() {
+    _stopMatchmakingTicker();
+    if (_isMatchmakingActive) {
+      setState(() {
+        _isMatchmakingActive = false;
+        _matchmakingSecondsElapsed = 0;
+      });
+    }
+  }
+
+  void _startMatchmakingTicker() {
+    _matchmakingTicker?.cancel();
+    _matchmakingTicker = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        _matchmakingSecondsElapsed++;
+      });
+    });
+  }
+
+  void _stopMatchmakingTicker() {
+    _matchmakingTicker?.cancel();
+    _matchmakingTicker = null;
+  }
+
+  void _cancelMatchmakingWatchers() {
+    _matchmakingGameSubscription?.cancel();
+    _matchmakingGameSubscription = null;
+    _matchmakingFallbackTimer?.cancel();
+    _matchmakingFallbackTimer = null;
+  }
+
+  Duration _randomMatchmakingDuration() => Duration(seconds: 20 + _matchmakingRandom.nextInt(8));
+
+  Future<bool> _ensureAuthenticated() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && !user.isAnonymous) {
+      _playerUid = user.uid;
+      return true;
+    }
+    final l10n = AppLocalizations.of(context)!;
+    final shouldLogin = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.loginRequiredTitle),
+        content: Text(l10n.loginRequiredMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.loginRequiredAction),
+          ),
+        ],
+      ),
+    );
+    if (shouldLogin == true && mounted) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
+    return false;
+  }
+
+  Widget _buildPlayCallToAction(AppLocalizations l10n) {
+    if (_isMatchmakingActive) {
+      return Column(
+        key: const ValueKey('matchmaking-indicator'),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: 48,
+            width: 48,
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primary),
+              strokeWidth: 4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l10n.matchmaking,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'SpellOfAsia',
+              color: AppTheme.primary,
+              fontSize: 36,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${_matchmakingSecondsElapsed}s',
+            style: TextStyle(
+              fontFamily: 'SpellOfAsia',
+              color: AppTheme.primary,
+              fontSize: 24,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return InkWell(
+      key: const ValueKey('play-button'),
+      onTap: _openPlayMenu,
+      child: Text(
+        l10n.play,
+        style: TextStyle(
+          fontFamily: 'HIROMISAKE',
+          color: AppTheme.primary,
+          fontSize: 62,
+        ),
+      ),
     );
   }
 
@@ -284,25 +517,9 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
               Center(
                 child: KeyedSubtree(
                   key: _playButtonKey,
-                  child: InkWell(
-                    onTap: () {
-                      unawaited(AudioService.instance.playUiConfirmSound());
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: Colors.transparent,
-                        transitionAnimationController: AnimationController(vsync: this, duration: Duration(milliseconds: 500)),
-                        isScrollControlled: true,
-                        builder: (_) => PlayMenu(playerUid: _playerUid ?? ''),
-                      );
-                    },
-                    child: Text(
-                      l10n.play,
-                      style: TextStyle(
-                        fontFamily: 'HIROMISAKE',
-                        color: AppTheme.primary,
-                        fontSize: 62,
-                      ),
-                    ),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: _buildPlayCallToAction(l10n),
                   ),
                 ),
               ),

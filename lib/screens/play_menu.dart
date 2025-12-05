@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,9 +22,11 @@ import 'onitama_home.dart';
 class PlayMenu extends StatefulWidget {
   const PlayMenu({
     required this.playerUid,
+    this.onQuickMatchRequested,
     super.key,
   });
   final String playerUid;
+  final Future<void> Function()? onQuickMatchRequested;
 
   @override
   State<PlayMenu> createState() => _PlayMenuState();
@@ -36,6 +39,7 @@ class _PlayMenuState extends State<PlayMenu> {
   StreamSubscription? _gameSubscription;
   Timer? _gameCreationTimer;
   String? _playerUid;
+  final Random _matchmakingRandom = Random();
   final GlobalKey _startGameKey = GlobalKey();
   final GlobalKey _pvpKey = GlobalKey();
   final GlobalKey _aiKey = GlobalKey();
@@ -82,7 +86,14 @@ class _PlayMenuState extends State<PlayMenu> {
               children: [
                 StyledButton(
                   key: _startGameKey,
-                  onPressed: _findOrCreateGame,
+                  onPressed: () {
+                    if (widget.onQuickMatchRequested != null) {
+                      Navigator.of(context).pop();
+                      unawaited(widget.onQuickMatchRequested!());
+                    } else {
+                      _findOrCreateGame();
+                    }
+                  },
                   textStyle: TextStyle(
                     fontFamily: 'SpellOfAsia',
                     color: Colors.white,
@@ -323,7 +334,7 @@ class _PlayMenuState extends State<PlayMenu> {
     }
 
     if (isHost) {
-      _gameCreationTimer = Timer(const Duration(seconds: 20), () {
+      _gameCreationTimer = Timer(_randomMatchmakingDuration(), () {
         _gameSubscription?.cancel();
         _firestoreService.convertToPvAI(gameId);
         if (!mounted) return;
@@ -380,6 +391,8 @@ class _PlayMenuState extends State<PlayMenu> {
       );
     }
   }
+
+  Duration _randomMatchmakingDuration() => Duration(seconds: 20 + _matchmakingRandom.nextInt(8));
 
   void _showWaitingDialog() {
     final l10n = AppLocalizations.of(context)!;

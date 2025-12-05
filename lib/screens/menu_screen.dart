@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ class _MenuScreenState extends State<MenuScreen> {
   StreamSubscription? _gameSubscription;
   Timer? _gameCreationTimer;
   StreamSubscription<User?>? _authStateChangesSubscription;
+  final Random _matchmakingRandom = Random();
 
   @override
   void initState() {
@@ -198,7 +200,7 @@ class _MenuScreenState extends State<MenuScreen> {
     }
 
     if (isHost) {
-      _gameCreationTimer = Timer(const Duration(seconds: 20), () {
+      _gameCreationTimer = Timer(_matchmakingTimeout(), () {
         _gameSubscription?.cancel();
         _firestoreService.convertToPvAI(gameId);
         if (!mounted) return;
@@ -276,6 +278,8 @@ class _MenuScreenState extends State<MenuScreen> {
       ),
     );
   }
+
+  Duration _matchmakingTimeout() => Duration(seconds: 20 + _matchmakingRandom.nextInt(8));
 
   @override
   Widget build(BuildContext context) {
