@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Global music volume that other widgets can read synchronously.
@@ -17,7 +17,7 @@ double globalWinVolume = 1;
 final ValueNotifier<double> musicVolumeNotifier = ValueNotifier<double>(globalMusicVolume);
 final ValueNotifier<double> sfxVolumeNotifier = ValueNotifier<double>(globalSfxVolume);
 
-class AudioService {
+class AudioService with WidgetsBindingObserver {
   AudioService._();
 
   static final AudioService instance = AudioService._();
@@ -68,6 +68,11 @@ class AudioService {
   final List<AudioPlayer> _sfxPool = <AudioPlayer>[];
   final Set<AudioPlayer> _busyPlayers = <AudioPlayer>{};
   static const int _basePoolSize = 4;
+  bool _isMusicPlaying = false;
+  bool _isAmbiencePlaying = false;
+  bool _shouldResumeMusic = false;
+  bool _shouldResumeAmbience = false;
+  bool _lifecycleObserverAttached = false;
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -85,6 +90,11 @@ class AudioService {
     await _ambiencePlayer.setVolume(globalMusicVolume);
     await _ensureSfxPool();
     await _preloadSfxAssets();
+
+    if (!_lifecycleObserverAttached) {
+      WidgetsBinding.instance.addObserver(this);
+      _lifecycleObserverAttached = true;
+    }
 
     _initialized = true;
   }
@@ -107,8 +117,11 @@ class AudioService {
     }
     _currentMusicAsset = asset;
     await _musicPlayer.stop();
+    _isMusicPlaying = false;
     await _musicPlayer.play(AssetSource(asset), volume: globalMusicVolume);
     await _musicPlayer.setReleaseMode(ReleaseMode.loop);
+    _isMusicPlaying = true;
+    _shouldResumeMusic = false;
   }
 
   Future<void> _playAmbience(String asset) async {
@@ -118,15 +131,62 @@ class AudioService {
     }
     _currentAmbienceAsset = asset;
     await _ambiencePlayer.stop();
+    _isAmbiencePlaying = false;
     await _ambiencePlayer.play(AssetSource(asset), volume: globalMusicVolume);
     if (_ambiencePlayer.releaseMode != ReleaseMode.loop) {
       await _ambiencePlayer.setReleaseMode(ReleaseMode.loop);
     }
+    _isAmbiencePlaying = true;
+    _shouldResumeAmbience = false;
   }
 
   Future<void> stopBackground() async {
     await _musicPlayer.stop();
     _currentMusicAsset = null;
+    _isMusicPlaying = false;
+    _shouldResumeMusic = false;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!_initialized) return;
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive || state == AppLifecycleState.detached) {
+      unawaited(_pauseAudioForLifecycle());
+    } else if (state == AppLifecycleState.resumed) {
+      unawaited(_resumeAudioAfterLifecycle());
+    }
+  }
+
+  Future<void> _pauseAudioForLifecycle() async {
+    if (_isAmbiencePlaying) {
+      _shouldResumeAmbience = true;
+      await _ambiencePlayer.pause();
+      _isAmbiencePlaying = false;
+    } else {
+      _shouldResumeAmbience = false;
+    }
+
+    if (_isMusicPlaying) {
+      _shouldResumeMusic = true;
+      await _musicPlayer.pause();
+      _isMusicPlaying = false;
+    } else {
+      _shouldResumeMusic = false;
+    }
+  }
+
+  Future<void> _resumeAudioAfterLifecycle() async {
+    if (_shouldResumeAmbience && _currentAmbienceAsset != null) {
+      await _ambiencePlayer.resume();
+      _isAmbiencePlaying = true;
+      _shouldResumeAmbience = false;
+    }
+
+    if (_shouldResumeMusic && _currentMusicAsset != null) {
+      await _musicPlayer.resume();
+      _isMusicPlaying = true;
+      _shouldResumeMusic = false;
+    }
   }
 
   Future<void> playRandomMoveSound() async => _playSfxAsset(_moveAssets[_random.nextInt(_moveAssets.length)], usualTime: false);
