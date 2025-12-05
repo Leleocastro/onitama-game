@@ -639,7 +639,7 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
               child: StreamBuilder<User?>(
                 stream: FirebaseAuth.instance.authStateChanges(),
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+                  if (snapshot.connectionState == ConnectionState.waiting && user == null) {
                     return const CircularProgressIndicator();
                   }
                   if (snapshot.hasData && snapshot.data != null && !snapshot.data!.isAnonymous) {
