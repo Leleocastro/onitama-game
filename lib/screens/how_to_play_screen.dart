@@ -117,6 +117,16 @@ class HowToPlayScreen extends StatelessWidget {
             l10n.capturingDescription,
             style: GoogleFonts.onest(fontSize: 16),
           ),
+          const SizedBox(height: 20),
+          Text(
+            l10n.timerTitle,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'SpellOfAsia'),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            l10n.timerDescription,
+            style: GoogleFonts.onest(fontSize: 16),
+          ),
         ],
       ),
     );

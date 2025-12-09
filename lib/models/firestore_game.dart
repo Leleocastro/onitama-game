@@ -10,6 +10,8 @@ import './player.dart';
 import './point.dart';
 import 'move.dart';
 
+const int _defaultClockMillis = 5 * 60 * 1000;
+
 class FirestoreGame {
   final String id;
   final List<List<Piece?>> board;
@@ -26,6 +28,9 @@ class FirestoreGame {
   final AIDifficulty? aiDifficulty;
   final List<Move> gameHistory;
   final List<Map<String, dynamic>>? stateHistory;
+  final int blueTimeMillis;
+  final int redTimeMillis;
+  final int? lastClockUpdateMillis;
 
   FirestoreGame({
     required this.id,
@@ -38,11 +43,14 @@ class FirestoreGame {
     required this.createdAt,
     required this.status,
     required this.gameMode,
+    required this.blueTimeMillis,
+    required this.redTimeMillis,
     this.winner,
     this.lastMove,
     this.aiDifficulty,
     this.gameHistory = const [],
     this.stateHistory,
+    this.lastClockUpdateMillis,
   });
 
   factory FirestoreGame.fromFirestore(DocumentSnapshot doc) {
@@ -97,6 +105,9 @@ class FirestoreGame {
       aiDifficulty: data['aiDifficulty'] == null ? null : AIDifficulty.values.firstWhere((e) => e.name == data['aiDifficulty']),
       gameHistory: data['gameHistory'] != null ? (data['gameHistory'] as List).map((move) => Move.fromMap(move)).toList() : [],
       stateHistory: data['stateHistory'] != null ? (data['stateHistory'] as List).map((e) => Map<String, dynamic>.from(e as Map)).toList() : null,
+      blueTimeMillis: (data['blueTimeMillis'] as num?)?.toInt() ?? _defaultClockMillis,
+      redTimeMillis: (data['redTimeMillis'] as num?)?.toInt() ?? _defaultClockMillis,
+      lastClockUpdateMillis: (data['lastClockUpdateMillis'] as num?)?.toInt(),
     );
   }
 
@@ -136,6 +147,9 @@ class FirestoreGame {
       if (aiDifficulty != null) 'aiDifficulty': aiDifficulty!.name,
       'gameHistory': gameHistory.map((move) => move.toMap()).toList(),
       if (stateHistory != null) 'stateHistory': stateHistory,
+      'blueTimeMillis': blueTimeMillis,
+      'redTimeMillis': redTimeMillis,
+      if (lastClockUpdateMillis != null) 'lastClockUpdateMillis': lastClockUpdateMillis,
     };
   }
 
@@ -152,6 +166,9 @@ class FirestoreGame {
     AIDifficulty? aiDifficulty,
     List<Move>? gameHistory,
     List<Map<String, dynamic>>? stateHistory,
+    int? blueTimeMillis,
+    int? redTimeMillis,
+    int? lastClockUpdateMillis,
   }) {
     return FirestoreGame(
       id: id,
@@ -169,6 +186,9 @@ class FirestoreGame {
       aiDifficulty: aiDifficulty ?? this.aiDifficulty,
       gameHistory: gameHistory ?? this.gameHistory,
       stateHistory: stateHistory ?? this.stateHistory,
+      blueTimeMillis: blueTimeMillis ?? this.blueTimeMillis,
+      redTimeMillis: redTimeMillis ?? this.redTimeMillis,
+      lastClockUpdateMillis: lastClockUpdateMillis ?? this.lastClockUpdateMillis,
     );
   }
 }

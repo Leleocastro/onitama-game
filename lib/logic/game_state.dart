@@ -17,6 +17,7 @@ import 'ai_player.dart';
 
 class GameState {
   static const int size = 5;
+  static const int _matchTimerMillis = 5 * 60 * 1000;
 
   final GameMode gameMode;
   final AIDifficulty? aiDifficulty;
@@ -39,6 +40,9 @@ class GameState {
   List<Move> gameHistory = [];
   // Histórico de snapshots completos do estado do jogo para desfazer jogadas
   List<Map<String, dynamic>> stateHistory = [];
+  int blueTimeMillis = _matchTimerMillis;
+  int redTimeMillis = _matchTimerMillis;
+  int? lastClockUpdateMillis;
 
   GameState({required this.gameMode, this.aiDifficulty}) {
     if (gameMode == GameMode.pvai) {
@@ -47,6 +51,7 @@ class GameState {
     _setupCards();
     _setupBoard();
     winner = null;
+    lastClockUpdateMillis = DateTime.now().millisecondsSinceEpoch;
   }
 
   GameState._internal({
@@ -58,6 +63,8 @@ class GameState {
     required this.reserveCard,
     required this.currentPlayer,
     required this.message,
+    required this.blueTimeMillis,
+    required this.redTimeMillis,
     this.aiDifficulty,
     this.selectedCardForMove,
     this.selectedCell,
@@ -65,7 +72,24 @@ class GameState {
     this.lastMove,
     this.winner,
     this.gameHistory = const [],
+    this.lastClockUpdateMillis,
   });
+
+  static Move? _moveFromFirestore(Map<String, dynamic>? moveData) {
+    if (moveData == null || moveData.isEmpty) {
+      return null;
+    }
+    final cardData = moveData['card'] as Map<String, dynamic>;
+    return Move(
+      Point(moveData['from'][0], moveData['from'][1]),
+      Point(moveData['to'][0], moveData['to'][1]),
+      CardModel(
+        cardData['name'] as String,
+        (cardData['moves'] as List).map((move) => Point(move['r'], move['c'])).toList(),
+        Color(cardData['color'] as int),
+      ),
+    );
+  }
 
   factory GameState.fromFirestore(FirestoreGame firestoreGame, GameMode gameMode, AIDifficulty? aiDifficulty) {
     final gameState = GameState._internal(
@@ -78,17 +102,10 @@ class GameState {
       reserveCard: firestoreGame.reserveCard,
       currentPlayer: firestoreGame.currentPlayer,
       message: '${firestoreGame.currentPlayer.name} to move',
-      lastMove: firestoreGame.lastMove != null && firestoreGame.lastMove!.isNotEmpty
-          ? Move(
-              Point(firestoreGame.lastMove!['from'][0], firestoreGame.lastMove!['from'][1]),
-              Point(firestoreGame.lastMove!['to'][0], firestoreGame.lastMove!['to'][1]),
-              CardModel(
-                firestoreGame.lastMove!['card']['name'],
-                (firestoreGame.lastMove!['card']['moves'] as List).map((move) => Point(move['r'], move['c'])).toList(),
-                Color(firestoreGame.lastMove!['card']['color']),
-              ),
-            )
-          : null,
+      blueTimeMillis: firestoreGame.blueTimeMillis,
+      redTimeMillis: firestoreGame.redTimeMillis,
+      lastClockUpdateMillis: firestoreGame.lastClockUpdateMillis,
+      lastMove: _moveFromFirestore(firestoreGame.lastMove),
       winner: firestoreGame.winner,
       gameHistory: firestoreGame.gameHistory,
     );
@@ -96,7 +113,27 @@ class GameState {
     if (firestoreGame.gameMode == GameMode.pvai) {
       gameState.aiPlayer = AIPlayer(firestoreGame.aiDifficulty ?? aiDifficulty!);
     }
+    gameState.lastClockUpdateMillis ??= DateTime.now().millisecondsSinceEpoch;
     return gameState;
+  }
+
+  void updateFromFirestore(FirestoreGame firestoreGame, {AIDifficulty? fallbackAi}) {
+    board = firestoreGame.board;
+    redHand = firestoreGame.redHand;
+    blueHand = firestoreGame.blueHand;
+    reserveCard = firestoreGame.reserveCard;
+    currentPlayer = firestoreGame.currentPlayer;
+    message = '${firestoreGame.currentPlayer.name} to move';
+    blueTimeMillis = min(blueTimeMillis, firestoreGame.blueTimeMillis);
+    redTimeMillis = min(redTimeMillis, firestoreGame.redTimeMillis);
+    lastClockUpdateMillis = firestoreGame.lastClockUpdateMillis ?? lastClockUpdateMillis ?? DateTime.now().millisecondsSinceEpoch;
+    lastMove = _moveFromFirestore(firestoreGame.lastMove);
+    winner = firestoreGame.winner;
+    gameHistory = List<Move>.from(firestoreGame.gameHistory);
+    if (firestoreGame.gameMode == GameMode.pvai) {
+      final difficulty = firestoreGame.aiDifficulty ?? fallbackAi ?? aiDifficulty ?? AIDifficulty.medium;
+      aiPlayer ??= AIPlayer(difficulty);
+    }
   }
 
   Map<String, dynamic>? get lastMoveAsMap {
@@ -129,6 +166,9 @@ class GameState {
       aiPlayer: aiPlayer,
       lastMove: lastMove,
       gameHistory: List.from(gameHistory),
+      blueTimeMillis: blueTimeMillis,
+      redTimeMillis: redTimeMillis,
+      lastClockUpdateMillis: lastClockUpdateMillis,
       // não copiamos stateHistory por ser uma estrutura de controle separada
     );
   }
@@ -162,6 +202,9 @@ class GameState {
       'gameHistory': gameHistory.map((m) => m.toMap()).toList(),
       'gameMode': gameMode.name,
       'aiDifficulty': aiDifficulty?.name,
+      'blueTimeMillis': blueTimeMillis,
+      'redTimeMillis': redTimeMillis,
+      'lastClockUpdateMillis': lastClockUpdateMillis,
     };
   }
 
@@ -194,6 +237,9 @@ class GameState {
 
     currentPlayer = PlayerColor.values.firstWhere((e) => e.name == snap['currentPlayer']);
     winner = snap['winner'] == null ? null : PlayerColor.values.firstWhere((e) => e.name == snap['winner']);
+    blueTimeMillis = snap['blueTimeMillis'] as int? ?? _matchTimerMillis;
+    redTimeMillis = snap['redTimeMillis'] as int? ?? _matchTimerMillis;
+    lastClockUpdateMillis = snap['lastClockUpdateMillis'] as int? ?? DateTime.now().millisecondsSinceEpoch;
 
     if (snap['lastMove'] != null) {
       final lm = snap['lastMove'] as Map<String, dynamic>;
@@ -218,6 +264,45 @@ class GameState {
     stateHistory.add(toSnapshot());
     if (stateHistory.length > maxLength) {
       stateHistory.removeAt(0);
+    }
+  }
+
+  Duration timeRemaining(PlayerColor color) => Duration(milliseconds: _timeFor(color));
+
+  void decreaseTime(PlayerColor color, int deltaMillis) {
+    if (deltaMillis <= 0) {
+      return;
+    }
+    final updated = max(0, _timeFor(color) - deltaMillis);
+    _setTimeFor(color, updated);
+  }
+
+  void resetTimers() {
+    blueTimeMillis = _matchTimerMillis;
+    redTimeMillis = _matchTimerMillis;
+    lastClockUpdateMillis = DateTime.now().millisecondsSinceEpoch;
+  }
+
+  void syncClockWithAnchor(int nowMillis) {
+    if (lastClockUpdateMillis == null) {
+      lastClockUpdateMillis = nowMillis;
+      return;
+    }
+    final elapsed = max(0, nowMillis - lastClockUpdateMillis!);
+    if (elapsed == 0) {
+      return;
+    }
+    decreaseTime(currentPlayer, elapsed);
+    lastClockUpdateMillis = nowMillis;
+  }
+
+  int _timeFor(PlayerColor color) => color == PlayerColor.blue ? blueTimeMillis : redTimeMillis;
+
+  void _setTimeFor(PlayerColor color, int value) {
+    if (color == PlayerColor.blue) {
+      blueTimeMillis = value;
+    } else {
+      redTimeMillis = value;
     }
   }
 
@@ -388,6 +473,10 @@ class GameState {
   }
 
   Future<void> makeAIMove(Function(PlayerColor, WinCondition) onWin, [bool hasDelay = false]) async {
+    aiPlayer ??= AIPlayer(aiDifficulty ?? AIDifficulty.medium);
+    if (aiPlayer == null) {
+      return;
+    }
     final delay = hasDelay ? Duration(seconds: Random().nextInt(10) + 3) : Duration.zero;
     await Future.delayed(delay);
 
@@ -476,6 +565,8 @@ class GameState {
   void restart() {
     _setupCards();
     _setupBoard();
+    resetTimers();
+    resetTimers();
     winner = null;
   }
 }

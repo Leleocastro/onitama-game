@@ -76,6 +76,50 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
   final GlobalKey _reserveCardKey = GlobalKey();
   bool? _shouldShowGameplayTutorial;
   bool _gameplayTutorialShowing = false;
+  Timer? _clockTimer;
+  DateTime? _lastClockTick;
+  PlayerColor? _lastTickPlayer;
+  GameMode get _effectiveGameMode => _gameState?.gameMode ?? widget.gameMode;
+  bool get _isLocalAiMatch => widget.gameMode == GameMode.pvai && widget.gameId == null;
+  bool get _isOnlineAiMatch {
+    if (widget.gameMode != GameMode.online) return false;
+    final players = _firestoreGame?.players;
+    if (players == null) return false;
+    return players.containsValue('ai');
+  }
+
+  bool get _timersEnabled {
+    if (_isLocalAiMatch) {
+      return false;
+    }
+    if (widget.gameMode != GameMode.online) {
+      return true;
+    }
+    final game = _firestoreGame;
+    if (game == null) {
+      return false;
+    }
+    if (game.status != 'inprogress') {
+      return false;
+    }
+    return _bothPlayersReady(game);
+  }
+
+  bool _bothPlayersReady(FirestoreGame game) {
+    final blue = game.players['blue'] ?? '';
+    final red = game.players['red'] ?? '';
+    return blue.isNotEmpty && red.isNotEmpty;
+  }
+
+  bool _shouldSyncClockWithServer(FirestoreGame game) {
+    if (widget.gameMode != GameMode.online) {
+      return true;
+    }
+    if (game.status != 'inprogress') {
+      return false;
+    }
+    return _bothPlayersReady(game);
+  }
 
   static const List<String> _fakeFirstNames = <String>[
     'Aiko',
@@ -122,20 +166,39 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
         final oldSelectedCard = _gameState?.selectedCardForMove;
         final previousHistoryLength = _gameState?.gameHistory.length ?? 0;
 
-        setState(() {
-          _gameState = GameState.fromFirestore(
+        final needsFreshState = _gameState == null || _gameState!.gameMode != firestoreGame.gameMode;
+        GameState syncedState;
+        if (needsFreshState) {
+          syncedState = GameState.fromFirestore(
             firestoreGame,
             widget.gameMode,
             widget.aiDifficulty,
           );
-          _gameState?.selectedCell = oldSelectedCell;
-          _gameState?.selectedCardForMove = oldSelectedCard;
+        } else {
+          syncedState = _gameState!;
+          syncedState.updateFromFirestore(
+            firestoreGame,
+            fallbackAi: widget.aiDifficulty,
+          );
+        }
+        syncedState.selectedCell = oldSelectedCell;
+        syncedState.selectedCardForMove = oldSelectedCard;
+        if (_shouldSyncClockWithServer(firestoreGame)) {
+          syncedState.syncClockWithAnchor(DateTime.now().millisecondsSinceEpoch);
+        } else {
+          syncedState.lastClockUpdateMillis = DateTime.now().millisecondsSinceEpoch;
+        }
+
+        setState(() {
+          _gameState = syncedState;
           if (_gameState?.lastMove == null && (ModalRoute.of(context)?.isCurrent != true)) {
             Navigator.of(context).pop();
           }
 
           _gameState?.verifyWin(_showEndDialog);
         });
+        _ensureClockStarted();
+        _refreshClockAnchor();
 
         final newHistoryLength = _gameState?.gameHistory.length ?? 0;
         if (newHistoryLength > previousHistoryLength) {
@@ -151,6 +214,8 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
         aiDifficulty: widget.aiDifficulty,
       );
     }
+    _ensureClockStarted();
+    _refreshClockAnchor();
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowGameplayTutorial());
   }
 
@@ -158,16 +223,34 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
     if (widget.gameId != null) {
       final firestoreGame = await _firestoreService.getGame(widget.gameId!);
       if (firestoreGame != null) {
-        setState(() {
-          _firestoreGame = firestoreGame;
-          _gameState = GameState.fromFirestore(
+        final needsFreshState = _gameState == null || _gameState!.gameMode != firestoreGame.gameMode;
+        GameState syncedState;
+        if (needsFreshState) {
+          syncedState = GameState.fromFirestore(
             firestoreGame,
             widget.gameMode,
             widget.aiDifficulty,
           );
+        } else {
+          syncedState = _gameState!;
+          syncedState.updateFromFirestore(
+            firestoreGame,
+            fallbackAi: widget.aiDifficulty,
+          );
+        }
+        if (_shouldSyncClockWithServer(firestoreGame)) {
+          syncedState.syncClockWithAnchor(DateTime.now().millisecondsSinceEpoch);
+        } else {
+          syncedState.lastClockUpdateMillis = DateTime.now().millisecondsSinceEpoch;
+        }
+        setState(() {
+          _firestoreGame = firestoreGame;
+          _gameState = syncedState;
         });
         _maybeLoadPlayerProfiles(firestoreGame.players);
         _applyPlayerThemesFromProfiles();
+        _ensureClockStarted();
+        _refreshClockAnchor();
         _maybeShowGameplayTutorial();
       }
     }
@@ -178,6 +261,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
     _gameSubscription?.cancel();
     appRouteObserver.unsubscribe(this);
     unawaited(AudioService.instance.stopBackground());
+    _clockTimer?.cancel();
     ThemeManager.clearPlayerThemes();
     super.dispose();
   }
@@ -230,49 +314,174 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
     }
 
     final previousHistoryLength = _gameState!.gameHistory.length;
-    final isAiTurn = _gameState!.onCellTap(r, c, _showEndDialog);
+    _gameState!.onCellTap(r, c, _showEndDialog);
     final moveExecuted = _gameState!.gameHistory.length > previousHistoryLength;
     setState(() {});
+    _refreshClockAnchor();
 
     if (moveExecuted) {
       _triggerMoveSound();
+      if (widget.gameMode == GameMode.online) {
+        unawaited(_persistOnlineGame(includeBoard: true));
+      }
     }
 
-    if (isAiTurn) {
+    if (_shouldTriggerAiMove()) {
       _handleAIMove();
     }
   }
 
   Future<void> _handleAIMove() async {
-    final isWinByCapture = _gameState!.isWinByCapture();
-    final isWinByTemple = _gameState!.isWinByTemple(
-      _gameState!.lastMove!.to.r,
-      _gameState!.lastMove!.to.c,
-      PlayerColor.blue,
-    );
-    final previousHistoryLength = _gameState!.gameHistory.length;
-    if (_gameState!.gameMode == GameMode.pvai && !isWinByCapture && !isWinByTemple) {
-      await _gameState!.makeAIMove(_showEndDialog, widget.hasDelay);
-      setState(() {});
+    final gameState = _gameState;
+    if (gameState == null || !_isAiControlled(gameState.currentPlayer)) {
+      return;
     }
-    final aiMoved = _gameState!.gameHistory.length > previousHistoryLength;
+    final isWinByCapture = gameState.isWinByCapture();
+    final lastMove = gameState.lastMove;
+    final isWinByTemple = lastMove != null &&
+        gameState.isWinByTemple(
+          lastMove.to.r,
+          lastMove.to.c,
+          PlayerColor.blue,
+        );
+    final previousHistoryLength = gameState.gameHistory.length;
+    if (gameState.gameMode == GameMode.pvai && !isWinByCapture && !isWinByTemple) {
+      await gameState.makeAIMove(_showEndDialog, widget.hasDelay && _isOnlineAiMatch);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _gameState = gameState;
+      });
+      _refreshClockAnchor();
+    }
+    final aiMoved = gameState.gameHistory.length > previousHistoryLength;
     if (aiMoved) {
       _triggerMoveSound();
     }
     if (_firestoreGame != null && widget.gameMode == GameMode.online) {
-      final updatedGame = _firestoreGame!.copyWith(
-        board: _gameState!.board,
-        redHand: _gameState!.redHand,
-        blueHand: _gameState!.blueHand,
-        reserveCard: _gameState!.reserveCard,
-        currentPlayer: _gameState!.currentPlayer,
-        lastMove: _gameState!.lastMoveAsMap,
-        status: _gameState!.winner != null ? 'finished' : null,
-        winner: _gameState!.winner,
-        gameHistory: _gameState!.gameHistory,
-      );
-      _firestoreService.updateGame(widget.gameId!, updatedGame);
+      await _persistOnlineGame(includeBoard: true);
     }
+  }
+
+  void _ensureClockStarted() {
+    if (_gameState == null || !_timersEnabled) {
+      _clockTimer?.cancel();
+      _clockTimer = null;
+      return;
+    }
+    _lastTickPlayer ??= _gameState!.currentPlayer;
+    _lastClockTick ??= DateTime.now();
+    _gameState!.lastClockUpdateMillis ??= _lastClockTick!.millisecondsSinceEpoch;
+    _clockTimer ??= Timer.periodic(const Duration(seconds: 1), (_) => _handleClockTick());
+  }
+
+  void _refreshClockAnchor() {
+    if (_gameState == null || !_timersEnabled) {
+      return;
+    }
+    _lastTickPlayer = _gameState!.currentPlayer;
+    _lastClockTick = DateTime.now();
+    _gameState!.lastClockUpdateMillis = _lastClockTick!.millisecondsSinceEpoch;
+  }
+
+  void _handleClockTick() {
+    if (!mounted || _gameState == null || _gameState!.winner != null || !_timersEnabled) {
+      return;
+    }
+    final now = DateTime.now();
+    _lastClockTick ??= now;
+    final currentPlayer = _gameState!.currentPlayer;
+
+    if (_lastTickPlayer != currentPlayer) {
+      _lastTickPlayer = currentPlayer;
+      _lastClockTick = now;
+      return;
+    }
+
+    final delta = now.difference(_lastClockTick!).inMilliseconds;
+    if (delta <= 0) {
+      return;
+    }
+    _lastClockTick = now;
+    _gameState!.lastClockUpdateMillis = now.millisecondsSinceEpoch;
+
+    if (!_shouldTickForCurrentPlayer(currentPlayer)) {
+      return;
+    }
+
+    _gameState!.decreaseTime(currentPlayer, delta);
+    final remaining = _gameState!.timeRemaining(currentPlayer);
+    if (remaining.inMilliseconds <= 0) {
+      _handleTimeout(currentPlayer);
+      return;
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  bool _shouldTickForCurrentPlayer(PlayerColor currentPlayer) {
+    return _timersEnabled;
+  }
+
+  Future<void> _persistOnlineGame({required bool includeBoard}) async {
+    if (!mounted || widget.gameMode != GameMode.online || widget.gameId == null || _firestoreGame == null || _gameState == null) {
+      return;
+    }
+    final updatedGame = _firestoreGame!.copyWith(
+      board: includeBoard ? _gameState!.board : null,
+      redHand: includeBoard ? _gameState!.redHand : null,
+      blueHand: includeBoard ? _gameState!.blueHand : null,
+      reserveCard: includeBoard ? _gameState!.reserveCard : null,
+      currentPlayer: includeBoard ? _gameState!.currentPlayer : null,
+      lastMove: includeBoard ? _gameState!.lastMoveAsMap : null,
+      status: _gameState!.winner != null ? 'finished' : null,
+      winner: _gameState!.winner,
+      gameHistory: includeBoard ? _gameState!.gameHistory : null,
+      blueTimeMillis: _gameState!.blueTimeMillis,
+      redTimeMillis: _gameState!.redTimeMillis,
+      lastClockUpdateMillis: _gameState!.lastClockUpdateMillis ?? DateTime.now().millisecondsSinceEpoch,
+    );
+    _firestoreGame = updatedGame;
+    await _firestoreService.updateGame(widget.gameId!, updatedGame);
+  }
+
+  bool _shouldTriggerAiMove() {
+    if (_gameState == null) {
+      return false;
+    }
+    return _isAiControlled(_gameState!.currentPlayer);
+  }
+
+  bool _isAiControlled(PlayerColor color) {
+    if (_effectiveGameMode == GameMode.pvai) {
+      return color == PlayerColor.red;
+    }
+    if (_isOnlineAiMatch) {
+      final players = _firestoreGame?.players;
+      if (players == null) {
+        return false;
+      }
+      final key = color == PlayerColor.blue ? 'blue' : 'red';
+      return players[key] == 'ai';
+    }
+    return false;
+  }
+
+  void _handleTimeout(PlayerColor loser) {
+    if (!mounted || _gameState == null || _gameState!.winner != null) {
+      return;
+    }
+    final winner = _gameState!.opponent(loser);
+    _gameState!.winner = winner;
+    _gameState!.lastClockUpdateMillis = DateTime.now().millisecondsSinceEpoch;
+    setState(() {});
+    if (widget.gameMode == GameMode.online) {
+      unawaited(_persistOnlineGame(includeBoard: true));
+    }
+    _showEndDialog(winner, WinCondition.timeout);
   }
 
   void _triggerMoveSound() {
@@ -314,7 +523,11 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
     }
 
     final winnerName = _getWinnerName(winner);
-    final conditionText = condition == WinCondition.capture ? l10n.wonByCapture : l10n.wonByTemple;
+    final conditionText = condition == WinCondition.capture
+        ? l10n.wonByCapture
+        : condition == WinCondition.temple
+            ? l10n.wonByTemple
+            : l10n.wonByTimeout;
     final text = '$winnerName $conditionText';
 
     if (widget.gameMode != GameMode.online) unawaited(AudioService.instance.playSpecialWinSound());
@@ -798,6 +1011,105 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
     );
   }
 
+  Widget _buildTimerRow({
+    required BuildContext context,
+    required String playerLabel,
+    required String opponentLabel,
+    required PlayerColor playerColor,
+    required PlayerColor opponentColor,
+    required Duration playerTime,
+    required Duration opponentTime,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildClockTile(
+              context,
+              label: playerLabel,
+              remaining: playerTime,
+              color: playerColor,
+              isActive: _gameState!.currentPlayer == playerColor,
+            ),
+          ),
+          12.0.spaceX,
+          Expanded(
+            child: _buildClockTile(
+              context,
+              label: opponentLabel,
+              remaining: opponentTime,
+              color: opponentColor,
+              isActive: _gameState!.currentPlayer == opponentColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClockTile(
+    BuildContext context, {
+    required String label,
+    required Duration remaining,
+    required PlayerColor color,
+    required bool isActive,
+  }) {
+    final highlight = color == PlayerColor.red ? Colors.red : Colors.blue;
+    final textTheme = Theme.of(context).textTheme;
+    final backgroundColor = isActive ? highlight.withOpacity(0.18) : Colors.white.withOpacity(0.85);
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: isActive ? highlight : Colors.transparent, width: 1.5),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.timer, color: highlight),
+          12.0.spaceX,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: highlight,
+                      ) ??
+                      TextStyle(fontWeight: FontWeight.bold, color: highlight),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _formatTime(remaining),
+                  style: textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ) ??
+                      const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatTime(Duration duration) {
+    final totalSeconds = duration.inSeconds;
+    if (totalSeconds <= 0) {
+      return '0:00';
+    }
+    final minutes = totalSeconds ~/ 60;
+    final seconds = totalSeconds % 60;
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final bgImage = ThemeManager.themedImage('background', owner: PlayerColor.blue);
@@ -1111,6 +1423,16 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                         ),
                         10.0.spaceY,
                       ],
+                      if (_timersEnabled)
+                        _buildTimerRow(
+                          context: context,
+                          playerLabel: username,
+                          opponentLabel: opponentUsername,
+                          playerColor: player,
+                          opponentColor: opponentPlayer,
+                          playerTime: _gameState!.timeRemaining(player),
+                          opponentTime: _gameState!.timeRemaining(opponentPlayer),
+                        ),
                       KeyedSubtree(
                         key: _opponentCardsKey,
                         child: _buildHands(

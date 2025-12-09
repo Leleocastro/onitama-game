@@ -117,6 +117,8 @@ class FirestoreService {
       createdAt: Timestamp.now(),
       status: status,
       gameMode: gameMode,
+      blueTimeMillis: tempGameState.blueTimeMillis,
+      redTimeMillis: tempGameState.redTimeMillis,
     );
 
     final mapData = gameData.toFirestore();
@@ -130,6 +132,7 @@ class FirestoreService {
     _db.collection('games').doc(gameId).update({
       'players.red': playerUid,
       'status': 'inprogress',
+      'lastClockUpdateMillis': DateTime.now().millisecondsSinceEpoch,
     });
     return _db.collection('games').doc(gameId).snapshots().map((snapshot) => FirestoreGame.fromFirestore(snapshot));
   }
@@ -164,6 +167,7 @@ class FirestoreService {
       await gameDoc.reference.update({
         'players.red': playerUid,
         'status': 'inprogress',
+        'lastClockUpdateMillis': DateTime.now().millisecondsSinceEpoch,
       });
       return {'gameId': gameDoc.id, 'isHost': false};
     } else {
@@ -178,6 +182,7 @@ class FirestoreService {
       'aiDifficulty': AIDifficulty.medium.name,
       'status': 'inprogress',
       'players.red': 'ai',
+      'lastClockUpdateMillis': DateTime.now().millisecondsSinceEpoch,
     });
   }
 

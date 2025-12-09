@@ -334,6 +334,18 @@ abstract class AppLocalizations {
   /// **'If you move a pawn to a square occupied by an opponent\'s pawn, the opponent\'s pawn is captured and removed from the game.'**
   String get capturingDescription;
 
+  /// No description provided for @timerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Timer'**
+  String get timerTitle;
+
+  /// No description provided for @timerDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Each player starts with 5 minutes. Only the active player\'s clock decreases, and if your time reaches zero your opponent wins immediately.'**
+  String get timerDescription;
+
   /// No description provided for @loading.
   ///
   /// In en, this message translates to:
@@ -525,6 +537,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'won by temple!'**
   String get wonByTemple;
+
+  /// No description provided for @wonByTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'won by time!'**
+  String get wonByTimeout;
 
   /// No description provided for @blue.
   ///

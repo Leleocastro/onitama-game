@@ -141,6 +141,13 @@ class AppLocalizationsPt extends AppLocalizations {
       'Se você mover um peão para um quadrado ocupado por um peão do oponente, o peão do oponente é capturado e removido do jogo.';
 
   @override
+  String get timerTitle => 'Relógio da partida';
+
+  @override
+  String get timerDescription =>
+      'Cada jogador começa com 5 minutos. Apenas o relógio do jogador da vez diminui e, se o seu tempo chegar a zero, o adversário vence imediatamente.';
+
+  @override
   String get loading => 'Carregando...';
 
   @override
@@ -235,6 +242,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get wonByTemple => 'venceu pelo templo!';
+
+  @override
+  String get wonByTimeout => 'venceu pelo tempo!';
 
   @override
   String get blue => 'Azul';

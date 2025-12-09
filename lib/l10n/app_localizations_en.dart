@@ -140,6 +140,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'If you move a pawn to a square occupied by an opponent\'s pawn, the opponent\'s pawn is captured and removed from the game.';
 
   @override
+  String get timerTitle => 'Match Timer';
+
+  @override
+  String get timerDescription =>
+      'Each player starts with 5 minutes. Only the active player\'s clock decreases, and if your time reaches zero your opponent wins immediately.';
+
+  @override
   String get loading => 'Loading...';
 
   @override
@@ -235,6 +242,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wonByTemple => 'won by temple!';
+
+  @override
+  String get wonByTimeout => 'won by time!';
 
   @override
   String get blue => 'Blue';
