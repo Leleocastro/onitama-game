@@ -968,10 +968,24 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
     ];
   }
 
-  Widget _buildHands(PlayerColor player) {
+  Widget _buildHands(PlayerColor player, Duration timeRemaining) {
     final hand = player == PlayerColor.red ? _gameState!.redHand : _gameState!.blueHand;
     final isPlayerTurn = _gameState!.currentPlayer == player;
     final isOnline = widget.gameMode == GameMode.online;
+    final cards = hand
+        .map(
+          (c) => CardWidget(
+            card: c,
+            localizedName: _getLocalizedCardName(context, c.name),
+            color: player == PlayerColor.red ? Colors.red : Colors.blue,
+            isSelected: _gameState!.selectedCardForMove?.name == c.name,
+            onTap: _onCardTap,
+            invert: player == (widget.isHost! ? PlayerColor.blue : PlayerColor.red),
+            canTap: isPlayerTurn,
+            owner: player,
+          ),
+        )
+        .toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -989,110 +1003,60 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                 decorationColor: player == PlayerColor.red ? Colors.red : Colors.blue,
               ),
             ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: hand
-                .map(
-                  (c) => CardWidget(
-                    card: c,
-                    localizedName: _getLocalizedCardName(context, c.name),
-                    color: player == PlayerColor.red ? Colors.red : Colors.blue,
-                    isSelected: _gameState!.selectedCardForMove?.name == c.name,
-                    onTap: _onCardTap,
-                    invert: player == (widget.isHost! ? PlayerColor.blue : PlayerColor.red),
-                    canTap: isPlayerTurn,
-                    owner: player,
-                  ),
-                )
-                .toList(),
-          ),
+          if (_timersEnabled) ...[
+            _buildHandTimer(
+              timeRemaining: timeRemaining,
+              color: player,
+              isActive: isPlayerTurn,
+            ),
+            12.0.spaceX,
+          ],
+          Spacer(),
+          ...cards,
         ],
       ),
     );
   }
 
-  Widget _buildTimerRow({
-    required BuildContext context,
-    required String playerLabel,
-    required String opponentLabel,
-    required PlayerColor playerColor,
-    required PlayerColor opponentColor,
-    required Duration playerTime,
-    required Duration opponentTime,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildClockTile(
-              context,
-              label: playerLabel,
-              remaining: playerTime,
-              color: playerColor,
-              isActive: _gameState!.currentPlayer == playerColor,
-            ),
-          ),
-          12.0.spaceX,
-          Expanded(
-            child: _buildClockTile(
-              context,
-              label: opponentLabel,
-              remaining: opponentTime,
-              color: opponentColor,
-              isActive: _gameState!.currentPlayer == opponentColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildClockTile(
-    BuildContext context, {
-    required String label,
-    required Duration remaining,
+  Widget _buildHandTimer({
+    required Duration timeRemaining,
     required PlayerColor color,
     required bool isActive,
   }) {
     final highlight = color == PlayerColor.red ? Colors.red : Colors.blue;
-    final textTheme = Theme.of(context).textTheme;
-    final backgroundColor = isActive ? highlight.withOpacity(0.18) : Colors.white.withOpacity(0.85);
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      duration: const Duration(milliseconds: 200),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: isActive ? highlight : Colors.transparent, width: 1.5),
+        color: Colors.white.withOpacity(isActive ? 0.95 : 0.8),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isActive ? highlight : highlight.withOpacity(0.5),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.timer, color: highlight),
-          12.0.spaceX,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: highlight,
-                      ) ??
-                      TextStyle(fontWeight: FontWeight.bold, color: highlight),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _formatTime(remaining),
-                  style: textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
-                      ) ??
-                      const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-              ],
+          Icon(
+            Icons.timer,
+            size: 18,
+            color: highlight,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            _formatTime(timeRemaining),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
           ),
         ],
@@ -1140,6 +1104,8 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
     final opponentRating = _ratingForColor(opponentPlayer);
     final playerPhotoUrl = _photoUrlForColor(player);
     final opponentPhotoUrl = _photoUrlForColor(opponentPlayer);
+    final playerTimeRemaining = _gameState!.timeRemaining(player);
+    final opponentTimeRemaining = _gameState!.timeRemaining(opponentPlayer);
 
     return StreamBuilder(
       stream: widget.gameMode == GameMode.online ? _gameStream : null,
@@ -1423,20 +1389,12 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                         ),
                         10.0.spaceY,
                       ],
-                      if (_timersEnabled)
-                        _buildTimerRow(
-                          context: context,
-                          playerLabel: username,
-                          opponentLabel: opponentUsername,
-                          playerColor: player,
-                          opponentColor: opponentPlayer,
-                          playerTime: _gameState!.timeRemaining(player),
-                          opponentTime: _gameState!.timeRemaining(opponentPlayer),
-                        ),
+                      const SizedBox(height: 10),
                       KeyedSubtree(
                         key: _opponentCardsKey,
                         child: _buildHands(
-                          widget.isHost! ? PlayerColor.red : PlayerColor.blue,
+                          opponentPlayer,
+                          opponentTimeRemaining,
                         ),
                       ),
                       Expanded(
@@ -1454,7 +1412,8 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                       KeyedSubtree(
                         key: _playerCardsKey,
                         child: _buildHands(
-                          widget.isHost! ? PlayerColor.blue : PlayerColor.red,
+                          player,
+                          playerTimeRemaining,
                         ),
                       ),
                       const SizedBox(height: 10),
