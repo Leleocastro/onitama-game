@@ -43,6 +43,38 @@ class FirestoreService {
         );
   }
 
+  Future<void> creditGoldFromStorePurchase({
+    required String uid,
+    required int amount,
+    required String packageIdentifier,
+  }) async {
+    if (uid.isEmpty || amount <= 0) return;
+    final userRef = _db.collection('users').doc(uid);
+    final transactionRef = userRef.collection('gold_transactions').doc();
+    await _db.runTransaction((txn) async {
+      final userSnap = await txn.get(userRef);
+      final currentBalance = (userSnap.data()?['goldBalance'] as num?)?.round() ?? 0;
+      final updatedBalance = currentBalance + amount;
+      txn.set(
+        userRef,
+        {
+          'id': uid,
+          'goldBalance': updatedBalance,
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+      txn.set(transactionRef, {
+        'amount': amount,
+        'type': 'credit',
+        'reason': 'store_purchase',
+        'source': packageIdentifier,
+        'createdAt': FieldValue.serverTimestamp(),
+        'balanceAfter': updatedBalance,
+      });
+    });
+  }
+
   Future<void> setUsername(String uid, String username) async {
     await _db.collection('users').doc(uid).set(
       {

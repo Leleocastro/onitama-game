@@ -1229,11 +1229,89 @@ abstract class AppLocalizations {
   /// **'Match reward'**
   String get goldStatementMatchReward;
 
+  /// No description provided for @goldStatementStorePurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold purchase'**
+  String get goldStatementStorePurchase;
+
   /// No description provided for @goldStatementBalance.
   ///
   /// In en, this message translates to:
   /// **'Balance: {amount}'**
   String goldStatementBalance(Object amount);
+
+  /// No description provided for @goldStoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold Store'**
+  String get goldStoreTitle;
+
+  /// No description provided for @goldStoreSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Top up your gold to unlock future cosmetics.'**
+  String get goldStoreSubtitle;
+
+  /// No description provided for @goldStoreBadgeMostPopular.
+  ///
+  /// In en, this message translates to:
+  /// **'Most popular'**
+  String get goldStoreBadgeMostPopular;
+
+  /// No description provided for @goldStoreBonusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} bonus'**
+  String goldStoreBonusLabel(Object amount);
+
+  /// No description provided for @goldStoreBuyButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy now'**
+  String get goldStoreBuyButton;
+
+  /// No description provided for @goldStoreError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load the store. Please try again in a moment.'**
+  String get goldStoreError;
+
+  /// No description provided for @goldStoreRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get goldStoreRetry;
+
+  /// No description provided for @goldStoreRestoreButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get goldStoreRestoreButton;
+
+  /// No description provided for @goldStorePurchaseSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold added to your balance!'**
+  String get goldStorePurchaseSuccess;
+
+  /// No description provided for @goldStorePurchaseError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t complete your purchase. Try again later.'**
+  String get goldStorePurchaseError;
+
+  /// No description provided for @goldStoreAddTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy more gold'**
+  String get goldStoreAddTooltip;
+
+  /// No description provided for @goldStoreLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading offers...'**
+  String get goldStoreLoading;
 }
 
 class _AppLocalizationsDelegate

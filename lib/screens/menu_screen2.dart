@@ -20,6 +20,7 @@ import '../widgets/gold_statement_sheet.dart';
 import '../widgets/tutorial_card.dart';
 import '../widgets/username_avatar.dart';
 import '../widgets/volume_settings_sheet.dart';
+import 'gold_store_screen.dart';
 import 'how_to_play_screen.dart';
 import 'leaderboard_screen.dart';
 import 'login_screen.dart';
@@ -152,6 +153,23 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => GoldStatementSheet(userId: userId),
+    );
+  }
+
+  Future<void> _openGoldStore() async {
+    var user = FirebaseAuth.instance.currentUser;
+    if (user == null || user.isAnonymous) {
+      final authenticated = await _ensureAuthenticated();
+      if (!authenticated) return;
+      user = FirebaseAuth.instance.currentUser;
+    }
+    final uid = user?.uid ?? _playerUid;
+    if (uid == null || uid.isEmpty) return;
+    if (!mounted) return;
+    unawaited(AudioService.instance.playUiConfirmSound());
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => GoldStoreScreen(userId: uid)),
     );
   }
 
@@ -660,7 +678,8 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                               children: [
                                 _GoldBalanceBadge(
                                   amount: goldBalance,
-                                  onTap: () => _openGoldStatement(user.uid),
+                                  onStatementTap: () => _openGoldStatement(user.uid),
+                                  onAddTap: _openGoldStore,
                                 ),
                                 const SizedBox(width: 8),
                                 GestureDetector(
@@ -735,41 +754,70 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
 }
 
 class _GoldBalanceBadge extends StatelessWidget {
-  const _GoldBalanceBadge({required this.amount, required this.onTap});
+  const _GoldBalanceBadge({required this.amount, required this.onStatementTap, required this.onAddTap});
 
   final int amount;
-  final VoidCallback onTap;
+  final VoidCallback onStatementTap;
+  final VoidCallback onAddTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    return Material(
-      color: Colors.white.withOpacity(0.8),
-      borderRadius: BorderRadius.circular(999),
-      child: InkWell(
-        onTap: onTap,
+    final l10n = AppLocalizations.of(context)!;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.9),
         borderRadius: BorderRadius.circular(999),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(
-                'assets/icons/coins.png',
-                width: 22,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '$amount',
-                style: textTheme.labelLarge?.copyWith(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w700,
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3)),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onStatementTap,
+              borderRadius: BorderRadius.circular(999),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset('assets/icons/coins.png', width: 22),
+                    const SizedBox(width: 6),
+                    Text(
+                      '$amount',
+                      style: textTheme.labelLarge?.copyWith(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(width: 4),
+          Tooltip(
+            message: l10n.goldStoreAddTooltip,
+            child: Material(
+              color: AppTheme.primary,
+              borderRadius: BorderRadius.circular(999),
+              child: InkWell(
+                onTap: onAddTap,
+                borderRadius: BorderRadius.circular(999),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  child: Icon(Icons.add, color: Colors.white, size: 18),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+        ],
       ),
     );
   }

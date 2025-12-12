@@ -189,7 +189,20 @@
   "goldStatementTitle": "Gold statement",
   "goldStatementEmpty": "You don't have any gold transactions yet.",
   "goldStatementMatchReward": "Match reward",
+  "goldStatementStorePurchase": "Gold purchase",
   "goldStatementBalance": "Balance: {amount}",
+  "goldStoreTitle": "Gold Store",
+  "goldStoreSubtitle": "Top up your gold to unlock future cosmetics.",
+  "goldStoreBadgeMostPopular": "Most popular",
+  "goldStoreBonusLabel": "{amount} bonus",
+  "goldStoreBuyButton": "Buy now",
+  "goldStoreError": "We couldn't load the store. Please try again in a moment.",
+  "goldStoreRetry": "Try again",
+  "goldStoreRestoreButton": "Restore purchases",
+  "goldStorePurchaseSuccess": "Gold added to your balance!",
+  "goldStorePurchaseError": "We couldn't complete your purchase. Try again later.",
+  "goldStoreAddTooltip": "Buy more gold",
+  "goldStoreLoading": "Loading offers...",
   "@matchResultGainedPoints": {
     "placeholders": {
       "points": {}
@@ -206,6 +219,11 @@
     }
   },
   "@goldStatementBalance": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "@goldStoreBonusLabel": {
     "placeholders": {
       "amount": {}
     }

@@ -189,7 +189,20 @@
   "goldStatementTitle": "Estado de oro",
   "goldStatementEmpty": "Aún no tienes transacciones de oro.",
   "goldStatementMatchReward": "Recompensa de partida",
+  "goldStatementStorePurchase": "Compra de oro",
   "goldStatementBalance": "Saldo: {amount}",
+  "goldStoreTitle": "Tienda de oro",
+  "goldStoreSubtitle": "Recarga tu oro para desbloquear cosméticos en el futuro.",
+  "goldStoreBadgeMostPopular": "Más popular",
+  "goldStoreBonusLabel": "{amount} de bonificación",
+  "goldStoreBuyButton": "Comprar ahora",
+  "goldStoreError": "No pudimos cargar la tienda. Inténtalo de nuevo en unos instantes.",
+  "goldStoreRetry": "Reintentar",
+  "goldStoreRestoreButton": "Restaurar compras",
+  "goldStorePurchaseSuccess": "¡Oro añadido a tu saldo!",
+  "goldStorePurchaseError": "No pudimos completar tu compra. Inténtalo de nuevo más tarde.",
+  "goldStoreAddTooltip": "Comprar más oro",
+  "goldStoreLoading": "Cargando ofertas...",
   "@matchResultGainedPoints": {
     "placeholders": {
       "points": {}
@@ -206,6 +219,11 @@
     }
   },
   "@goldStatementBalance": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "@goldStoreBonusLabel": {
     "placeholders": {
       "amount": {}
     }

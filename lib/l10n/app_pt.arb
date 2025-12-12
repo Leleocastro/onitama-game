@@ -189,7 +189,20 @@
   "goldStatementTitle": "Extrato de gold",
   "goldStatementEmpty": "Você ainda não possui transações de gold.",
   "goldStatementMatchReward": "Recompensa de partida",
+  "goldStatementStorePurchase": "Compra de gold",
   "goldStatementBalance": "Saldo: {amount}",
+  "goldStoreTitle": "Loja de Gold",
+  "goldStoreSubtitle": "Recarregue seu gold para desbloquear cosméticos no futuro.",
+  "goldStoreBadgeMostPopular": "Mais popular",
+  "goldStoreBonusLabel": "{amount} de bônus",
+  "goldStoreBuyButton": "Comprar agora",
+  "goldStoreError": "Não conseguimos carregar a loja. Tente novamente em instantes.",
+  "goldStoreRetry": "Tentar novamente",
+  "goldStoreRestoreButton": "Restaurar compras",
+  "goldStorePurchaseSuccess": "Gold adicionado ao seu saldo!",
+  "goldStorePurchaseError": "Não conseguimos concluir sua compra. Tente novamente mais tarde.",
+  "goldStoreAddTooltip": "Comprar mais gold",
+  "goldStoreLoading": "Carregando ofertas...",
   "@matchResultGainedPoints": {
     "placeholders": {
       "points": {}
@@ -206,6 +219,11 @@
     }
   },
   "@goldStatementBalance": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "@goldStoreBonusLabel": {
     "placeholders": {
       "amount": {}
     }

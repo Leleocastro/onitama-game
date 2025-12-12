@@ -10,7 +10,7 @@ import './player.dart';
 import './point.dart';
 import 'move.dart';
 
-const int _defaultClockMillis = 5 * 60 * 1000;
+const int _defaultClockMillis = 25 * 60 * 1000;
 
 class FirestoreGame {
   final String id;

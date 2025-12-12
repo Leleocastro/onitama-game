@@ -14,6 +14,7 @@ import 'screens/preload_screen.dart';
 import 'services/analytics_service.dart';
 import 'services/audio_service.dart';
 import 'services/push_notification_service.dart';
+import 'services/revenuecat_service.dart';
 import 'services/route_observer.dart';
 import 'style/theme.dart';
 
@@ -32,6 +33,7 @@ Future<void> main() async {
 
       // Initialize push notifications (registers background handler, channels and listeners)
       await PushNotificationService.initialize();
+      await RevenueCatService.instance.initialize();
 
       crashlytics = FirebaseCrashlytics.instance;
       await crashlytics!.setCrashlyticsCollectionEnabled(!kDebugMode);

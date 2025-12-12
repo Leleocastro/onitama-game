@@ -653,7 +653,51 @@ class AppLocalizationsEs extends AppLocalizations {
   String get goldStatementMatchReward => 'Recompensa de partida';
 
   @override
+  String get goldStatementStorePurchase => 'Compra de oro';
+
+  @override
   String goldStatementBalance(Object amount) {
     return 'Saldo: $amount';
   }
+
+  @override
+  String get goldStoreTitle => 'Tienda de oro';
+
+  @override
+  String get goldStoreSubtitle =>
+      'Recarga tu oro para desbloquear cosméticos en el futuro.';
+
+  @override
+  String get goldStoreBadgeMostPopular => 'Más popular';
+
+  @override
+  String goldStoreBonusLabel(Object amount) {
+    return '$amount de bonificación';
+  }
+
+  @override
+  String get goldStoreBuyButton => 'Comprar ahora';
+
+  @override
+  String get goldStoreError =>
+      'No pudimos cargar la tienda. Inténtalo de nuevo en unos instantes.';
+
+  @override
+  String get goldStoreRetry => 'Reintentar';
+
+  @override
+  String get goldStoreRestoreButton => 'Restaurar compras';
+
+  @override
+  String get goldStorePurchaseSuccess => '¡Oro añadido a tu saldo!';
+
+  @override
+  String get goldStorePurchaseError =>
+      'No pudimos completar tu compra. Inténtalo de nuevo más tarde.';
+
+  @override
+  String get goldStoreAddTooltip => 'Comprar más oro';
+
+  @override
+  String get goldStoreLoading => 'Cargando ofertas...';
 }

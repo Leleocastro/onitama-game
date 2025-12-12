@@ -17,7 +17,7 @@ import 'ai_player.dart';
 
 class GameState {
   static const int size = 5;
-  static const int _matchTimerMillis = 5 * 60 * 1000;
+  static const int _matchTimerMillis = 25 * 60 * 1000;
 
   final GameMode gameMode;
   final AIDifficulty? aiDifficulty;

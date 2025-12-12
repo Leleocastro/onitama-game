@@ -651,7 +651,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goldStatementMatchReward => 'Match reward';
 
   @override
+  String get goldStatementStorePurchase => 'Gold purchase';
+
+  @override
   String goldStatementBalance(Object amount) {
     return 'Balance: $amount';
   }
+
+  @override
+  String get goldStoreTitle => 'Gold Store';
+
+  @override
+  String get goldStoreSubtitle =>
+      'Top up your gold to unlock future cosmetics.';
+
+  @override
+  String get goldStoreBadgeMostPopular => 'Most popular';
+
+  @override
+  String goldStoreBonusLabel(Object amount) {
+    return '$amount bonus';
+  }
+
+  @override
+  String get goldStoreBuyButton => 'Buy now';
+
+  @override
+  String get goldStoreError =>
+      'We couldn\'t load the store. Please try again in a moment.';
+
+  @override
+  String get goldStoreRetry => 'Try again';
+
+  @override
+  String get goldStoreRestoreButton => 'Restore purchases';
+
+  @override
+  String get goldStorePurchaseSuccess => 'Gold added to your balance!';
+
+  @override
+  String get goldStorePurchaseError =>
+      'We couldn\'t complete your purchase. Try again later.';
+
+  @override
+  String get goldStoreAddTooltip => 'Buy more gold';
+
+  @override
+  String get goldStoreLoading => 'Loading offers...';
 }
