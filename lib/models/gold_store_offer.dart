@@ -46,32 +46,27 @@ class GoldStoreOffer {
 class GoldBundleCatalog {
   static const List<GoldBundleConfig> _bundles = [
     GoldBundleConfig(
-      productIdentifier: 'gold_1000',
-      displayName: '1,000 Gold',
+      productIdentifier: 'com.ltag.onitama.gold_1000',
+      displayName: '1000 Gold',
       goldAmount: 1000,
-    ),
-    GoldBundleConfig(
-      productIdentifier: 'gold_5000',
-      displayName: '5,000 Gold',
-      goldAmount: 5000,
-    ),
-    GoldBundleConfig(
-      productIdentifier: 'gold_10000',
-      displayName: '10,000 Gold',
-      goldAmount: 10000,
-      bonusAmount: 2500,
       featured: true,
+    ),
+    GoldBundleConfig(
+      productIdentifier: 'com.ltag.onitama.gold_5000',
+      displayName: '5000 Gold',
+      goldAmount: 5000,
+      badge: GoldBundleBadge.bestValue,
+    ),
+    GoldBundleConfig(
+      productIdentifier: 'com.ltag.onitama.gold_2000',
+      displayName: '2000 Gold',
+      goldAmount: 2000,
       badge: GoldBundleBadge.mostPopular,
     ),
     GoldBundleConfig(
-      productIdentifier: 'gold_25000',
-      displayName: '25,000 Gold',
-      goldAmount: 25000,
-    ),
-    GoldBundleConfig(
-      productIdentifier: 'gold_50000',
-      displayName: '50,000 Gold',
-      goldAmount: 50000,
+      productIdentifier: 'com.ltag.onitama.gold_500',
+      displayName: '500 Gold',
+      goldAmount: 500,
     ),
   ];
 
