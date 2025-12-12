@@ -9,6 +9,7 @@ import '../models/user_profile.dart';
 import '../services/firestore_service.dart';
 import '../services/revenuecat_service.dart';
 import '../style/theme.dart';
+import '../utils/extensions.dart';
 
 class GoldStoreScreen extends StatefulWidget {
   const GoldStoreScreen({required this.userId, super.key});
@@ -71,15 +72,15 @@ class _GoldStoreScreenState extends State<GoldStoreScreen> {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            l10n.goldStoreSubtitle,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: Colors.white70,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                          // const SizedBox(height: 4),
+                          // Text(
+                          //   l10n.goldStoreSubtitle,
+                          //   textAlign: TextAlign.center,
+                          //   style: theme.textTheme.bodyMedium?.copyWith(
+                          //     color: Colors.white70,
+                          //     fontWeight: FontWeight.w500,
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
@@ -195,9 +196,7 @@ class _GoldStoreScreenState extends State<GoldStoreScreen> {
         packageIdentifier: offer.productIdentifier,
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.goldStorePurchaseSuccess)),
-      );
+      context.toToastSuccess(l10n.goldStorePurchaseSuccess);
     } on PlatformException catch (error) {
       final code = PurchasesErrorHelper.getErrorCode(error);
       if (code == PurchasesErrorCode.purchaseCancelledError) {
@@ -218,9 +217,8 @@ class _GoldStoreScreenState extends State<GoldStoreScreen> {
     final l10n = AppLocalizations.of(context)!;
     try {
       await RevenueCatService.instance.restorePurchases();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.goldStorePurchaseSuccess)),
-      );
+      if (!mounted) return;
+      context.toToastSuccess(l10n.goldStorePurchaseSuccess);
     } catch (_) {
       _showPurchaseError(l10n.goldStorePurchaseError);
     }
@@ -235,9 +233,7 @@ class _GoldStoreScreenState extends State<GoldStoreScreen> {
 
   void _showPurchaseError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    context.toToastError(message);
   }
 }
 
