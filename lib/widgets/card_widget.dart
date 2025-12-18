@@ -23,6 +23,7 @@ class CardWidget extends StatelessWidget {
   final bool canTap;
   final String move;
   final PlayerColor? owner;
+  final ImageProvider<Object>? textureOverride;
 
   const CardWidget({
     required this.card,
@@ -37,6 +38,7 @@ class CardWidget extends StatelessWidget {
     this.canTap = true,
     this.move = '',
     this.owner,
+    this.textureOverride,
   });
 
   String _getLocalizedCardDescription(BuildContext context, String cardName) {
@@ -84,7 +86,7 @@ class CardWidget extends StatelessWidget {
     final moves = invert ? _invertMoves(card.moves) : card.moves;
     final headerColor = _darken(color, 0.2);
     const detailsColor = Color(0xFFd2be8f);
-    final image = ThemeManager.themedImage('card${card.name}', owner: owner);
+    final image = textureOverride ?? ThemeManager.themedImage('card${card.name}', owner: owner);
     final heroTag = 'cardTexture-${card.name}-${isReserve ? 'reserve' : 'board'}$move';
 
     return GestureDetector(
@@ -130,7 +132,11 @@ class CardWidget extends StatelessWidget {
           border: Border.all(color: isSelected ? color : detailsColor),
           borderRadius: BorderRadius.circular(8),
           boxShadow: const [
-            BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(2, 2)),
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              offset: Offset(2, 2),
+            ),
           ],
         ),
         child: Stack(
@@ -185,7 +191,11 @@ class CardWidget extends StatelessWidget {
                 Container(
                   alignment: Alignment.center,
                   width: isReserve ? 50 : 60,
-                  child: _buildMovesMiniGrid(moves, isReserve: isReserve, color: color),
+                  child: _buildMovesMiniGrid(
+                    moves,
+                    isReserve: isReserve,
+                    color: color,
+                  ),
                 ),
                 10.0.spaceY,
               ],
@@ -461,12 +471,21 @@ class _HeroDialogRoute extends PageRoute<void> {
   String? get barrierLabel => 'card-preview';
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
     return builder(context);
   }
 
   @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
     return FadeTransition(
       opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
       child: child,
@@ -513,7 +532,11 @@ class _CornerFiligreeOverlay extends StatelessWidget {
           _CornerOrnament(alignment: Alignment.topLeft),
           _CornerOrnament(alignment: Alignment.topRight, flipX: true),
           _CornerOrnament(alignment: Alignment.bottomLeft, flipY: true),
-          _CornerOrnament(alignment: Alignment.bottomRight, flipX: true, flipY: true),
+          _CornerOrnament(
+            alignment: Alignment.bottomRight,
+            flipX: true,
+            flipY: true,
+          ),
         ],
       ),
     );
@@ -521,7 +544,11 @@ class _CornerFiligreeOverlay extends StatelessWidget {
 }
 
 class _CornerOrnament extends StatelessWidget {
-  const _CornerOrnament({required this.alignment, this.flipX = false, this.flipY = false});
+  const _CornerOrnament({
+    required this.alignment,
+    this.flipX = false,
+    this.flipY = false,
+  });
 
   final Alignment alignment;
   final bool flipX;
@@ -573,7 +600,11 @@ class _TitlePlaque extends StatelessWidget {
           side: BorderSide(color: detailsColor),
         ),
         shadows: const [
-          BoxShadow(color: Colors.black45, blurRadius: 12, offset: Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black45,
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Material(

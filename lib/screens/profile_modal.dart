@@ -11,6 +11,7 @@ import '../l10n/app_localizations.dart';
 import '../services/firestore_service.dart';
 import '../utils/extensions.dart';
 import '../widgets/username_avatar.dart';
+import 'skin_loadout_screen.dart';
 
 class ProfileModal extends StatefulWidget {
   const ProfileModal({
@@ -85,7 +86,10 @@ class _ProfileModalState extends State<ProfileModal> {
                       child: SizedBox(
                         width: 28,
                         height: 28,
-                        child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -99,8 +103,20 @@ class _ProfileModalState extends State<ProfileModal> {
             style: GoogleFonts.onest(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           10.0.spaceY,
-          Text('${l10n.email}: ${widget.user.email ?? 'N/A'}', style: GoogleFonts.onest()),
-          Text('${l10n.displayName}: ${widget.user.displayName ?? 'N/A'}', style: GoogleFonts.onest()),
+          Text(
+            '${l10n.email}: ${widget.user.email ?? 'N/A'}',
+            style: GoogleFonts.onest(),
+          ),
+          Text(
+            '${l10n.displayName}: ${widget.user.displayName ?? 'N/A'}',
+            style: GoogleFonts.onest(),
+          ),
+          16.0.spaceY,
+          FilledButton.icon(
+            onPressed: _openSkinLoadout,
+            icon: const Icon(Icons.style_outlined),
+            label: Text(l10n.skinLoadoutManageButton),
+          ),
           10.0.spaceY,
           TextButton(
             onPressed: () async {
@@ -165,9 +181,16 @@ class _ProfileModalState extends State<ProfileModal> {
     }
   }
 
-  Future<void> _handleImageSelection(ImageSource source, AppLocalizations l10n) async {
+  Future<void> _handleImageSelection(
+    ImageSource source,
+    AppLocalizations l10n,
+  ) async {
     try {
-      final pickedFile = await _picker.pickImage(source: source, maxWidth: 1500, maxHeight: 1500);
+      final pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 1500,
+        maxHeight: 1500,
+      );
       if (pickedFile == null) return;
 
       setState(() => _isUploading = true);
@@ -205,5 +228,17 @@ class _ProfileModalState extends State<ProfileModal> {
         setState(() => _isUploading = false);
       }
     }
+  }
+
+  void _openSkinLoadout() {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    navigator.pop();
+    Future.microtask(() {
+      navigator.push(
+        MaterialPageRoute(
+          builder: (_) => SkinLoadoutScreen(userId: widget.user.uid),
+        ),
+      );
+    });
   }
 }

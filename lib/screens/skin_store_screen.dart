@@ -416,12 +416,12 @@ class _StoreItemCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (owned)
-                Positioned(
-                  top: 12,
-                  left: 12,
-                  child: _StatusChip(label: l10n.skinStoreOwnedTag, color: Colors.white.withOpacity(0.2)),
-                ),
+              // if (owned)
+              //   Positioned(
+              //     top: 12,
+              //     left: 12,
+              //     child: _StatusChip(label: l10n.skinStoreOwnedTag, color: Colors.white.withOpacity(0.2)),
+              //   ),
               if (equipped)
                 Positioned(
                   top: 12,

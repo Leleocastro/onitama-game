@@ -807,4 +807,124 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get skinStoreEmptyAssets =>
       'No assets are associated with this bundle yet.';
+
+  @override
+  String get skinLoadoutTitle => 'Skin Loadout';
+
+  @override
+  String get skinLoadoutSubtitle =>
+      'Choose which cosmetics to equip in each slot.';
+
+  @override
+  String get skinLoadoutSelectionTab => 'Selection';
+
+  @override
+  String get skinLoadoutPreviewTab => 'Preview';
+
+  @override
+  String get skinLoadoutCategoryPieces => 'Pieces';
+
+  @override
+  String get skinLoadoutCategoryCards => 'Cards';
+
+  @override
+  String get skinLoadoutCategoryBoards => 'Boards';
+
+  @override
+  String get skinLoadoutCategoryBackgrounds => 'Background';
+
+  @override
+  String get skinLoadoutSave => 'Save loadout';
+
+  @override
+  String get skinLoadoutSaving => 'Saving...';
+
+  @override
+  String get skinLoadoutReset => 'Reset to default';
+
+  @override
+  String get skinLoadoutPreviewTitle => 'Preview';
+
+  @override
+  String get skinLoadoutPreviewDescription =>
+      'See how your selections look inside a duel.';
+
+  @override
+  String get skinLoadoutAllCardsLabel => 'All cards';
+
+  @override
+  String get skinLoadoutEmptyCategory =>
+      'There are no slots in this category yet.';
+
+  @override
+  String get skinLoadoutEmptySlot =>
+      'You haven\'t unlocked cosmetics for this slot yet.';
+
+  @override
+  String get skinLoadoutUnsavedBanner => 'You have unsaved changes.';
+
+  @override
+  String get skinLoadoutUnableToLoad =>
+      'We couldn\'t load the available themes.';
+
+  @override
+  String get skinLoadoutRetry => 'Try again';
+
+  @override
+  String get skinLoadoutUnavailable => 'No cosmetics can be configured yet.';
+
+  @override
+  String get skinLoadoutApplyError =>
+      'We couldn\'t save your loadout. Please try again.';
+
+  @override
+  String get skinLoadoutSaved => 'Loadout saved!';
+
+  @override
+  String get skinLoadoutDefaultTag => 'Default';
+
+  @override
+  String get skinLoadoutManageButton => 'Customize skins';
+
+  @override
+  String get skinSlotBlueMaster => 'Blue Master';
+
+  @override
+  String get skinSlotBlueStudent1 => 'Blue Student I';
+
+  @override
+  String get skinSlotBlueStudent2 => 'Blue Student II';
+
+  @override
+  String get skinSlotBlueStudent3 => 'Blue Student III';
+
+  @override
+  String get skinSlotBlueStudent4 => 'Blue Student IV';
+
+  @override
+  String get skinSlotRedMaster => 'Red Master';
+
+  @override
+  String get skinSlotRedStudent1 => 'Red Student I';
+
+  @override
+  String get skinSlotRedStudent2 => 'Red Student II';
+
+  @override
+  String get skinSlotRedStudent3 => 'Red Student III';
+
+  @override
+  String get skinSlotRedStudent4 => 'Red Student IV';
+
+  @override
+  String get skinSlotBackground => 'Background';
+
+  @override
+  String get skinSlotBoardSurface => 'Board surface';
+
+  @override
+  String get skinSlotBoardLight => 'Light tiles';
+
+  @override
+  String get skinSlotBoardDark => 'Dark tiles';
 }

@@ -1504,6 +1504,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No assets are associated with this bundle yet.'**
   String get skinStoreEmptyAssets;
+
+  /// No description provided for @skinLoadoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin Loadout'**
+  String get skinLoadoutTitle;
+
+  /// No description provided for @skinLoadoutSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which cosmetics to equip in each slot.'**
+  String get skinLoadoutSubtitle;
+
+  /// No description provided for @skinLoadoutSelectionTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Selection'**
+  String get skinLoadoutSelectionTab;
+
+  /// No description provided for @skinLoadoutPreviewTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get skinLoadoutPreviewTab;
+
+  /// No description provided for @skinLoadoutCategoryPieces.
+  ///
+  /// In en, this message translates to:
+  /// **'Pieces'**
+  String get skinLoadoutCategoryPieces;
+
+  /// No description provided for @skinLoadoutCategoryCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards'**
+  String get skinLoadoutCategoryCards;
+
+  /// No description provided for @skinLoadoutCategoryBoards.
+  ///
+  /// In en, this message translates to:
+  /// **'Boards'**
+  String get skinLoadoutCategoryBoards;
+
+  /// No description provided for @skinLoadoutCategoryBackgrounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get skinLoadoutCategoryBackgrounds;
+
+  /// No description provided for @skinLoadoutSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save loadout'**
+  String get skinLoadoutSave;
+
+  /// No description provided for @skinLoadoutSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get skinLoadoutSaving;
+
+  /// No description provided for @skinLoadoutReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to default'**
+  String get skinLoadoutReset;
+
+  /// No description provided for @skinLoadoutPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get skinLoadoutPreviewTitle;
+
+  /// No description provided for @skinLoadoutPreviewDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'See how your selections look inside a duel.'**
+  String get skinLoadoutPreviewDescription;
+
+  /// No description provided for @skinLoadoutAllCardsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All cards'**
+  String get skinLoadoutAllCardsLabel;
+
+  /// No description provided for @skinLoadoutEmptyCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no slots in this category yet.'**
+  String get skinLoadoutEmptyCategory;
+
+  /// No description provided for @skinLoadoutEmptySlot.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t unlocked cosmetics for this slot yet.'**
+  String get skinLoadoutEmptySlot;
+
+  /// No description provided for @skinLoadoutUnsavedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved changes.'**
+  String get skinLoadoutUnsavedBanner;
+
+  /// No description provided for @skinLoadoutUnableToLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load the available themes.'**
+  String get skinLoadoutUnableToLoad;
+
+  /// No description provided for @skinLoadoutRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get skinLoadoutRetry;
+
+  /// No description provided for @skinLoadoutUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No cosmetics can be configured yet.'**
+  String get skinLoadoutUnavailable;
+
+  /// No description provided for @skinLoadoutApplyError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t save your loadout. Please try again.'**
+  String get skinLoadoutApplyError;
+
+  /// No description provided for @skinLoadoutSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Loadout saved!'**
+  String get skinLoadoutSaved;
+
+  /// No description provided for @skinLoadoutDefaultTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get skinLoadoutDefaultTag;
+
+  /// No description provided for @skinLoadoutManageButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize skins'**
+  String get skinLoadoutManageButton;
+
+  /// No description provided for @skinSlotBlueMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue Master'**
+  String get skinSlotBlueMaster;
+
+  /// No description provided for @skinSlotBlueStudent1.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue Student I'**
+  String get skinSlotBlueStudent1;
+
+  /// No description provided for @skinSlotBlueStudent2.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue Student II'**
+  String get skinSlotBlueStudent2;
+
+  /// No description provided for @skinSlotBlueStudent3.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue Student III'**
+  String get skinSlotBlueStudent3;
+
+  /// No description provided for @skinSlotBlueStudent4.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue Student IV'**
+  String get skinSlotBlueStudent4;
+
+  /// No description provided for @skinSlotRedMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Red Master'**
+  String get skinSlotRedMaster;
+
+  /// No description provided for @skinSlotRedStudent1.
+  ///
+  /// In en, this message translates to:
+  /// **'Red Student I'**
+  String get skinSlotRedStudent1;
+
+  /// No description provided for @skinSlotRedStudent2.
+  ///
+  /// In en, this message translates to:
+  /// **'Red Student II'**
+  String get skinSlotRedStudent2;
+
+  /// No description provided for @skinSlotRedStudent3.
+  ///
+  /// In en, this message translates to:
+  /// **'Red Student III'**
+  String get skinSlotRedStudent3;
+
+  /// No description provided for @skinSlotRedStudent4.
+  ///
+  /// In en, this message translates to:
+  /// **'Red Student IV'**
+  String get skinSlotRedStudent4;
+
+  /// No description provided for @skinSlotBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get skinSlotBackground;
+
+  /// No description provided for @skinSlotBoardSurface.
+  ///
+  /// In en, this message translates to:
+  /// **'Board surface'**
+  String get skinSlotBoardSurface;
+
+  /// No description provided for @skinSlotBoardLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light tiles'**
+  String get skinSlotBoardLight;
+
+  /// No description provided for @skinSlotBoardDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark tiles'**
+  String get skinSlotBoardDark;
 }
 
 class _AppLocalizationsDelegate
