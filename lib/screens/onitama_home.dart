@@ -992,22 +992,29 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
       child: Row(
         mainAxisAlignment: isOnline ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
         children: [
-          if (!isOnline)
-            Text(
-              _getPlayerLabel(player),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: player == PlayerColor.red ? Colors.red : Colors.blue,
-                decoration: isPlayerTurn ? TextDecoration.underline : TextDecoration.none,
-                decorationColor: player == PlayerColor.red ? Colors.red : Colors.blue,
-              ),
-            ),
           if (_timersEnabled) ...[
-            _buildHandTimer(
-              timeRemaining: timeRemaining,
-              color: player,
-              isActive: isPlayerTurn,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!isOnline) ...[
+                  Text(
+                    _getPlayerLabel(player),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: player == PlayerColor.red ? Colors.red : Colors.blue,
+                      decoration: isPlayerTurn ? TextDecoration.underline : TextDecoration.none,
+                      decorationColor: player == PlayerColor.red ? Colors.red : Colors.blue,
+                    ),
+                  ),
+                  5.0.spaceY,
+                ],
+                _buildHandTimer(
+                  timeRemaining: timeRemaining,
+                  color: player,
+                  isActive: isPlayerTurn,
+                ),
+              ],
             ),
             12.0.spaceX,
           ],
@@ -1116,6 +1123,23 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
         return Stack(
           children: [
             if (background != null) background,
+            Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                height: 150,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Theme.of(context).scaffoldBackgroundColor,
+                      Theme.of(context).scaffoldBackgroundColor.withOpacity(0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             Scaffold(
               key: scaffoldKey,
               backgroundColor: background != null ? Colors.transparent : null,
@@ -1312,7 +1336,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                                         Icon(
                                           Icons.star_border,
                                           size: 12,
-                                          color: Colors.grey,
+                                          color: Colors.black,
                                         ),
                                         4.0.spaceX,
                                         Text(
@@ -1320,7 +1344,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                                           style: const TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
-                                            color: Colors.grey,
+                                            color: Colors.black,
                                           ),
                                         ),
                                       ],
@@ -1351,14 +1375,14 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                                           style: const TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
-                                            color: Colors.grey,
+                                            color: Colors.black,
                                           ),
                                         ),
                                         4.0.spaceX,
                                         const Icon(
                                           Icons.star_border,
                                           size: 12,
-                                          color: Colors.grey,
+                                          color: Colors.black,
                                         ),
                                       ],
                                     ),
