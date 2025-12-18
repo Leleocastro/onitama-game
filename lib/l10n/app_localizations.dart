@@ -1235,6 +1235,12 @@ abstract class AppLocalizations {
   /// **'Gold purchase'**
   String get goldStatementStorePurchase;
 
+  /// No description provided for @goldStatementThemePurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme purchase'**
+  String get goldStatementThemePurchase;
+
   /// No description provided for @goldStatementBalance.
   ///
   /// In en, this message translates to:
@@ -1312,6 +1318,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading offers...'**
   String get goldStoreLoading;
+
+  /// No description provided for @skinStoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cosmetics Store'**
+  String get skinStoreTitle;
+
+  /// No description provided for @skinStoreSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect exclusive skins for your masters.'**
+  String get skinStoreSubtitle;
+
+  /// No description provided for @skinStoreLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading cosmetics...'**
+  String get skinStoreLoading;
+
+  /// No description provided for @skinStoreError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load the cosmetics. Please try again.'**
+  String get skinStoreError;
+
+  /// No description provided for @skinStoreEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No cosmetics are available right now.'**
+  String get skinStoreEmpty;
+
+  /// No description provided for @skinStoreFilterEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to show in this category yet.'**
+  String get skinStoreFilterEmpty;
+
+  /// No description provided for @skinStoreRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload'**
+  String get skinStoreRetry;
+
+  /// No description provided for @skinStoreCategoryPieces.
+  ///
+  /// In en, this message translates to:
+  /// **'Pieces'**
+  String get skinStoreCategoryPieces;
+
+  /// No description provided for @skinStoreCategoryBoards.
+  ///
+  /// In en, this message translates to:
+  /// **'Boards'**
+  String get skinStoreCategoryBoards;
+
+  /// No description provided for @skinStoreCategoryCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards'**
+  String get skinStoreCategoryCards;
+
+  /// No description provided for @skinStoreCategoryBackgrounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Backgrounds'**
+  String get skinStoreCategoryBackgrounds;
+
+  /// No description provided for @skinStoreCategoryGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundles'**
+  String get skinStoreCategoryGroup;
+
+  /// No description provided for @skinStoreCategoryAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get skinStoreCategoryAll;
+
+  /// No description provided for @skinStoreOwnedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Owned'**
+  String get skinStoreOwnedTag;
+
+  /// No description provided for @skinStoreEquippedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipped'**
+  String get skinStoreEquippedTag;
+
+  /// No description provided for @skinStoreDiscountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} off'**
+  String skinStoreDiscountLabel(Object amount);
+
+  /// No description provided for @skinStoreOwnedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You already own this cosmetic.'**
+  String get skinStoreOwnedMessage;
+
+  /// No description provided for @skinStoreBuyButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase'**
+  String get skinStoreBuyButton;
+
+  /// No description provided for @skinStoreOwnedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Owned'**
+  String get skinStoreOwnedButton;
+
+  /// No description provided for @skinStoreInsufficientGold.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have enough gold.'**
+  String get skinStoreInsufficientGold;
+
+  /// No description provided for @skinStoreConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm purchase'**
+  String get skinStoreConfirmTitle;
+
+  /// No description provided for @skinStoreConfirmDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy {item} for {price} gold? Remaining balance: {balance}.'**
+  String skinStoreConfirmDescription(Object item, Object price, Object balance);
+
+  /// No description provided for @skinStorePurchaseSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'{item} unlocked!'**
+  String skinStorePurchaseSuccess(Object item);
+
+  /// No description provided for @skinStoreEquipPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Equip cosmetic'**
+  String get skinStoreEquipPromptTitle;
+
+  /// No description provided for @skinStoreEquipPromptDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to equip {item} now?'**
+  String skinStoreEquipPromptDescription(Object item);
+
+  /// No description provided for @skinStoreEquipConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Equip'**
+  String get skinStoreEquipConfirm;
+
+  /// No description provided for @skinStoreEquipLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get skinStoreEquipLater;
+
+  /// No description provided for @skinStoreEquipSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'{item} equipped!'**
+  String skinStoreEquipSuccess(Object item);
+
+  /// No description provided for @skinStoreDetailAssetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Included assets'**
+  String get skinStoreDetailAssetsTitle;
+
+  /// No description provided for @skinStoreDetailPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get skinStoreDetailPriceLabel;
+
+  /// No description provided for @skinStoreEmptyAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'No assets are associated with this bundle yet.'**
+  String get skinStoreEmptyAssets;
 }
 
 class _AppLocalizationsDelegate

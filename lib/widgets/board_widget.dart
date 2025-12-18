@@ -88,8 +88,8 @@ class BoardWidget extends StatelessWidget {
                           color: (r + c) % 2 == 0 ? Colors.grey.shade200.withOpacity(0.6) : Colors.grey.shade300.withOpacity(0.6),
                           borderRadius: BorderRadius.circular(2),
                           image: (r + c) % 2 == 0
-                              ? (board0 != null ? DecorationImage(image: board0, fit: BoxFit.cover) : null)
-                              : (board1 != null ? DecorationImage(image: board1, fit: BoxFit.cover) : null),
+                              ? (board0 != null ? DecorationImage(image: board0, fit: BoxFit.cover, opacity: 0.5) : null)
+                              : (board1 != null ? DecorationImage(image: board1, fit: BoxFit.cover, opacity: 0.5) : null),
                         ),
                         child: Stack(
                           children: [

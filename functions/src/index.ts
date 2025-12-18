@@ -15,6 +15,236 @@ const AI_RATINGS: Record<string, number> = {
   hard: 1500,
 };
 
+class PurchaseError extends Error {
+  code: string;
+  status: number;
+
+  constructor(code: string, message: string, status = 400) {
+    super(message);
+    this.code = code;
+    this.status = status;
+  }
+}
+
+const sendPurchaseError = (
+  res: functions.Response,
+  error: PurchaseError | Error
+) => {
+  if (error instanceof PurchaseError) {
+    res.status(error.status).json({
+      error: {
+        code: error.code,
+        message: error.message,
+      },
+    });
+    return;
+  }
+  res.status(500).json({
+    error: {
+      code: "unknown",
+      message: error.message ?? "Unexpected error",
+    },
+  });
+};
+
+export const purchaseThemeValue = functions.https.onRequest(
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return sendPurchaseError(
+        res,
+        new PurchaseError("invalid-method", "Only POST is allowed.", 405)
+      );
+    }
+
+    const authHeader =
+      (req.headers.authorization ||
+        (req.headers.Authorization as string | undefined)) ??
+      "";
+    if (!authHeader.toLowerCase().startsWith("bearer ")) {
+      return sendPurchaseError(
+        res,
+        new PurchaseError("unauthorized", "Missing Authorization header.", 401)
+      );
+    }
+
+    const idToken = authHeader.replace(/bearer\s+/i, "").trim();
+    let uid: string;
+    try {
+      const decoded = await admin.auth().verifyIdToken(idToken);
+      uid = decoded.uid;
+    } catch (error) {
+      console.error("Invalid auth token", error);
+      return sendPurchaseError(
+        res,
+        new PurchaseError("unauthorized", "Invalid Authorization token.", 401)
+      );
+    }
+
+    const themeId =
+      typeof req.body?.themeId === "string" ? req.body.themeId.trim() : "";
+    const valueId =
+      typeof req.body?.valueId === "string" ? req.body.valueId.trim() : "";
+    if (!themeId || !valueId) {
+      return sendPurchaseError(
+        res,
+        new PurchaseError(
+          "invalid-argument",
+          "Both themeId and valueId are required.",
+          400
+        )
+      );
+    }
+
+    try {
+      const result = await db.runTransaction(async (txn) => {
+        const userRef = db.collection("users").doc(uid);
+        const themeRef = db.collection("themes").doc(themeId);
+
+        const [userSnap, themeSnap] = await Promise.all([
+          txn.get(userRef),
+          txn.get(themeRef),
+        ]);
+
+        if (!themeSnap.exists) {
+          throw new PurchaseError("not_found", "Theme not found.", 404);
+        }
+
+        const themeData = themeSnap.data() as admin.firestore.DocumentData;
+        if (!themeData?.enabled || typeof themeData.values !== "object") {
+          throw new PurchaseError("not_found", "Theme unavailable.", 404);
+        }
+
+        const rawVariant = themeData.values[valueId];
+        if (!rawVariant || typeof rawVariant !== "object") {
+          throw new PurchaseError("not_found", "Item not found.", 404);
+        }
+
+        const assetsArray = Array.isArray(rawVariant.assets)
+          ? rawVariant.assets.filter(
+              (asset: unknown): asset is string =>
+                typeof asset === "string" && asset.trim().length > 0
+            )
+          : [];
+        if (!assetsArray.length) {
+          throw new PurchaseError(
+            "invalid_item",
+            "Item is missing asset definitions.",
+            400
+          );
+        }
+
+        const baseValueRaw = rawVariant.value;
+        const baseValue =
+          typeof baseValueRaw === "number"
+            ? baseValueRaw
+            : Number(baseValueRaw);
+        if (!Number.isFinite(baseValue) || baseValue <= 0) {
+          throw new PurchaseError(
+            "invalid_item",
+            "Item has an invalid price.",
+            400
+          );
+        }
+
+        const discount =
+          typeof rawVariant.discount === "number"
+            ? Math.min(Math.max(rawVariant.discount, 0), 0.95)
+            : 0;
+        const price = Math.max(0, Math.round(baseValue * (1 - discount)));
+
+        const userData = userSnap.exists ? userSnap.data() : undefined;
+        const currentBalance =
+          typeof userData?.goldBalance === "number" ? userData!.goldBalance : 0;
+        if (currentBalance < price) {
+          throw new PurchaseError(
+            "insufficient_funds",
+            "User does not have enough gold.",
+            400
+          );
+        }
+
+        const userThemeRef = userRef.collection("themes").doc(themeId);
+        const ownedSnap = await txn.get(userThemeRef);
+        const ownedAssets = new Set<string>();
+        if (ownedSnap.exists) {
+          const ownedData = ownedSnap.data()?.assets;
+          if (ownedData && typeof ownedData === "object") {
+            Object.keys(ownedData).forEach((key) => ownedAssets.add(key));
+          }
+        }
+
+        const missingAssets = assetsArray.filter(
+          (asset: any) => !ownedAssets.has(asset)
+        );
+        if (!missingAssets.length) {
+          throw new PurchaseError(
+            "already_owned",
+            "User already owns this item.",
+            400
+          );
+        }
+
+        const newBalance = currentBalance - price;
+        txn.set(
+          userRef,
+          {
+            id: uid,
+            goldBalance: newBalance,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+
+        const timestamp = admin.firestore.FieldValue.serverTimestamp();
+        const assetsUpdate: Record<string, admin.firestore.FieldValue> = {};
+        missingAssets.forEach((asset: any) => {
+          assetsUpdate[asset] = timestamp;
+        });
+        txn.set(
+          userThemeRef,
+          {
+            id: themeId,
+            assets: assetsUpdate,
+          },
+          { merge: true }
+        );
+
+        const txRef = userRef.collection("gold_transactions").doc();
+        txn.set(txRef, {
+          amount: price,
+          type: "debit",
+          reason: "theme_purchase",
+          metadata: {
+            themeId,
+            valueId,
+          },
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          balanceAfter: newBalance,
+        });
+
+        return {
+          balance: newBalance,
+          assets: missingAssets,
+          themeId,
+          valueId,
+          price,
+        };
+      });
+
+      res.status(200).json(result);
+    } catch (error) {
+      if (error instanceof PurchaseError) {
+        return sendPurchaseError(res, error);
+      }
+      console.error("purchaseThemeValue failed", error);
+      return sendPurchaseError(
+        res,
+        new PurchaseError("unknown", "Unable to process purchase.", 500)
+      );
+    }
+  }
+);
+
 type LeaderboardDoc = {
   rating: number;
   gamesPlayed: number;

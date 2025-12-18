@@ -190,6 +190,7 @@
   "goldStatementEmpty": "Você ainda não possui transações de gold.",
   "goldStatementMatchReward": "Recompensa de partida",
   "goldStatementStorePurchase": "Compra de gold",
+  "goldStatementThemePurchase": "Compra de tema",
   "goldStatementBalance": "Saldo: {amount}",
   "goldStoreTitle": "Loja de Gold",
   "goldStoreSubtitle": "Recarregue seu gold para desbloquear cosméticos no futuro.",
@@ -203,6 +204,37 @@
   "goldStorePurchaseError": "Não conseguimos concluir sua compra. Tente novamente mais tarde.",
   "goldStoreAddTooltip": "Comprar mais gold",
   "goldStoreLoading": "Carregando ofertas...",
+  "skinStoreTitle": "Loja de Skins",
+  "skinStoreSubtitle": "Colecione skins exclusivas para seus mestres.",
+  "skinStoreLoading": "Carregando cosméticos...",
+  "skinStoreError": "Não conseguimos carregar os cosméticos. Tente novamente.",
+  "skinStoreEmpty": "Nenhuma skin disponível no momento.",
+  "skinStoreFilterEmpty": "Ainda não há itens nessa categoria.",
+  "skinStoreRetry": "Recarregar",
+  "skinStoreCategoryPieces": "Peças",
+  "skinStoreCategoryBoards": "Tabuleiros",
+  "skinStoreCategoryCards": "Cartas",
+  "skinStoreCategoryBackgrounds": "Fundos",
+  "skinStoreCategoryGroup": "Pacotes",
+  "skinStoreCategoryAll": "Tudo",
+  "skinStoreOwnedTag": "Já adquirido",
+  "skinStoreEquippedTag": "Equipado",
+  "skinStoreDiscountLabel": "{amount} de desconto",
+  "skinStoreOwnedMessage": "Você já possui este cosmético.",
+  "skinStoreBuyButton": "Comprar",
+  "skinStoreOwnedButton": "Adquirido",
+  "skinStoreInsufficientGold": "Você não tem gold suficiente.",
+  "skinStoreConfirmTitle": "Confirmar compra",
+  "skinStoreConfirmDescription": "Comprar {item} por {price} de gold? Saldo restante: {balance}.",
+  "skinStorePurchaseSuccess": "{item} desbloqueado!",
+  "skinStoreEquipPromptTitle": "Equipar skin",
+  "skinStoreEquipPromptDescription": "Deseja equipar {item} agora?",
+  "skinStoreEquipConfirm": "Equipar",
+  "skinStoreEquipLater": "Depois",
+  "skinStoreEquipSuccess": "{item} equipado!",
+  "skinStoreDetailAssetsTitle": "Itens incluídos",
+  "skinStoreDetailPriceLabel": "Preço",
+  "skinStoreEmptyAssets": "Este pacote ainda não possui itens associados.",
   "@matchResultGainedPoints": {
     "placeholders": {
       "points": {}
@@ -226,6 +258,33 @@
   "@goldStoreBonusLabel": {
     "placeholders": {
       "amount": {}
+    }
+  },
+  "@skinStoreDiscountLabel": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "@skinStoreConfirmDescription": {
+    "placeholders": {
+      "item": {},
+      "price": {},
+      "balance": {}
+    }
+  },
+  "@skinStorePurchaseSuccess": {
+    "placeholders": {
+      "item": {}
+    }
+  },
+  "@skinStoreEquipPromptDescription": {
+    "placeholders": {
+      "item": {}
+    }
+  },
+  "@skinStoreEquipSuccess": {
+    "placeholders": {
+      "item": {}
     }
   },
 

@@ -190,6 +190,7 @@
   "goldStatementEmpty": "You don't have any gold transactions yet.",
   "goldStatementMatchReward": "Match reward",
   "goldStatementStorePurchase": "Gold purchase",
+  "goldStatementThemePurchase": "Theme purchase",
   "goldStatementBalance": "Balance: {amount}",
   "goldStoreTitle": "Gold Store",
   "goldStoreSubtitle": "Top up your gold to unlock future cosmetics.",
@@ -203,6 +204,37 @@
   "goldStorePurchaseError": "We couldn't complete your purchase. Try again later.",
   "goldStoreAddTooltip": "Buy more gold",
   "goldStoreLoading": "Loading offers...",
+  "skinStoreTitle": "Cosmetics Store",
+  "skinStoreSubtitle": "Collect exclusive skins for your masters.",
+  "skinStoreLoading": "Loading cosmetics...",
+  "skinStoreError": "We couldn't load the cosmetics. Please try again.",
+  "skinStoreEmpty": "No cosmetics are available right now.",
+  "skinStoreFilterEmpty": "Nothing to show in this category yet.",
+  "skinStoreRetry": "Reload",
+  "skinStoreCategoryPieces": "Pieces",
+  "skinStoreCategoryBoards": "Boards",
+  "skinStoreCategoryCards": "Cards",
+  "skinStoreCategoryBackgrounds": "Backgrounds",
+  "skinStoreCategoryGroup": "Bundles",
+  "skinStoreCategoryAll": "All",
+  "skinStoreOwnedTag": "Owned",
+  "skinStoreEquippedTag": "Equipped",
+  "skinStoreDiscountLabel": "{amount} off",
+  "skinStoreOwnedMessage": "You already own this cosmetic.",
+  "skinStoreBuyButton": "Purchase",
+  "skinStoreOwnedButton": "Owned",
+  "skinStoreInsufficientGold": "You don't have enough gold.",
+  "skinStoreConfirmTitle": "Confirm purchase",
+  "skinStoreConfirmDescription": "Buy {item} for {price} gold? Remaining balance: {balance}.",
+  "skinStorePurchaseSuccess": "{item} unlocked!",
+  "skinStoreEquipPromptTitle": "Equip cosmetic",
+  "skinStoreEquipPromptDescription": "Do you want to equip {item} now?",
+  "skinStoreEquipConfirm": "Equip",
+  "skinStoreEquipLater": "Later",
+  "skinStoreEquipSuccess": "{item} equipped!",
+  "skinStoreDetailAssetsTitle": "Included assets",
+  "skinStoreDetailPriceLabel": "Price",
+  "skinStoreEmptyAssets": "No assets are associated with this bundle yet.",
   "@matchResultGainedPoints": {
     "placeholders": {
       "points": {}
@@ -226,6 +258,33 @@
   "@goldStoreBonusLabel": {
     "placeholders": {
       "amount": {}
+    }
+  },
+  "@skinStoreDiscountLabel": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "@skinStoreConfirmDescription": {
+    "placeholders": {
+      "item": {},
+      "price": {},
+      "balance": {}
+    }
+  },
+  "@skinStorePurchaseSuccess": {
+    "placeholders": {
+      "item": {}
+    }
+  },
+  "@skinStoreEquipPromptDescription": {
+    "placeholders": {
+      "item": {}
+    }
+  },
+  "@skinStoreEquipSuccess": {
+    "placeholders": {
+      "item": {}
     }
   },
 

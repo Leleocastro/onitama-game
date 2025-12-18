@@ -117,6 +117,8 @@ class GoldStatementSheet extends StatelessWidget {
 
   String _descriptionFor(GoldTransaction txn, AppLocalizations l10n) {
     switch (txn.reason) {
+      case 'theme_purchase':
+        return l10n.goldStatementThemePurchase;
       case 'store_purchase':
         return l10n.goldStatementStorePurchase;
       case 'online_match_reward':

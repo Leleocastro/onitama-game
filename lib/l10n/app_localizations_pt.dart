@@ -657,6 +657,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get goldStatementStorePurchase => 'Compra de gold';
 
   @override
+  String get goldStatementThemePurchase => 'Compra de tema';
+
+  @override
   String goldStatementBalance(Object amount) {
     return 'Saldo: $amount';
   }
@@ -701,4 +704,111 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get goldStoreLoading => 'Carregando ofertas...';
+
+  @override
+  String get skinStoreTitle => 'Loja de Skins';
+
+  @override
+  String get skinStoreSubtitle =>
+      'Colecione skins exclusivas para seus mestres.';
+
+  @override
+  String get skinStoreLoading => 'Carregando cosméticos...';
+
+  @override
+  String get skinStoreError =>
+      'Não conseguimos carregar os cosméticos. Tente novamente.';
+
+  @override
+  String get skinStoreEmpty => 'Nenhuma skin disponível no momento.';
+
+  @override
+  String get skinStoreFilterEmpty => 'Ainda não há itens nessa categoria.';
+
+  @override
+  String get skinStoreRetry => 'Recarregar';
+
+  @override
+  String get skinStoreCategoryPieces => 'Peças';
+
+  @override
+  String get skinStoreCategoryBoards => 'Tabuleiros';
+
+  @override
+  String get skinStoreCategoryCards => 'Cartas';
+
+  @override
+  String get skinStoreCategoryBackgrounds => 'Fundos';
+
+  @override
+  String get skinStoreCategoryGroup => 'Pacotes';
+
+  @override
+  String get skinStoreCategoryAll => 'Tudo';
+
+  @override
+  String get skinStoreOwnedTag => 'Já adquirido';
+
+  @override
+  String get skinStoreEquippedTag => 'Equipado';
+
+  @override
+  String skinStoreDiscountLabel(Object amount) {
+    return '$amount de desconto';
+  }
+
+  @override
+  String get skinStoreOwnedMessage => 'Você já possui este cosmético.';
+
+  @override
+  String get skinStoreBuyButton => 'Comprar';
+
+  @override
+  String get skinStoreOwnedButton => 'Adquirido';
+
+  @override
+  String get skinStoreInsufficientGold => 'Você não tem gold suficiente.';
+
+  @override
+  String get skinStoreConfirmTitle => 'Confirmar compra';
+
+  @override
+  String skinStoreConfirmDescription(
+      Object item, Object price, Object balance) {
+    return 'Comprar $item por $price de gold? Saldo restante: $balance.';
+  }
+
+  @override
+  String skinStorePurchaseSuccess(Object item) {
+    return '$item desbloqueado!';
+  }
+
+  @override
+  String get skinStoreEquipPromptTitle => 'Equipar skin';
+
+  @override
+  String skinStoreEquipPromptDescription(Object item) {
+    return 'Deseja equipar $item agora?';
+  }
+
+  @override
+  String get skinStoreEquipConfirm => 'Equipar';
+
+  @override
+  String get skinStoreEquipLater => 'Depois';
+
+  @override
+  String skinStoreEquipSuccess(Object item) {
+    return '$item equipado!';
+  }
+
+  @override
+  String get skinStoreDetailAssetsTitle => 'Itens incluídos';
+
+  @override
+  String get skinStoreDetailPriceLabel => 'Preço';
+
+  @override
+  String get skinStoreEmptyAssets =>
+      'Este pacote ainda não possui itens associados.';
 }

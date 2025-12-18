@@ -190,6 +190,7 @@
   "goldStatementEmpty": "Aún no tienes transacciones de oro.",
   "goldStatementMatchReward": "Recompensa de partida",
   "goldStatementStorePurchase": "Compra de oro",
+  "goldStatementThemePurchase": "Compra de tema",
   "goldStatementBalance": "Saldo: {amount}",
   "goldStoreTitle": "Tienda de oro",
   "goldStoreSubtitle": "Recarga tu oro para desbloquear cosméticos en el futuro.",
@@ -203,6 +204,37 @@
   "goldStorePurchaseError": "No pudimos completar tu compra. Inténtalo de nuevo más tarde.",
   "goldStoreAddTooltip": "Comprar más oro",
   "goldStoreLoading": "Cargando ofertas...",
+  "skinStoreTitle": "Tienda de Cosméticos",
+  "skinStoreSubtitle": "Colecciona skins exclusivas para tus maestros.",
+  "skinStoreLoading": "Cargando cosméticos...",
+  "skinStoreError": "No pudimos cargar los cosméticos. Inténtalo de nuevo.",
+  "skinStoreEmpty": "No hay cosméticos disponibles por ahora.",
+  "skinStoreFilterEmpty": "Aún no hay artículos en esta categoría.",
+  "skinStoreRetry": "Recargar",
+  "skinStoreCategoryPieces": "Piezas",
+  "skinStoreCategoryBoards": "Tableros",
+  "skinStoreCategoryCards": "Cartas",
+  "skinStoreCategoryBackgrounds": "Fondos",
+  "skinStoreCategoryGroup": "Paquetes",
+  "skinStoreCategoryAll": "Todos",
+  "skinStoreOwnedTag": "Adquirido",
+  "skinStoreEquippedTag": "Equipado",
+  "skinStoreDiscountLabel": "{amount} de descuento",
+  "skinStoreOwnedMessage": "Ya posees este cosmético.",
+  "skinStoreBuyButton": "Comprar",
+  "skinStoreOwnedButton": "Adquirido",
+  "skinStoreInsufficientGold": "No tienes oro suficiente.",
+  "skinStoreConfirmTitle": "Confirmar compra",
+  "skinStoreConfirmDescription": "¿Comprar {item} por {price} de oro? Saldo restante: {balance}.",
+  "skinStorePurchaseSuccess": "¡{item} desbloqueado!",
+  "skinStoreEquipPromptTitle": "Equipar cosmético",
+  "skinStoreEquipPromptDescription": "¿Deseas equipar {item} ahora?",
+  "skinStoreEquipConfirm": "Equipar",
+  "skinStoreEquipLater": "Después",
+  "skinStoreEquipSuccess": "¡{item} equipado!",
+  "skinStoreDetailAssetsTitle": "Elementos incluidos",
+  "skinStoreDetailPriceLabel": "Precio",
+  "skinStoreEmptyAssets": "Este paquete aún no tiene assets asociados.",
   "@matchResultGainedPoints": {
     "placeholders": {
       "points": {}
@@ -226,6 +258,33 @@
   "@goldStoreBonusLabel": {
     "placeholders": {
       "amount": {}
+    }
+  },
+  "@skinStoreDiscountLabel": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "@skinStoreConfirmDescription": {
+    "placeholders": {
+      "item": {},
+      "price": {},
+      "balance": {}
+    }
+  },
+  "@skinStorePurchaseSuccess": {
+    "placeholders": {
+      "item": {}
+    }
+  },
+  "@skinStoreEquipPromptDescription": {
+    "placeholders": {
+      "item": {}
+    }
+  },
+  "@skinStoreEquipSuccess": {
+    "placeholders": {
+      "item": {}
     }
   },
 

@@ -27,6 +27,7 @@ import 'login_screen.dart';
 import 'onitama_home.dart';
 import 'play_menu.dart';
 import 'profile_modal.dart';
+import 'skin_store_screen.dart';
 
 class MenuScreen2 extends StatefulWidget {
   const MenuScreen2({super.key});
@@ -170,6 +171,22 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => GoldStoreScreen(userId: uid)),
+    );
+  }
+
+  Future<void> _openSkinStore() async {
+    var user = FirebaseAuth.instance.currentUser;
+    if (user == null || user.isAnonymous) {
+      final authenticated = await _ensureAuthenticated();
+      if (!authenticated) return;
+      user = FirebaseAuth.instance.currentUser;
+    }
+    final uid = user?.uid ?? _playerUid;
+    if (uid == null || uid.isEmpty || !mounted) return;
+    unawaited(AudioService.instance.playUiConfirmSound());
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => SkinStoreScreen(userId: uid)),
     );
   }
 
@@ -676,6 +693,11 @@ class _MenuScreen2State extends State<MenuScreen2> with TickerProviderStateMixin
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                _SkinStoreButton(
+                                  tooltip: l10n.skinStoreTitle,
+                                  onTap: _openSkinStore,
+                                ),
+                                const SizedBox(width: 8),
                                 _GoldBalanceBadge(
                                   amount: goldBalance,
                                   onStatementTap: () => _openGoldStatement(user.uid),
@@ -818,6 +840,32 @@ class _GoldBalanceBadge extends StatelessWidget {
           ),
           const SizedBox(width: 4),
         ],
+      ),
+    );
+  }
+}
+
+class _SkinStoreButton extends StatelessWidget {
+  const _SkinStoreButton({required this.tooltip, required this.onTap});
+
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.white.withOpacity(0.85),
+        shape: const CircleBorder(),
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: const Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(Icons.shopping_cart_outlined, color: Colors.black87, size: 22),
+          ),
+        ),
       ),
     );
   }
