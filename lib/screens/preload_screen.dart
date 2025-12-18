@@ -5,6 +5,7 @@ import 'package:lottie/lottie.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/audio_service.dart';
+import '../services/settings_service.dart';
 import '../services/theme_manager.dart';
 import 'menu_screen2.dart';
 
@@ -40,6 +41,7 @@ class _PreloadScreenState extends State<PreloadScreen> with SingleTickerProvider
     setState(() {
       _status = l10n.preloadFetchingThemes;
     });
+    await SettingsService.instance.fetchTimerMillis();
     await ThemeManager.loadAllThemes();
     setState(() {
       _status = l10n.preloadPreloadingImages;

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../services/settings_service.dart';
 import './ai_difficulty.dart';
 import './card_model.dart';
 import './game_mode.dart';
@@ -10,7 +11,7 @@ import './player.dart';
 import './point.dart';
 import 'move.dart';
 
-const int _defaultClockMillis = 25 * 60 * 1000;
+int get _defaultClockMillis => SettingsService.instance.cachedTimerMillis ?? 5 * 60 * 1000;
 
 class FirestoreGame {
   final String id;

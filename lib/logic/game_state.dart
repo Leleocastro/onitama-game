@@ -13,11 +13,12 @@ import '../models/piece_type.dart';
 import '../models/player.dart';
 import '../models/point.dart';
 import '../models/win_condition.dart';
+import '../services/settings_service.dart';
 import 'ai_player.dart';
 
 class GameState {
   static const int size = 5;
-  static const int _matchTimerMillis = 25 * 60 * 1000;
+  static int get _matchTimerMillis => SettingsService.instance.cachedTimerMillis ?? (5 * 60 * 1000);
 
   final GameMode gameMode;
   final AIDifficulty? aiDifficulty;
