@@ -16,6 +16,7 @@ import '../services/skin_store_service.dart';
 import '../services/theme_manager.dart';
 import '../services/theme_service.dart';
 import '../utils/extensions.dart';
+import '../utils/piece_visual_utils.dart';
 import '../widgets/card_widget.dart';
 
 class SkinLoadoutScreen extends StatefulWidget {
@@ -636,19 +637,30 @@ class _PreviewBoard extends StatelessWidget {
                 ),
                 ..._piecePlacements.map((piece) {
                   final image = resolver.imageFor(piece.assetId);
+                  final needsFilter = piece.isRed && _previewNeedsDesaturation(resolver, piece.assetId);
+                  Widget child;
+                  if (image == null) {
+                    child = Container(
+                      decoration: BoxDecoration(
+                        color: piece.isRed ? Colors.redAccent : Colors.blueAccent,
+                        shape: BoxShape.circle,
+                      ),
+                    );
+                  } else {
+                    child = Image(image: image);
+                    if (needsFilter) {
+                      child = ColorFiltered(
+                        colorFilter: redPieceDesaturationFilter,
+                        child: child,
+                      );
+                    }
+                  }
                   return Positioned(
                     left: piece.column * cellSize + cellSize * 0.1,
                     top: piece.row * cellSize + cellSize * 0.1,
                     width: cellSize * 0.8,
                     height: cellSize * 0.8,
-                    child: image == null
-                        ? Container(
-                            decoration: BoxDecoration(
-                              color: piece.isRed ? Colors.redAccent : Colors.blueAccent,
-                              shape: BoxShape.circle,
-                            ),
-                          )
-                        : Image(image: image),
+                    child: child,
                   );
                 }),
               ],
@@ -761,6 +773,15 @@ const List<_PiecePlacement> _piecePlacements = <_PiecePlacement>[
   _PiecePlacement('b2', 4, 3, isRed: false),
   _PiecePlacement('b3', 4, 4, isRed: false),
 ];
+
+bool _previewNeedsDesaturation(_ThemePreviewResolver resolver, String assetId) {
+  final counterpart = pairedPieceAssetId(assetId);
+  if (counterpart == null) return false;
+  final redUrl = resolver.urlFor(assetId);
+  final blueUrl = resolver.urlFor(counterpart);
+  if (redUrl == null || blueUrl == null) return false;
+  return redUrl == blueUrl;
+}
 
 List<_ThemeOption> _buildOptionsForSlot(
   AppLocalizations l10n,

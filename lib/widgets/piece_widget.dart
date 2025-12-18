@@ -4,6 +4,7 @@ import '../models/piece.dart';
 import '../models/piece_type.dart';
 import '../models/player.dart';
 import '../services/theme_manager.dart';
+import '../utils/piece_visual_utils.dart';
 
 class PieceWidget extends StatelessWidget {
   final Piece piece;
@@ -12,25 +13,24 @@ class PieceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ImageProvider<Object>? image;
-    if (piece.type == PieceType.master) {
-      image = ThemeManager.themedImage(
-        piece.owner == PlayerColor.red ? 'master_red' : 'master_blue',
-        owner: piece.owner,
-      );
-    } else {
-      // Estudante: cada peça tem id única
-      final assetId = piece.id ?? (piece.owner == PlayerColor.red ? 'r0' : 'b0');
-      image = ThemeManager.themedImage(assetId, owner: piece.owner);
-    }
+    final assetId = _assetIdForPiece(piece);
+    final image = ThemeManager.themedImage(assetId, owner: piece.owner);
+    final needsDesaturation = piece.owner == PlayerColor.red && _sharesTextureWithBlue(assetId);
     if (image != null) {
-      final img = Image(
+      Widget img = Image(
         image: image,
         fit: BoxFit.cover,
         width: 50,
         height: 50,
         errorBuilder: (c, e, s) => const Icon(Icons.error),
       );
+
+      if (needsDesaturation) {
+        img = ColorFiltered(
+          colorFilter: redPieceDesaturationFilter,
+          child: img,
+        );
+      }
 
       return img;
     }
@@ -39,5 +39,21 @@ class PieceWidget extends StatelessWidget {
       backgroundColor: piece.owner == PlayerColor.red ? Colors.red : Colors.blue,
       child: Icon(piece.type == PieceType.master ? Icons.castle : Icons.shield, color: Colors.white, size: 24),
     );
+  }
+
+  String _assetIdForPiece(Piece piece) {
+    if (piece.type == PieceType.master) {
+      return piece.owner == PlayerColor.red ? 'master_red' : 'master_blue';
+    }
+    return piece.id ?? (piece.owner == PlayerColor.red ? 'r0' : 'b0');
+  }
+
+  bool _sharesTextureWithBlue(String redAssetId) {
+    final counterpart = pairedPieceAssetId(redAssetId);
+    if (counterpart == null) return false;
+    final redUrl = ThemeManager.themedAssetUrl(redAssetId, owner: PlayerColor.red);
+    final blueUrl = ThemeManager.themedAssetUrl(counterpart, owner: PlayerColor.blue);
+    if (redUrl == null || blueUrl == null) return false;
+    return redUrl == blueUrl;
   }
 }
