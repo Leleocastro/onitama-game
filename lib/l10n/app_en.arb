@@ -204,6 +204,9 @@
   "goldStorePurchaseError": "We couldn't complete your purchase. Try again later.",
   "goldStoreAddTooltip": "Buy more gold",
   "goldStoreLoading": "Loading offers...",
+  "goldStoreWatchAdTitle": "Watch an ad",
+  "goldStoreWatchAdDescription": "Watch a short ad and earn {amount} gold.",
+  "goldStoreWatchAdButton": "Watch now",
   "skinStoreTitle": "Cosmetics Store",
   "skinStoreSubtitle": "Collect exclusive skins for your masters.",
   "skinStoreLoading": "Loading cosmetics...",
@@ -294,6 +297,11 @@
     }
   },
   "@goldStoreBonusLabel": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "@goldStoreWatchAdDescription": {
     "placeholders": {
       "amount": {}
     }

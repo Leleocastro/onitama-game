@@ -706,6 +706,17 @@ class AppLocalizationsPt extends AppLocalizations {
   String get goldStoreLoading => 'Carregando ofertas...';
 
   @override
+  String get goldStoreWatchAdTitle => 'Assistir anúncio';
+
+  @override
+  String goldStoreWatchAdDescription(Object amount) {
+    return 'Veja um anúncio curto e ganhe $amount de gold.';
+  }
+
+  @override
+  String get goldStoreWatchAdButton => 'Assistir agora';
+
+  @override
   String get skinStoreTitle => 'Loja de Skins';
 
   @override

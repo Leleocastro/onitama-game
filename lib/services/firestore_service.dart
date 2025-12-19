@@ -48,6 +48,32 @@ class FirestoreService {
     required int amount,
     required String packageIdentifier,
   }) async {
+    await _creditGold(
+      uid: uid,
+      amount: amount,
+      reason: 'store_purchase',
+      source: packageIdentifier,
+    );
+  }
+
+  Future<void> creditGoldFromAdReward({
+    required String uid,
+    required int amount,
+  }) async {
+    await _creditGold(
+      uid: uid,
+      amount: amount,
+      reason: 'rewarded_ad',
+      source: 'rewarded_ad',
+    );
+  }
+
+  Future<void> _creditGold({
+    required String uid,
+    required int amount,
+    required String reason,
+    required String source,
+  }) async {
     if (uid.isEmpty || amount <= 0) return;
     final userRef = _db.collection('users').doc(uid);
     final transactionRef = userRef.collection('gold_transactions').doc();
@@ -67,8 +93,8 @@ class FirestoreService {
       txn.set(transactionRef, {
         'amount': amount,
         'type': 'credit',
-        'reason': 'store_purchase',
-        'source': packageIdentifier,
+        'reason': reason,
+        'source': source,
         'createdAt': FieldValue.serverTimestamp(),
         'balanceAfter': updatedBalance,
       });

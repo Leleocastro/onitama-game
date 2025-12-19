@@ -1319,6 +1319,24 @@ abstract class AppLocalizations {
   /// **'Loading offers...'**
   String get goldStoreLoading;
 
+  /// No description provided for @goldStoreWatchAdTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad'**
+  String get goldStoreWatchAdTitle;
+
+  /// No description provided for @goldStoreWatchAdDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch a short ad and earn {amount} gold.'**
+  String goldStoreWatchAdDescription(Object amount);
+
+  /// No description provided for @goldStoreWatchAdButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch now'**
+  String get goldStoreWatchAdButton;
+
   /// No description provided for @skinStoreTitle.
   ///
   /// In en, this message translates to:

@@ -705,6 +705,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get goldStoreLoading => 'Cargando ofertas...';
 
   @override
+  String get goldStoreWatchAdTitle => 'Ver anuncio';
+
+  @override
+  String goldStoreWatchAdDescription(Object amount) {
+    return 'Mira un anuncio corto y gana $amount de oro.';
+  }
+
+  @override
+  String get goldStoreWatchAdButton => 'Ver ahora';
+
+  @override
   String get skinStoreTitle => 'Tienda de Cosméticos';
 
   @override
