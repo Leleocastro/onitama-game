@@ -6,7 +6,7 @@ import 'package:lottie/lottie.dart';
 import '../services/audio_service.dart';
 import '../services/settings_service.dart';
 import '../services/theme_manager.dart';
-import 'menu_screen2.dart';
+import 'menu_screen.dart';
 
 class PreloadScreen extends StatefulWidget {
   const PreloadScreen({super.key});
@@ -75,7 +75,7 @@ class _PreloadScreenState extends State<PreloadScreen> with SingleTickerProvider
     _navigationTimer?.cancel();
     unawaited(AudioService.instance.playNavigationSound());
     await Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const MenuScreen2()),
+      MaterialPageRoute(builder: (_) => const MenuScreen()),
     );
   }
 
