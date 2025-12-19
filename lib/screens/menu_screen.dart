@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rive/rive.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 import '../l10n/app_localizations.dart';
@@ -38,9 +37,6 @@ class MenuScreen extends StatefulWidget {
 
 class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin, RouteAware {
   final FirestoreService _firestoreService = FirestoreService();
-  late File file;
-  late RiveWidgetController controller;
-  bool isInitialized = false;
   PageRoute<dynamic>? _route;
 
   StreamSubscription<User?>? _authStateChangesSubscription;
@@ -68,7 +64,6 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin, 
         // Rebuild the widget when auth state changes
       });
     });
-    initRive();
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowMenuTutorial());
   }
 
@@ -82,16 +77,8 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin, 
     setState(() {});
   }
 
-  Future<void> initRive() async {
-    file = (await File.asset('assets/rive/animated-background.riv', riveFactory: Factory.rive))!;
-    controller = RiveWidgetController(file);
-    setState(() => isInitialized = true);
-  }
-
   @override
   void dispose() {
-    file.dispose();
-    controller.dispose();
     _authStateChangesSubscription?.cancel();
     _matchmakingGameSubscription?.cancel();
     _matchmakingFallbackTimer?.cancel();
@@ -528,12 +515,12 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin, 
     return Scaffold(
       body: Stack(
         children: [
-          if (isInitialized)
-            // Aplica deslocamento baseado no acelerômetro
-            RiveWidget(
-              controller: controller,
-              fit: Fit.cover,
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/background.jpeg',
+              fit: BoxFit.cover,
             ),
+          ),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

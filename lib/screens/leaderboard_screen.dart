@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rive/rive.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/leaderboard_entry.dart';
@@ -20,21 +19,6 @@ class LeaderboardScreen extends StatefulWidget {
 
 class _LeaderboardScreenState extends State<LeaderboardScreen> {
   final RankingService _rankingService = RankingService();
-  late File file;
-  late RiveWidgetController controller;
-  bool isInitialized = false;
-
-  @override
-  void initState() {
-    super.initState();
-    initRive();
-  }
-
-  Future<void> initRive() async {
-    file = (await File.asset('assets/rive/animated-background.riv', riveFactory: Factory.rive))!;
-    controller = RiveWidgetController(file);
-    setState(() => isInitialized = true);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,11 +27,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          if (isInitialized)
-            RiveWidget(
-              controller: controller,
-              fit: Fit.cover,
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/background.jpeg',
+              fit: BoxFit.cover,
             ),
+          ),
           StreamBuilder<List<LeaderboardEntry>>(
             stream: _rankingService.watchTopEntries(limit: 50),
             builder: (context, snapshot) {

@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:rive/rive.dart';
 
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
@@ -47,7 +46,6 @@ Future<void> main() async {
       await AnalyticsService.instance.logAppOpen();
       final analyticsObserver = AnalyticsService.observer;
 
-      await RiveNative.init();
       await AudioService.instance.initialize();
 
       runApp(OnitamaApp(analyticsObserver: analyticsObserver));
