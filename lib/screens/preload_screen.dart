@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-import '../l10n/app_localizations.dart';
 import '../services/audio_service.dart';
 import '../services/settings_service.dart';
 import '../services/theme_manager.dart';
@@ -17,67 +16,66 @@ class PreloadScreen extends StatefulWidget {
 }
 
 class _PreloadScreenState extends State<PreloadScreen> with SingleTickerProviderStateMixin {
-  int _total = 1;
-  String _status = '';
+  static const _animationDuration = Duration(seconds: 5);
+  Timer? _navigationTimer;
   late final AnimationController _lottieController;
 
   @override
   void initState() {
     super.initState();
-    _lottieController = AnimationController(vsync: this);
+    _lottieController = AnimationController(vsync: this, duration: _animationDuration);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadThemeAndImages();
+      _startPreloadFlow();
     });
   }
 
   @override
   void dispose() {
+    _navigationTimer?.cancel();
     _lottieController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadThemeAndImages() async {
-    final l10n = AppLocalizations.of(context)!;
-    setState(() {
-      _status = l10n.preloadFetchingThemes;
-    });
-    await SettingsService.instance.fetchTimerMillis();
-    await ThemeManager.loadAllThemes();
-    setState(() {
-      _status = l10n.preloadPreloadingImages;
-    });
-    // Calcula total de imagens
-    _total = ThemeManager.themes.values.fold(0, (acc, t) => acc + t.assets.length);
-    await ThemeManager.preloadAllThemeImages(
-      context,
+  void _startPreloadFlow() {
+    _lottieController
+      ..reset()
+      ..forward();
+    _navigationTimer = Timer(_animationDuration, _navigateToMenu);
+    unawaited(_primeAppResources());
+  }
+
+  Future<void> _primeAppResources() async {
+    try {
+      await SettingsService.instance.fetchTimerMillis();
+      await ThemeManager.loadAllThemes();
+    } catch (error) {
+      debugPrint('Failed to load themes: $error');
+      return;
+    }
+
+    if (!mounted) return;
+
+    final navigatorContext = Navigator.of(context, rootNavigator: true).context;
+    final imagePreloadFuture = ThemeManager.preloadAllThemeImages(
+      navigatorContext,
       onProgress: (done, total) {
-        setState(() {
-          _total = total;
-          _status = l10n.preloadDownloadingImages(done, total);
-        });
-        _syncAnimationWithProgress(done, total);
+        if (!mounted) return;
       },
     );
-    setState(() {
-      _status = l10n.preloadDone;
-    });
-    _syncAnimationWithProgress(_total, _total);
-    await Future.delayed(const Duration(milliseconds: 500));
 
-    unawaited(AudioService.instance.playNavigationSound());
-
-    await Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const MenuScreen2()),
+    unawaited(
+      imagePreloadFuture.catchError((error, stackTrace) {
+        debugPrint('Failed to preload theme images: $error');
+      }),
     );
   }
 
-  void _syncAnimationWithProgress(int done, int total) {
-    final safeTotal = total == 0 ? 1 : total;
-    final progress = (done / safeTotal).clamp(0.0, 1.0);
-    _lottieController.animateTo(
-      progress,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
+  Future<void> _navigateToMenu() async {
+    if (!mounted) return;
+    _navigationTimer?.cancel();
+    unawaited(AudioService.instance.playNavigationSound());
+    await Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const MenuScreen2()),
     );
   }
 
@@ -99,13 +97,7 @@ class _PreloadScreenState extends State<PreloadScreen> with SingleTickerProvider
               'assets/lotties/kungfu.json',
               controller: _lottieController,
               animate: false,
-              onLoaded: (composition) {
-                _lottieController.duration = composition.duration;
-              },
             ),
-            const SizedBox(height: 16),
-            Text(_status),
-            if (_total > 1) Text(AppLocalizations.of(context)!.preloadImagesCount(_total)),
           ],
         ),
       ),
