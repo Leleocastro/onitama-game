@@ -716,6 +716,14 @@ class AppLocalizationsEs extends AppLocalizations {
   String get goldStoreWatchAdButton => 'Ver ahora';
 
   @override
+  String get rewardedAdUnavailable =>
+      'No pudimos cargar el anuncio en este momento. Inténtalo de nuevo en unos instantes.';
+
+  @override
+  String get rewardedAdNotCompleted =>
+      'Debes ver el anuncio hasta el final para recibir la recompensa.';
+
+  @override
   String get skinStoreTitle => 'Tienda de Cosméticos';
 
   @override

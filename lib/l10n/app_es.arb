@@ -207,6 +207,8 @@
   "goldStoreWatchAdTitle": "Ver anuncio",
   "goldStoreWatchAdDescription": "Mira un anuncio corto y gana {amount} de oro.",
   "goldStoreWatchAdButton": "Ver ahora",
+  "rewardedAdUnavailable": "No pudimos cargar el anuncio en este momento. Inténtalo de nuevo en unos instantes.",
+  "rewardedAdNotCompleted": "Debes ver el anuncio hasta el final para recibir la recompensa.",
   "skinStoreTitle": "Tienda de Cosméticos",
   "skinStoreSubtitle": "Colecciona skins exclusivas para tus maestros.",
   "skinStoreLoading": "Cargando cosméticos...",

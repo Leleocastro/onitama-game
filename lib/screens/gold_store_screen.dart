@@ -253,16 +253,20 @@ class _GoldStoreScreenState extends State<GoldStoreScreen> {
   Future<void> _watchAdForGold() async {
     if (_isBusy) return;
     setState(() => _isRewardingAd = true);
+    final l10n = AppLocalizations.of(context)!;
     try {
-      await Navigator.of(context).push(
+      final rewarded = await Navigator.of(context).push<bool>(
         MaterialPageRoute(
-          builder: (context) => RewardedAdScreen(
-            onReward: () {
-              _applyAdReward();
-            },
-          ),
+          builder: (context) => const RewardedAdScreen(),
         ),
       );
+      if (!mounted) return;
+      if (rewarded == true) {
+        await _applyAdReward();
+      } else {
+        final message = rewarded == null ? l10n.rewardedAdUnavailable : l10n.rewardedAdNotCompleted;
+        context.toToastError(message);
+      }
     } finally {
       if (mounted) {
         setState(() => _isRewardingAd = false);

@@ -1337,6 +1337,18 @@ abstract class AppLocalizations {
   /// **'Watch now'**
   String get goldStoreWatchAdButton;
 
+  /// No description provided for @rewardedAdUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load the ad right now. Please try again in a moment.'**
+  String get rewardedAdUnavailable;
+
+  /// No description provided for @rewardedAdNotCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish watching the ad to earn the reward.'**
+  String get rewardedAdNotCompleted;
+
   /// No description provided for @skinStoreTitle.
   ///
   /// In en, this message translates to:

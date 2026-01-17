@@ -5,14 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class RewardedAdScreen extends StatefulWidget {
-  final VoidCallback onReward;
-  final Widget? navigateTo;
-
-  const RewardedAdScreen({
-    required this.onReward,
-    this.navigateTo,
-    super.key,
-  });
+  const RewardedAdScreen({super.key});
 
   @override
   State<RewardedAdScreen> createState() => _RewardedAdScreenState();
@@ -20,6 +13,8 @@ class RewardedAdScreen extends StatefulWidget {
 
 class _RewardedAdScreenState extends State<RewardedAdScreen> {
   RewardedAd? _rewardedAd;
+  bool _rewardEarned = false;
+  bool _adShown = false;
 
   @override
   void initState() {
@@ -27,13 +22,19 @@ class _RewardedAdScreenState extends State<RewardedAdScreen> {
     _loadAd();
   }
 
+  @override
+  void dispose() {
+    _rewardedAd?.dispose();
+    super.dispose();
+  }
+
   void _loadAd() {
     RewardedAd.load(
       adUnitId: kDebugMode
           ? 'ca-app-pub-3940256099942544/5224354917'
           : Platform.isAndroid
-              ? 'ca-app-pub-2104845541457905/7127440348'
-              : 'ca-app-pub-2104845541457905/8205105339',
+              ? 'ca-app-pub-2104845541457905/1852205857'
+              : 'ca-app-pub-2104845541457905/8791991051',
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
@@ -49,17 +50,22 @@ class _RewardedAdScreenState extends State<RewardedAdScreen> {
 
   void _showAd() {
     if (_rewardedAd != null) {
+      _adShown = true;
       _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (ad) {
+          ad.dispose();
+          _rewardedAd = null;
           _navigateToNextScreen();
         },
         onAdFailedToShowFullScreenContent: (ad, error) {
+          ad.dispose();
+          _rewardedAd = null;
           _navigateToNextScreen();
         },
       );
       _rewardedAd!.show(
         onUserEarnedReward: (ad, reward) {
-          widget.onReward();
+          _rewardEarned = true;
         },
       );
     } else {
@@ -68,15 +74,10 @@ class _RewardedAdScreenState extends State<RewardedAdScreen> {
   }
 
   void _navigateToNextScreen() {
-    if (widget.navigateTo != null) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => widget.navigateTo!),
-      );
-    } else {
-      // Apenas volta para a tela anterior mantendo o estado atual
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      }
+    if (!mounted) return;
+    final result = _adShown ? _rewardEarned : null;
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop(result);
     }
   }
 

@@ -561,17 +561,20 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
           if (widget.gameMode == GameMode.pvai && winner == PlayerColor.red)
             TextButton(
               child: Text(l10n.undoWithAd),
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop(); // fecha o diálogo
-                Navigator.of(context).push(
+                final rewarded = await Navigator.of(context).push<bool>(
                   MaterialPageRoute(
-                    builder: (context) => RewardedAdScreen(
-                      onReward: () async {
-                        await _undoLastTwoAndPersist();
-                      },
-                    ),
+                    builder: (context) => const RewardedAdScreen(),
                   ),
                 );
+                if (!mounted) return;
+                if (rewarded == true) {
+                  await _undoLastTwoAndPersist();
+                } else {
+                  final message = rewarded == null ? l10n.rewardedAdUnavailable : l10n.rewardedAdNotCompleted;
+                  context.toToastError(message);
+                }
               },
             ),
           if (_gameState!.gameMode == GameMode.pvp)

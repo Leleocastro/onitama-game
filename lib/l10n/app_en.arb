@@ -207,6 +207,8 @@
   "goldStoreWatchAdTitle": "Watch an ad",
   "goldStoreWatchAdDescription": "Watch a short ad and earn {amount} gold.",
   "goldStoreWatchAdButton": "Watch now",
+  "rewardedAdUnavailable": "We couldn't load the ad right now. Please try again in a moment.",
+  "rewardedAdNotCompleted": "Finish watching the ad to earn the reward.",
   "skinStoreTitle": "Cosmetics Store",
   "skinStoreSubtitle": "Collect exclusive skins for your masters.",
   "skinStoreLoading": "Loading cosmetics...",

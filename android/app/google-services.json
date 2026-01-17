@@ -12,11 +12,11 @@
       }
     },
     "oauth_client": [{
-        "client_id": "444683843595-360lh1k5ai9tn6paip1a49g8a8jvck4v.apps.googleusercontent.com",
+        "client_id": "444683843595-hekgff85ocqihciactalokvc0nfjfjmg.apps.googleusercontent.com",
         "client_type": 1,
         "android_info": {
           "package_name": "com.ltag.onitama",
-          "certificate_hash": "595d63ebf266d605f69e5a50e8240df67bd55990"
+          "certificate_hash": "40afe1ce6e3afd40c9e4c61049e7646405e4ec80"
         }
       },
       {
@@ -42,7 +42,8 @@
           }
         ]
       }
-    }
+    },
+    "admob_app_id": "ca-app-pub-2104845541457905~3487578231"
   }],
   "configuration_version": "1"
 }

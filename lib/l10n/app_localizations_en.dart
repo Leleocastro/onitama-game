@@ -714,6 +714,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goldStoreWatchAdButton => 'Watch now';
 
   @override
+  String get rewardedAdUnavailable =>
+      'We couldn\'t load the ad right now. Please try again in a moment.';
+
+  @override
+  String get rewardedAdNotCompleted =>
+      'Finish watching the ad to earn the reward.';
+
+  @override
   String get skinStoreTitle => 'Cosmetics Store';
 
   @override
