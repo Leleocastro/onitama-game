@@ -54,6 +54,18 @@ class AudioService with WidgetsBindingObserver {
     _specialMasterAsset,
     _specialWinAsset,
   };
+  static final AudioContext _sharedAudioContext = AudioContext(
+    iOS: AudioContextIOS(
+      options: <AVAudioSessionOptions>{
+        AVAudioSessionOptions.mixWithOthers,
+      },
+    ),
+    android: AudioContextAndroid(
+      audioFocus: AndroidAudioFocus.none,
+      usageType: AndroidUsageType.game,
+      contentType: AndroidContentType.sonification,
+    ),
+  );
 
   final AudioPlayer _musicPlayer = AudioPlayer(playerId: 'onitama_music');
   final AudioPlayer _ambiencePlayer = AudioPlayer(playerId: 'onitama_ambience');
@@ -73,6 +85,7 @@ class AudioService with WidgetsBindingObserver {
   bool _shouldResumeMusic = false;
   bool _shouldResumeAmbience = false;
   bool _lifecycleObserverAttached = false;
+  bool _corePlayersAudioContextApplied = false;
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -84,6 +97,7 @@ class AudioService with WidgetsBindingObserver {
     musicVolumeNotifier.value = globalMusicVolume;
     sfxVolumeNotifier.value = globalSfxVolume;
 
+    await _applyAudioContextToCorePlayers();
     await _musicPlayer.setReleaseMode(ReleaseMode.loop);
     await _ambiencePlayer.setReleaseMode(ReleaseMode.loop);
     await _musicPlayer.setVolume(globalMusicVolume);
@@ -272,6 +286,7 @@ class AudioService with WidgetsBindingObserver {
   Future<void> _preloadSfxAssets() async {
     _preloadFuture ??= () async {
       final tempPlayer = AudioPlayer(playerId: 'onitama_sfx_preload');
+      await tempPlayer.setAudioContext(_sharedAudioContext);
       await tempPlayer.setReleaseMode(ReleaseMode.stop);
       try {
         for (final asset in _preloadableSfx) {
@@ -294,6 +309,7 @@ class AudioService with WidgetsBindingObserver {
 
   Future<AudioPlayer> _createSfxPlayer() async {
     final player = AudioPlayer(playerId: 'onitama_sfx_${_sfxPool.length}');
+    await player.setAudioContext(_sharedAudioContext);
     await player.setReleaseMode(ReleaseMode.stop);
     await player.setVolume(globalSfxVolume);
     player.onPlayerComplete.listen((_) {
@@ -321,6 +337,13 @@ class AudioService with WidgetsBindingObserver {
     await _prefs?.setDouble(_musicVolumeKey, clamped);
     await _musicPlayer.setVolume(clamped);
     await _ambiencePlayer.setVolume(clamped);
+  }
+
+  Future<void> _applyAudioContextToCorePlayers() async {
+    if (_corePlayersAudioContextApplied) return;
+    await _musicPlayer.setAudioContext(_sharedAudioContext);
+    await _ambiencePlayer.setAudioContext(_sharedAudioContext);
+    _corePlayersAudioContextApplied = true;
   }
 
   Future<void> setSfxVolume(double volume) async {
