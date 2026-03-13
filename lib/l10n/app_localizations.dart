@@ -1337,6 +1337,36 @@ abstract class AppLocalizations {
   /// **'Watch now'**
   String get goldStoreWatchAdButton;
 
+  /// No description provided for @goldStoreNoAdsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove ads'**
+  String get goldStoreNoAdsTitle;
+
+  /// No description provided for @goldStoreNoAdsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy once to remove ads.'**
+  String get goldStoreNoAdsDescription;
+
+  /// No description provided for @goldStoreNoAdsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove ads'**
+  String get goldStoreNoAdsButton;
+
+  /// No description provided for @goldStoreNoAdsOwnedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Activated'**
+  String get goldStoreNoAdsOwnedLabel;
+
+  /// No description provided for @goldStoreAdsAlreadyDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads are already disabled for your account.'**
+  String get goldStoreAdsAlreadyDisabled;
+
   /// No description provided for @rewardedAdUnavailable.
   ///
   /// In en, this message translates to:

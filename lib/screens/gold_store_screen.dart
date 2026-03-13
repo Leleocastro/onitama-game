@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:purchases_flutter/errors.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/gold_store_offer.dart';
@@ -24,8 +26,11 @@ class GoldStoreScreen extends StatefulWidget {
 class _GoldStoreScreenState extends State<GoldStoreScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   late Future<List<GoldStoreOffer>> _offersFuture;
+  late Future<Package?> _noAdsFuture;
   bool _isPurchasing = false;
   bool _isRewardingAd = false;
+  bool _hasNoAds = false;
+  StreamSubscription<UserProfile?>? _profileSubscription;
 
   static const int _adRewardAmount = 10;
 
@@ -35,10 +40,27 @@ class _GoldStoreScreenState extends State<GoldStoreScreen> {
   void initState() {
     super.initState();
     _offersFuture = _loadOffers();
+    _noAdsFuture = _loadNoAdsOffer();
+    _profileSubscription = _firestoreService.watchUserProfile(widget.userId).listen((profile) {
+      setState(() {
+        _hasNoAds = profile?.noMoreAds ?? false;
+      });
+    });
+    unawaited(_maybeSyncNoAdsEntitlement());
+  }
+
+  @override
+  void dispose() {
+    _profileSubscription?.cancel();
+    super.dispose();
   }
 
   Future<List<GoldStoreOffer>> _loadOffers() {
     return RevenueCatService.instance.fetchGoldOffers();
+  }
+
+  Future<Package?> _loadNoAdsOffer() {
+    return RevenueCatService.instance.fetchNoAdsPackage();
   }
 
   @override
@@ -145,31 +167,53 @@ class _GoldStoreScreenState extends State<GoldStoreScreen> {
                           ),
                           SliverPadding(
                             padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                            sliver: SliverGrid(
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 16,
-                                childAspectRatio: 0.92,
-                              ),
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  if (index == others.length) {
-                                    return _WatchAdTile(
-                                      isBusy: _isBusy,
-                                      rewardAmount: _adRewardAmount,
-                                      onPressed: _watchAdForGold,
-                                    );
-                                  }
-                                  final offer = others[index];
-                                  return _GridOfferTile(
-                                    offer: offer,
-                                    isBusy: _isBusy,
-                                    onPressed: () => _handlePurchase(offer),
-                                  );
-                                },
-                                childCount: others.length + 1,
-                              ),
+                            sliver: FutureBuilder<Package?>(
+                              future: _noAdsFuture,
+                              builder: (context, noAdsSnapshot) {
+                                final hasNoAdsPackage = noAdsSnapshot.connectionState == ConnectionState.done && noAdsSnapshot.data != null;
+                                final showNoAdsTile = !_hasNoAds && hasNoAdsPackage;
+                                const showAdTile = true;
+                                final itemCount = others.length + (showNoAdsTile ? 1 : 0) + (showAdTile ? 1 : 0);
+                                return SliverGrid(
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 16,
+                                    mainAxisSpacing: 16,
+                                    childAspectRatio: 0.92,
+                                  ),
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      var cursor = 0;
+                                      if (showNoAdsTile) {
+                                        if (index == cursor) {
+                                          return _NoAdsTile(
+                                            package: noAdsSnapshot.data!,
+                                            isBusy: _isBusy,
+                                            onPressed: () => _purchaseNoAds(noAdsSnapshot.data!),
+                                            l10n: l10n,
+                                          );
+                                        }
+                                        cursor++;
+                                      }
+
+                                      if (index < cursor + others.length) {
+                                        final offer = others[index - cursor];
+                                        return _GridOfferTile(
+                                          offer: offer,
+                                          isBusy: _isBusy,
+                                          onPressed: () => _handlePurchase(offer),
+                                        );
+                                      }
+                                      return _WatchAdTile(
+                                        isBusy: _isBusy,
+                                        rewardAmount: _adRewardAmount,
+                                        onPressed: _watchAdForGold,
+                                      );
+                                    },
+                                    childCount: itemCount,
+                                  ),
+                                );
+                              },
                             ),
                           ),
                           SliverToBoxAdapter(
@@ -226,11 +270,39 @@ class _GoldStoreScreenState extends State<GoldStoreScreen> {
     }
   }
 
+  Future<void> _purchaseNoAds(Package package) async {
+    if (_isBusy || _hasNoAds) return;
+    setState(() => _isPurchasing = true);
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      await RevenueCatService.instance.purchasePackage(package);
+      await _firestoreService.setNoMoreAdsFlag(uid: widget.userId, value: true);
+      if (!mounted) return;
+      context.toToastSuccess(l10n.goldStorePurchaseSuccess);
+    } on PlatformException catch (error) {
+      final code = PurchasesErrorHelper.getErrorCode(error);
+      if (code != PurchasesErrorCode.purchaseCancelledError) {
+        _showPurchaseError(l10n.goldStorePurchaseError);
+      }
+    } catch (_) {
+      _showPurchaseError(l10n.goldStorePurchaseError);
+    } finally {
+      if (mounted) {
+        setState(() => _isPurchasing = false);
+      }
+    }
+  }
+
   Future<void> _restorePurchases() async {
     if (_isBusy) return;
     final l10n = AppLocalizations.of(context)!;
     try {
       await RevenueCatService.instance.restorePurchases();
+      if (!mounted) return;
+      final hasNoAds = await RevenueCatService.instance.hasNoAdsEntitlement();
+      if (hasNoAds) {
+        await _firestoreService.setNoMoreAdsFlag(uid: widget.userId, value: true);
+      }
       if (!mounted) return;
       context.toToastSuccess(l10n.goldStorePurchaseSuccess);
     } catch (_) {
@@ -241,6 +313,7 @@ class _GoldStoreScreenState extends State<GoldStoreScreen> {
   Future<void> _refreshOffers() {
     setState(() {
       _offersFuture = _loadOffers();
+      _noAdsFuture = _loadNoAdsOffer();
     });
     return _offersFuture;
   }
@@ -261,7 +334,7 @@ class _GoldStoreScreenState extends State<GoldStoreScreen> {
         ),
       );
       if (!mounted) return;
-      if (rewarded == true) {
+      if (rewarded ?? false) {
         await _applyAdReward();
       } else {
         final message = rewarded == null ? l10n.rewardedAdUnavailable : l10n.rewardedAdNotCompleted;
@@ -271,6 +344,17 @@ class _GoldStoreScreenState extends State<GoldStoreScreen> {
       if (mounted) {
         setState(() => _isRewardingAd = false);
       }
+    }
+  }
+
+  Future<void> _maybeSyncNoAdsEntitlement() async {
+    try {
+      final hasEntitlement = await RevenueCatService.instance.hasNoAdsEntitlement();
+      if (hasEntitlement) {
+        await _firestoreService.setNoMoreAdsFlag(uid: widget.userId, value: true);
+      }
+    } catch (_) {
+      // Best-effort sync; ignore failures.
     }
   }
 
@@ -552,6 +636,80 @@ class _WatchAdTile extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 child: Text(l10n.goldStoreWatchAdButton),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NoAdsTile extends StatelessWidget {
+  const _NoAdsTile({required this.package, required this.onPressed, required this.isBusy, required this.l10n});
+
+  final Package package;
+  final VoidCallback onPressed;
+  final bool isBusy;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0f1f2f), Color(0xFF16384f)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(Icons.block, color: Colors.white, size: 28),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    l10n.goldStoreNoAdsTitle,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              l10n.goldStoreNoAdsDescription,
+              style: const TextStyle(color: Colors.white70, height: 1.2, fontSize: 12),
+            ),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: isBusy ? null : onPressed,
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF3dd2ff),
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: Text(
+                  l10n.goldStoreNoAdsButton,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ],

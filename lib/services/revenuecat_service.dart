@@ -19,6 +19,8 @@ class RevenueCatService {
 
   static const String _androidApiKey = 'goog_zGVlUtEItAMLhafwlJaabRFZPBx';
   static const String _iosApiKey = 'appl_mHiHZtCkHhkvJdOCHDUAEBUtfhC';
+  static const String _noAdsEntitlementId = 'no_ads';
+  static const List<String> _noAdsProductHints = <String>['noads', 'no_ads', 'removeads', 'remove_ads', 'no_more_ads'];
 
   Future<void> initialize() async {
     if (kIsWeb) {
@@ -79,9 +81,41 @@ class RevenueCatService {
     return Purchases.purchasePackage(offer.package);
   }
 
+  Future<CustomerInfo> purchasePackage(Package package) async {
+    _ensureReady();
+    return Purchases.purchasePackage(package);
+  }
+
   Future<CustomerInfo> restorePurchases() async {
     _ensureReady();
     return Purchases.restorePurchases();
+  }
+
+  Future<Package?> fetchNoAdsPackage() async {
+    _ensureReady();
+    final offerings = await Purchases.getOfferings();
+    final freeAds = offerings.all['freeAds'];
+    if (freeAds == null) return null;
+
+    Package? matched;
+    for (final package in freeAds.availablePackages) {
+      final id = package.storeProduct.identifier.toLowerCase();
+      final matchesHint = _noAdsProductHints.any(id.contains);
+      if (matchesHint) {
+        matched = package;
+        break;
+      }
+    }
+    return matched;
+  }
+
+  Future<bool> hasNoAdsEntitlement() async {
+    _ensureReady();
+    final customerInfo = await Purchases.getCustomerInfo();
+    final entitlements = customerInfo.entitlements.active;
+    if (entitlements.containsKey(_noAdsEntitlementId)) return true;
+    final purchasedIds = customerInfo.allPurchasedProductIdentifiers.map((id) => id.toLowerCase());
+    return purchasedIds.any((id) => _noAdsProductHints.any(id.contains));
   }
 
   Future<void> dispose() async {

@@ -120,6 +120,20 @@ class FirestoreService {
     );
   }
 
+  Future<void> setNoMoreAdsFlag({
+    required String uid,
+    required bool value,
+  }) async {
+    await _db.collection('users').doc(uid).set(
+      {
+        'id': uid,
+        'noMoreAds': value,
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+  }
+
   Future<void> ensureUserPhoto(User user) async {
     final photoUrl = user.photoURL;
     if (photoUrl == null || photoUrl.isEmpty) {

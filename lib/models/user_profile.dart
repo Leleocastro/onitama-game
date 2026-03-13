@@ -7,6 +7,7 @@ class UserProfile {
     this.photoUrl,
     this.theme = const <String, String>{},
     this.goldBalance = 0,
+    this.noMoreAds = false,
   });
 
   final String id;
@@ -14,6 +15,7 @@ class UserProfile {
   final String? photoUrl;
   final Map<String, String> theme;
   final int goldBalance;
+  final bool noMoreAds;
 
   factory UserProfile.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snapshot) {
     final data = snapshot.data() ?? <String, dynamic>{};
@@ -33,6 +35,7 @@ class UserProfile {
       photoUrl: data['photoUrl'] as String?,
       theme: theme,
       goldBalance: (data['goldBalance'] as num?)?.round() ?? 0,
+      noMoreAds: (data['noMoreAds'] as bool?) ?? false,
     );
   }
 }

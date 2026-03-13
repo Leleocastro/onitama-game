@@ -714,6 +714,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goldStoreWatchAdButton => 'Watch now';
 
   @override
+  String get goldStoreNoAdsTitle => 'Remove ads';
+
+  @override
+  String get goldStoreNoAdsDescription => 'Buy once to remove ads.';
+
+  @override
+  String get goldStoreNoAdsButton => 'Remove ads';
+
+  @override
+  String get goldStoreNoAdsOwnedLabel => 'Activated';
+
+  @override
+  String get goldStoreAdsAlreadyDisabled =>
+      'Ads are already disabled for your account.';
+
+  @override
   String get rewardedAdUnavailable =>
       'We couldn\'t load the ad right now. Please try again in a moment.';
 

@@ -717,6 +717,23 @@ class AppLocalizationsPt extends AppLocalizations {
   String get goldStoreWatchAdButton => 'Assistir agora';
 
   @override
+  String get goldStoreNoAdsTitle => 'Remover anúncios';
+
+  @override
+  String get goldStoreNoAdsDescription =>
+      'Compre uma vez para remover anúncios.';
+
+  @override
+  String get goldStoreNoAdsButton => 'Remover anúncios';
+
+  @override
+  String get goldStoreNoAdsOwnedLabel => 'Ativado';
+
+  @override
+  String get goldStoreAdsAlreadyDisabled =>
+      'Os anúncios já estão desativados na sua conta.';
+
+  @override
   String get rewardedAdUnavailable =>
       'Não foi possível carregar o anúncio agora. Tente novamente em instantes.';
 

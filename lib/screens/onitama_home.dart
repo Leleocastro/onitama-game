@@ -79,6 +79,8 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
   Timer? _clockTimer;
   DateTime? _lastClockTick;
   PlayerColor? _lastTickPlayer;
+  bool _noMoreAds = false;
+  StreamSubscription<UserProfile?>? _profileSubscription;
   GameMode get _effectiveGameMode => _gameState?.gameMode ?? widget.gameMode;
   bool get _isLocalAiMatch => widget.gameMode == GameMode.pvai && widget.gameId == null;
   bool get _isOnlineAiMatch {
@@ -152,6 +154,13 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
     super.initState();
     ThemeManager.clearPlayerThemes();
     _startHomeMusic();
+    if (widget.playerUid != null && widget.playerUid!.isNotEmpty) {
+      _profileSubscription = _firestoreService.watchUserProfile(widget.playerUid!).listen((profile) {
+        setState(() {
+          _noMoreAds = profile?.noMoreAds ?? false;
+        });
+      });
+    }
     if (widget.gameId != null) {
       _gameStream = _firestoreService.streamGame(widget.gameId!);
       _loadGameState();
@@ -258,6 +267,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
 
   @override
   void dispose() {
+    _profileSubscription?.cancel();
     _gameSubscription?.cancel();
     appRouteObserver.unsubscribe(this);
     unawaited(AudioService.instance.stopBackground());
@@ -293,6 +303,12 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
   Future<void> _returnToMenuWithAd() async {
     if (!mounted) return;
     final navigator = Navigator.of(context);
+    if (_noMoreAds) {
+      if (navigator.canPop()) {
+        navigator.pop();
+      }
+      return;
+    }
     await navigator.push(
       MaterialPageRoute(
         builder: (_) => InterstitialAdScreen(
@@ -569,7 +585,7 @@ class OnitamaHomeState extends State<OnitamaHome> with RouteAware {
                   ),
                 );
                 if (!mounted) return;
-                if (rewarded == true) {
+                if (rewarded ?? false) {
                   await _undoLastTwoAndPersist();
                 } else {
                   final message = rewarded == null ? l10n.rewardedAdUnavailable : l10n.rewardedAdNotCompleted;
